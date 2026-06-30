@@ -32,6 +32,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   const isUser = message.role === 'user';
   const [copied, setCopied] = useState(false);
   const [feedback, setFeedback] = useState<'like' | 'dislike' | null>(null);
+  const [showSql, setShowSql] = useState(false);
 
   // Compatible mappings for new/old backend schemas
   const isQueryResult = message.type === 'query_result' || !!message.generated_sql;
@@ -39,6 +40,9 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   const resultsList = message.results || message.sql_results?.rows || [];
   const columns = message.sql_results?.columns || (resultsList.length > 0 ? Object.keys(resultsList[0]) : []);
   const visualizationData = message.visualization || message.visualization_config;
+  // A single value (e.g. a total or one "top" result) is already stated in the
+  // explanation, so we skip the grid and offer SQL on demand instead.
+  const isScalar = isQueryResult && resultsList.length === 1 && columns.length <= 1;
 
   const copyToClipboard = () => {
     if (sqlContent) {
@@ -88,8 +92,26 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             {renderInlineMarkdown(message.message || message.content || '')}
           </div>
 
-          {/* Conditional SQL / Grid Tabs */}
-          {isQueryResult && sqlContent && (
+          {/* Compact view for single-value answers: just an on-demand SQL toggle */}
+          {isQueryResult && sqlContent && isScalar && (
+            <div className="mt-3">
+              <button
+                onClick={() => setShowSql(!showSql)}
+                className="text-[11px] text-muted-foreground hover:text-foreground inline-flex items-center gap-1 transition-colors cursor-pointer"
+              >
+                <Terminal className="h-3 w-3" />
+                {showSql ? 'Hide SQL' : 'Show SQL'}
+              </button>
+              {showSql && (
+                <pre className="mt-2 bg-[#0f172a] p-3 rounded-lg overflow-x-auto text-[11px] text-blue-300 font-mono border border-border leading-normal">
+                  <code>{sqlContent}</code>
+                </pre>
+              )}
+            </div>
+          )}
+
+          {/* Conditional SQL / Grid Tabs (multi-row results) */}
+          {isQueryResult && sqlContent && !isScalar && (
             <div className="mt-4">
               <Tabs defaultValue="results">
                 <div className="flex justify-between items-center border-b border-border/80 pb-2">

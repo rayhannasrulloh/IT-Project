@@ -296,6 +296,7 @@ SQL Executed: {sql}
 Results (First 5 rows): {json.dumps(rows[:5])}
 
 Write a clean, professional, action-oriented business summary under 4 sentences. Keep the tone helpful.
+All monetary amounts are in Indonesian Rupiah (IDR) — format them as "Rp" or "IDR", never use "$" or "USD".
 """
         messages = [
             SystemMessage(content="You are a data interpretation assistant."),
