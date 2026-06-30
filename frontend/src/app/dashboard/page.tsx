@@ -185,7 +185,7 @@ export default function DashboardPage() {
       <div className={`flex-1 flex flex-col min-h-screen transition-[margin] duration-200 ${activePanel ? 'ml-[344px]' : 'ml-14'}`}>
         
         {/* 2. Sticky Top Navigation Bar */}
-        <header className="h-16 border-b border-border bg-card/85 backdrop-blur-md sticky top-0 z-10 px-6 flex items-center justify-between">
+        <header className="h-16 border-b border-border/60 bg-background/80 backdrop-blur-md sticky top-0 z-10 px-6 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <MessageSquare className="h-4 w-4 text-primary" />
             <h1 className="font-bold text-sm text-foreground">Chat Workspace</h1>

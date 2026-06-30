@@ -99,8 +99,8 @@ export const ChatWindow: React.FC = () => {
   return (
     <div className="flex">
 
-      {/* Center Dialogue Viewport */}
-      <div className="flex-1 flex flex-col justify-between bg-card rounded-[12px] border border-border shadow-sm overflow-hidden h-[calc(100vh-8rem)]">
+      {/* Center Dialogue Viewport — blends with the page background (no card frame) */}
+      <div className="flex-1 flex flex-col justify-between overflow-hidden h-[calc(100vh-8rem)]">
         
         {/* Messages Stream scroll container */}
         <div className="flex-1 overflow-y-auto p-6 scrollbar-thin">
