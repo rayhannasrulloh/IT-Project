@@ -22,6 +22,7 @@ export const ChatWindow: React.FC = () => {
   } = useChatStore();
 
   const [input, setInput] = useState('');
+  const [loadingHistory, setLoadingHistory] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bottom
@@ -34,12 +35,15 @@ export const ChatWindow: React.FC = () => {
   useEffect(() => {
     if (!currentConversationId) return;
     let cancelled = false;
+    setLoadingHistory(true);
     (async () => {
       try {
         const history = await api.getMessages(currentConversationId);
         if (!cancelled) setMessages(history);
       } catch (err) {
         console.error('Failed to load conversation messages', err);
+      } finally {
+        if (!cancelled) setLoadingHistory(false);
       }
     })();
     return () => { cancelled = true; };
@@ -101,7 +105,12 @@ export const ChatWindow: React.FC = () => {
         
         {/* Messages Stream scroll container */}
         <div className="flex-1 overflow-y-auto p-6 scrollbar-thin">
-          {messages.length === 0 ? (
+          {messages.length === 0 && loadingHistory ? (
+            <div className="h-full flex flex-col items-center justify-center text-center space-y-3">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              <span className="text-xs text-muted-foreground font-semibold">Loading conversation...</span>
+            </div>
+          ) : messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center max-w-xl mx-auto text-center space-y-6">
               <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center">
                 <Terminal className="h-6 w-6 text-primary" />
