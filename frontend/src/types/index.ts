@@ -82,5 +82,6 @@ export interface BenchmarkResult {
   is_correct: boolean;
   execution_time_ms: number | null;
   error_message: string | null;
+  category: string | null;
   created_at: string;
 }

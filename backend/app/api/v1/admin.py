@@ -1,34 +1,20 @@
+import time
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List
+from typing import List, Optional
 from app.core.database import get_db
 from app.core.security import require_admin
 from app.domain.models import Profile, BenchmarkResult
 from app.api.schemas import (
-    SystemStatsResponse, QueryLogResponse, ProfileResponse, 
+    SystemStatsResponse, QueryLogResponse, ProfileResponse,
     UpdateRoleRequest, BenchmarkResultResponse
 )
 from app.infrastructure.repositories.profile_repository import ProfileRepository
 from app.infrastructure.repositories.query_log_repository import QueryLogRepository
 from app.application.services.analyst_service import AnalystService
+from app.application.benchmarks.benchmark_suite import get_suite
 
 router = APIRouter(prefix="/admin", tags=["Admin Operations"], dependencies=[Depends(require_admin)])
-
-# Predefined standard test suite for SQL Compiler benchmarking
-BENCHMARK_SUITE = [
-    {
-        "nl_query": "What is the total revenue we generated?",
-        "expected_sql": "SELECT SUM(amount) FROM payments WHERE status = 'Success';"
-    },
-    {
-        "nl_query": "Find the top customer by order total.",
-        "expected_sql": "SELECT c.name, SUM(o.order_total) as total FROM customers c JOIN orders o ON c.customer_id = o.customer_id GROUP BY c.name ORDER BY total DESC LIMIT 1;"
-    },
-    {
-        "nl_query": "What are our best selling products by quantity sold?",
-        "expected_sql": "SELECT p.product_name, SUM(oi.quantity) as sold FROM products p JOIN order_items oi ON p.product_id = oi.product_id GROUP BY p.product_name ORDER BY sold DESC;"
-    }
-]
 
 @router.get("/stats", response_model=SystemStatsResponse)
 async def get_system_stats(db: AsyncSession = Depends(get_db)):
@@ -70,56 +56,96 @@ async def update_user_role(
 
 
 @router.post("/benchmarks/run", response_model=List[BenchmarkResultResponse])
-async def run_benchmarks(db: AsyncSession = Depends(get_db)):
+async def run_benchmarks(
+    category: Optional[str] = None,
+    sample: Optional[int] = None,
+    db: AsyncSession = Depends(get_db)
+):
     """
-    Triggers an automated compile test on a golden dataset of questions.
-    Validates SQL generation, execution success, and measures compiler latencies.
+    Evaluates the NL->SQL agent against the golden benchmark dataset and measures
+    **execution accuracy**: for each question both the generated SQL and the gold
+    SQL are executed against the live database and their result sets are compared.
+    A case is correct only when the generated query returns the same data as the
+    gold answer (order- and alias-insensitive) — not merely when it runs.
+
+    Optional `category` (e.g. aggregation, joins, ranking) and `sample` (cap the
+    number of questions) filters keep runs fast and avoid LLM rate limits.
     """
     analyst_service = AnalystService(db)
-    results = []
+    suite = get_suite(category=category, sample=sample)
 
-    for test in BENCHMARK_SUITE:
+    async def safe_exec(sql: str):
+        """Execute a read query, recovering the session if Postgres aborts the transaction."""
+        try:
+            _, rows, _ = await analyst_service.execute_sql(sql)
+            return rows, None
+        except Exception as err:
+            # A failed statement poisons the current transaction; roll back so the
+            # next benchmark case can still run. No writes are pending yet (results
+            # are persisted only after the loop), so nothing is lost.
+            await db.rollback()
+            return None, str(err)
+
+    # Evaluate everything first, persist afterwards, so a single bad generated query
+    # cannot abort the transaction that stores the results.
+    scored: List[dict] = []
+
+    for test in suite:
         nl = test["nl_query"]
-        expected = test["expected_sql"]
-        
-        # Track compilation performance
-        import time
-        start_time = time.time()
-        
-        is_ambiguous, clarification, sql, reasoning = await analyst_service.generate_sql(nl)
-        duration = int((time.time() - start_time) * 1000)
+        gold_sql = test["gold_sql"]
+
+        start_time = time.time()  # measure end-to-end compile + execution
+        is_ambiguous, clarification, gen_sql, reasoning = await analyst_service.generate_sql(nl)
 
         is_correct = False
-        error_msg = None
+        error_msg: Optional[str] = None
 
-        if not is_ambiguous and sql:
-            # Simple heuristic matching: can verify query syntax by executing it
-            try:
-                is_safe = await analyst_service.check_sql_safety(sql)
-                if is_safe:
-                    await analyst_service.execute_sql(sql)
-                    is_correct = True  # SQL ran successfully without error
-                else:
-                    error_msg = "Safety validation failed"
-            except Exception as e:
-                error_msg = str(e)
+        if is_ambiguous or not gen_sql:
+            error_msg = clarification or "Agent marked the question ambiguous or produced no SQL"
+        elif not await analyst_service.check_sql_safety(gen_sql):
+            error_msg = "Guardrail blocked generated SQL (not read-only)"
         else:
-            error_msg = clarification or "Compiled query was marked ambiguous or empty"
+            # Gold answer is trusted/static; a failure here means the benchmark entry is broken.
+            gold_rows, gold_err = await safe_exec(gold_sql)
+            if gold_err:
+                error_msg = f"Gold query failed to execute: {gold_err}"
+            else:
+                gen_rows, gen_err = await safe_exec(gen_sql)
+                if gen_err:
+                    error_msg = f"Generated SQL failed to execute: {gen_err}"
+                else:
+                    is_correct = analyst_service.compare_result_sets(gold_rows, gen_rows)
+                    if not is_correct:
+                        error_msg = "Result set did not match the gold answer"
 
+        scored.append({
+            "nl_query": nl,
+            "expected_sql": gold_sql,
+            "generated_sql": gen_sql,
+            "is_correct": is_correct,
+            "execution_time_ms": int((time.time() - start_time) * 1000),
+            "error_message": error_msg,
+            "category": test["category"],
+        })
+
+    # Persist all results in a single clean transaction
+    results: List[BenchmarkResult] = []
+    for s in scored:
         benchmark = BenchmarkResult(
-            nl_query=nl,
-            expected_sql=expected,
-            generated_sql=sql,
-            is_correct=is_correct,
-            execution_time_ms=duration,
-            error_message=error_msg
+            nl_query=s["nl_query"],
+            expected_sql=s["expected_sql"],
+            generated_sql=s["generated_sql"],
+            is_correct=s["is_correct"],
+            execution_time_ms=s["execution_time_ms"],
+            error_message=s["error_message"],
         )
         db.add(benchmark)
         results.append(benchmark)
 
     await db.commit()
-    # Refresh all objects
-    for r in results:
+    for r, s in zip(results, scored):
         await db.refresh(r)
-        
+        # Transient attribute (not a DB column) so the response can group by category
+        r.category = s["category"]
+
     return results

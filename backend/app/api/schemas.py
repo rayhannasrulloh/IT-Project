@@ -179,6 +179,7 @@ class BenchmarkResultResponse(BaseModel):
     is_correct: bool
     execution_time_ms: Optional[int] = None
     error_message: Optional[str] = None
+    category: Optional[str] = None  # transient grouping label, not persisted
     created_at: datetime
 
     class Config:

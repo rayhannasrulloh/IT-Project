@@ -28,16 +28,28 @@ export const BenchmarkRunner: React.FC = () => {
   const totalTests = results.length;
   const correctCount = results.filter(r => r.is_correct).length;
   const accuracy = totalTests > 0 ? Math.round((correctCount / totalTests) * 100) : 0;
-  const avgLatency = totalTests > 0 
-    ? Math.round(results.reduce((acc, curr) => acc + (curr.execution_time_ms || 0), 0) / totalTests) 
+  const avgLatency = totalTests > 0
+    ? Math.round(results.reduce((acc, curr) => acc + (curr.execution_time_ms || 0), 0) / totalTests)
     : 0;
+  const isHealthy = accuracy >= 80;
+
+  // Per-category execution-accuracy breakdown
+  const categoryBreakdown = Object.values(
+    results.reduce((acc, r) => {
+      const key = r.category || 'uncategorized';
+      if (!acc[key]) acc[key] = { category: key, total: 0, correct: 0 };
+      acc[key].total += 1;
+      if (r.is_correct) acc[key].correct += 1;
+      return acc;
+    }, {} as Record<string, { category: string; total: number; correct: number }>)
+  ).sort((a, b) => a.category.localeCompare(b.category));
 
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-border pb-4">
         <div>
-          <h3 className="text-base font-bold text-foreground">Compiler Benchmarking</h3>
-          <p className="text-xs text-muted-foreground font-medium">Run translation speed and accuracy diagnostics against a test suite of business questions.</p>
+          <h3 className="text-base font-bold text-foreground">Execution Accuracy Benchmark</h3>
+          <p className="text-xs text-muted-foreground font-medium">Runs the agent against a 50+ question golden dataset and compares each generated query's result set against the gold answer.</p>
         </div>
         <Button 
           onClick={runBenchmark} 
@@ -72,7 +84,7 @@ export const BenchmarkRunner: React.FC = () => {
               <Zap className="h-5 w-5" />
             </div>
             <div>
-              <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider font-semibold">Accuracy Ratio</span>
+              <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider font-semibold">Execution Accuracy</span>
               <div className="text-lg font-bold text-foreground mt-0.5">{correctCount} / {totalTests} ({accuracy}%)</div>
             </div>
           </div>
@@ -88,14 +100,36 @@ export const BenchmarkRunner: React.FC = () => {
           </div>
 
           <div className="bg-muted/50 border border-border rounded-xl p-4 flex items-center space-x-3">
-            <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${accuracy === 100 ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>
-              {accuracy === 100 ? <CheckCircle className="h-5 w-5" /> : <ShieldAlert className="h-5 w-5" />}
+            <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${isHealthy ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>
+              {isHealthy ? <CheckCircle className="h-5 w-5" /> : <ShieldAlert className="h-5 w-5" />}
             </div>
             <div>
               <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider font-semibold">Suite Status</span>
-              <div className="text-lg font-bold text-foreground mt-0.5">{accuracy === 100 ? "Healthy / Verified" : "Needs Review"}</div>
+              <div className="text-lg font-bold text-foreground mt-0.5">{isHealthy ? "Healthy (≥80%)" : "Needs Review"}</div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Per-category accuracy breakdown */}
+      {categoryBreakdown.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {categoryBreakdown.map((c) => {
+            const pct = Math.round((c.correct / c.total) * 100);
+            return (
+              <div
+                key={c.category}
+                className="bg-muted/40 border border-border rounded-lg px-3 py-1.5 text-xs"
+                title={`${c.correct} of ${c.total} correct`}
+              >
+                <span className="font-semibold text-foreground capitalize">{c.category}</span>
+                <span className={`ml-2 font-bold ${pct >= 80 ? 'text-success' : pct >= 50 ? 'text-warning' : 'text-danger'}`}>
+                  {pct}%
+                </span>
+                <span className="ml-1 text-muted-foreground">({c.correct}/{c.total})</span>
+              </div>
+            );
+          })}
         </div>
       )}
 
@@ -105,8 +139,9 @@ export const BenchmarkRunner: React.FC = () => {
           <TableHeader>
             <TableRow>
               <TableHead className="text-xs font-semibold text-muted-foreground">Natural Language Test Case</TableHead>
+              <TableHead className="text-xs font-semibold text-muted-foreground">Category</TableHead>
               <TableHead className="text-xs font-semibold text-muted-foreground">Speed (ms)</TableHead>
-              <TableHead className="text-xs font-semibold text-muted-foreground">Execution Check</TableHead>
+              <TableHead className="text-xs font-semibold text-muted-foreground">Result Match</TableHead>
               <TableHead className="text-xs font-semibold text-muted-foreground">Details</TableHead>
             </TableRow>
           </TableHeader>
@@ -116,6 +151,9 @@ export const BenchmarkRunner: React.FC = () => {
                 <TableCell className="py-3 text-xs font-semibold text-foreground">
                   {r.nl_query}
                 </TableCell>
+                <TableCell className="py-3 text-xs text-muted-foreground capitalize">
+                  {r.category || '—'}
+                </TableCell>
                 <TableCell className="py-3 text-xs font-mono text-muted-foreground">
                   {r.execution_time_ms}ms
                 </TableCell>
@@ -123,12 +161,12 @@ export const BenchmarkRunner: React.FC = () => {
                   {r.is_correct ? (
                     <span className="inline-flex items-center text-success text-xs font-bold">
                       <CheckCircle className="h-3.5 w-3.5 mr-1" />
-                      Passed
+                      Match
                     </span>
                   ) : (
                     <span className="inline-flex items-center text-danger text-xs font-bold">
                       <ShieldAlert className="h-3.5 w-3.5 mr-1" />
-                      Failed
+                      Mismatch
                     </span>
                   )}
                 </TableCell>

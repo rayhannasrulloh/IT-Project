@@ -10,50 +10,52 @@ from langchain_groq import ChatGroq
 from langchain.schema import HumanMessage, SystemMessage
 from app.core.config import settings
 
-# PostgreSQL Core Schema Definitions for LLM Prompt context
+# PostgreSQL Core Schema Definitions for LLM Prompt context.
+# IMPORTANT: column values below are the EXACT, case-sensitive enums in the
+# seeded database. Filtering on any other casing/spelling returns zero rows.
 DB_SCHEMA_CONTEXT = """
-Database schema:
+Database schema (PostgreSQL):
 
 customers(
-    customer_id,
-    name,
-    city,
-    tier,
-    created_at
+    customer_id INT,
+    name TEXT,
+    city TEXT,                 -- Indonesian cities, e.g. 'Jakarta', 'Surabaya', 'Bandung', 'Medan'
+    tier TEXT,                 -- allowed values (case-sensitive): 'Gold', 'Silver', 'Bronze'
+    created_at TIMESTAMP
 )
 
 products(
-    product_id,
-    product_name,
-    category,
-    unit_price,
-    cost
+    product_id INT,
+    product_name TEXT,
+    category TEXT,             -- allowed: 'Beauty','Electronics','Fashion','Grocery','Home','Office','Sports','Toys'
+    unit_price NUMERIC,        -- Indonesian Rupiah (IDR), typically 25,000 - 1,200,000
+    cost NUMERIC
 )
 
 orders(
-    order_id,
-    customer_id,
-    order_date,
-    status,
-    order_total
+    order_id INT,
+    customer_id INT,
+    order_date DATE,           -- ranges roughly 2025-01-01 .. 2026-05-31
+    status TEXT,               -- allowed values (lowercase): 'completed', 'cancelled', 'refunded'
+    order_total NUMERIC
 )
 
 payments(
-    payment_id,
-    order_id,
-    amount,
-    method,
-    paid_date,
-    status
+    payment_id INT,
+    order_id INT,
+    amount NUMERIC,
+    method TEXT,               -- allowed: 'credit_card', 'e_wallet', 'bank_transfer', 'virtual_account'
+    paid_date DATE,
+    status TEXT                -- allowed values (lowercase): 'paid', 'refunded'
 )
 
 order_items(
-    order_item_id,
-    order_id,
-    product_id,
-    quantity,
-    unit_price,
-    line_total
+    order_item_id INT,
+    order_id INT,
+    product_id INT,
+    quantity INT,
+    unit_price NUMERIC,
+    line_total NUMERIC
 )
 
 Relationships:
@@ -62,11 +64,13 @@ orders.order_id = payments.order_id
 orders.order_id = order_items.order_id
 products.product_id = order_items.product_id
 
-Business Definitions:
-Revenue = SUM(payments.amount) WHERE payment status is Success/Completed/Paid (or sum payments.amount directly)
+Business Definitions (use these EXACT literal values):
+Revenue / total sales = SUM(payments.amount) WHERE payments.status = 'paid'
+A "completed" / fulfilled order has orders.status = 'completed'
 Profit = SUM(order_items.line_total) - SUM(order_items.quantity * products.cost)
 Top Customer = customer with the highest SUM(orders.order_total)
 Best Selling Product = product with the highest SUM(order_items.quantity)
+For month/quarter grouping use DATE_TRUNC('month'|'quarter', order_date) (order_date is a DATE).
 """
 
 SYSTEM_PROMPT = f"""You are a PostgreSQL data analyst.
@@ -79,8 +83,14 @@ Rules:
 3. Never generate INSERT, UPDATE, DELETE, DROP, ALTER, CREATE.
 4. Never hallucinate columns.
 5. Never hallucinate tables.
-6. If the question is ambiguous or lacks enough information to write a valid query, ask a clarification question.
-7. Return JSON only in the following schema:
+6. Select ONLY the columns needed to answer the question, plus any aggregate the
+   question asks for. Do not use SELECT * and do not add id columns unless the
+   user asked for them (e.g. "list customers in Jakarta" -> SELECT name ...).
+7. "price", "costs more than", "cheapest/most expensive" refer to products.unit_price
+   (the selling price). products.cost is the internal cost of goods — use it ONLY
+   for profit/margin/markup calculations, never as the product's price.
+8. If the question is ambiguous or lacks enough information to write a valid query, ask a clarification question.
+9. Return JSON only in the following schema:
 {{
   "is_ambiguous": boolean,
   "clarification_question": string or null,
@@ -172,15 +182,22 @@ class AnalystService:
         first_word = first_word_match.group(1).upper()
         return first_word in {"SELECT", "WITH"}
 
+    @staticmethod
+    def _prepare_sql(sql: str) -> str:
+        """Strip trailing semicolons/whitespace and cap result size with a LIMIT wrapper."""
+        sql = sql.strip().rstrip(";").strip()
+        # Append limit if not exists to avoid pulling millions of records
+        if "LIMIT" not in sql.upper():
+            sql = f"SELECT * FROM ({sql}) AS subq LIMIT 100"
+        return sql
+
     async def execute_sql(self, sql: str) -> Tuple[List[str], List[dict], int]:
         """
         Executes query and returns (columns, rows, execution_time_ms).
         """
         start_time = time.time()
-        
-        # Append limit if not exists to avoid pulling millions of records
-        if "LIMIT" not in sql.upper():
-            sql = f"SELECT * FROM ({sql}) AS subq LIMIT 100"
+
+        sql = self._prepare_sql(sql)
 
         # Execute
         result = await self.db.execute(text(sql))
@@ -201,6 +218,37 @@ class AnalystService:
 
         duration = int((time.time() - start_time) * 1000)
         return columns, rows, duration
+
+    @staticmethod
+    def _normalize_cell(val) -> str:
+        """Normalize a single value so equivalent results compare equal (float noise, None, etc.)."""
+        if val is None:
+            return ""
+        if isinstance(val, bool):
+            return str(val)
+        if isinstance(val, (int, float, Decimal)):
+            # Round to 2 dp and drop trailing zeros so 1500 == 1500.00 == 1500.0
+            return f"{round(float(val), 2):.2f}".rstrip("0").rstrip(".")
+        return str(val).strip()
+
+    @classmethod
+    def compare_result_sets(cls, gold_rows: List[dict], gen_rows: List[dict]) -> bool:
+        """
+        Execution-accuracy check: do two result sets carry the same data?
+
+        Comparison is order-insensitive on both rows and columns (so column
+        aliases and ORDER BY differences don't cause false negatives), and
+        treats each result as a multiset of normalized rows.
+        """
+        def signature(rows: List[dict]):
+            bag = {}
+            for row in rows:
+                # Sort the normalized values within a row so column order/alias is irrelevant
+                key = tuple(sorted(cls._normalize_cell(v) for v in row.values()))
+                bag[key] = bag.get(key, 0) + 1
+            return bag
+
+        return signature(gold_rows) == signature(gen_rows)
 
     async def generate_explanation(self, query: str, sql: str, rows: List[dict]) -> str:
         """Generates natural language explanation of the dataset results."""
@@ -284,7 +332,7 @@ Write a clean, professional, action-oriented business summary under 4 sentences.
         
         # Check for ambiguity
         if "order" in qt and "revenue" in qt and "which" in qt:
-            return (True, "Would you like to calculate revenue for Completed orders only, or include Cancelled and Pending orders too?", None, "Ambiguous criteria detected.")
+            return (True, "Would you like to calculate revenue for completed orders only, or include cancelled and refunded orders too?", None, "Ambiguous criteria detected.")
 
         if "customer" in qt and "revenue" in qt:
             sql = """
@@ -292,7 +340,7 @@ Write a clean, professional, action-oriented business summary under 4 sentences.
             FROM customers c
             JOIN orders o ON c.customer_id = o.customer_id
             JOIN payments p ON o.order_id = p.order_id
-            WHERE p.status = 'Success'
+            WHERE p.status = 'paid'
             GROUP BY c.name
             ORDER BY revenue DESC
             LIMIT 5;
@@ -314,7 +362,7 @@ Write a clean, professional, action-oriented business summary under 4 sentences.
             sql = """
             SELECT DATE_TRUNC('month', order_date) as month, SUM(order_total) as monthly_revenue
             FROM orders
-            WHERE status = 'Completed'
+            WHERE status = 'completed'
             GROUP BY month
             ORDER BY month ASC;
             """

@@ -128,6 +128,30 @@ To secure execution, the backend Analyst Service implements a two-stage filter:
 
 ---
 
+## Evaluation: Execution-Accuracy Benchmark
+
+The NL→SQL agent is evaluated against a **golden dataset of 52 natural-language questions** (`backend/app/application/benchmarks/benchmark_suite.py`), each paired with a hand-written gold SQL answer and grouped into categories (aggregation, filtering, grouping, joins, ranking, time, calculation).
+
+The metric is **execution accuracy**, the standard for text-to-SQL: for every question the system executes *both* the agent-generated SQL and the gold SQL against the live database, then compares the two **result sets**. A case counts as correct only when the generated query returns the same data as the gold answer. The comparison is order- and alias-insensitive (treats each result as a multiset of normalized rows), so harmless phrasing differences don't cause false negatives, while a query that computes the wrong thing is caught.
+
+Run it from the **Admin Panel → Benchmarking** tab, or directly:
+
+```bash
+# Full suite
+curl -X POST http://localhost:8000/api/v1/admin/benchmarks/run
+
+# Optional: one category, or cap the count (useful to avoid LLM rate limits)
+curl -X POST "http://localhost:8000/api/v1/admin/benchmarks/run?category=joins"
+curl -X POST "http://localhost:8000/api/v1/admin/benchmarks/run?sample=10"
+```
+
+The response (and the admin UI) reports overall accuracy, per-category accuracy, mean compile latency, and the failure reason for each missed case (ambiguous, guardrail-blocked, execution error, or result mismatch).
+
+> [!NOTE]
+> The benchmark exercises the **real LLM** path. Running it in offline Mock Sandbox mode will score low, because the mock generator only recognizes a handful of query patterns — set a valid `GROQ_API_KEY` for a representative score.
+
+---
+
 ## platform deployment Guides
 
 ### Database Setup
