@@ -30,15 +30,15 @@
   --font-sans: 'Inter', sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #020617;
-    --foreground: #F8FAFC;
-    --card: #0F172A;
-    --card-foreground: #F8FAFC;
-    --border: #1E293B;
-    --text-secondary: #94A3B8;
-  }
+/* Dark theme is applied by toggling the `dark` class on <html> (see the inline
+   script in layout.tsx); defaults to the OS preference on first visit. */
+.dark {
+  --background: #020617;
+  --foreground: #F8FAFC;
+  --card: #0F172A;
+  --card-foreground: #F8FAFC;
+  --border: #1E293B;
+  --text-secondary: #94A3B8;
 }
 
 body {

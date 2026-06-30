@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Sparkles, Mail, Lock, Loader2, ArrowRight } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { Button } from '../../components/ui/button';
+import ThemeToggle from '../../components/ui/ThemeToggle';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../../components/ui/card';
 
 export default function LoginPage() {
@@ -61,6 +62,8 @@ export default function LoginPage() {
       {/* Background soft ambient glows */}
       <div className="absolute top-1/4 left-1/4 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
       <div className="absolute bottom-1/4 right-1/4 h-96 w-96 rounded-full bg-indigo-500/5 blur-3xl" />
+
+      <ThemeToggle className="absolute top-4 right-4 z-20 h-9 w-9 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer" />
       
       <div className="w-full max-w-md relative z-10">
         <form onSubmit={handleLogin}>

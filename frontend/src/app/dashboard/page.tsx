@@ -12,6 +12,7 @@ import { useChatStore } from '../../store/useChatStore';
 import api from '../../services/api';
 import { ChatWindow } from '../../components/chat/ChatWindow';
 import SchemaExplorer from '../../components/chat/SchemaExplorer';
+import ThemeToggle from '../../components/ui/ThemeToggle';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -113,8 +114,9 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        {/* Bottom: user avatar + sign out */}
+        {/* Bottom: theme toggle + user avatar + sign out */}
         <div className="flex flex-col items-center gap-2">
+          <ThemeToggle />
           <div
             title={`${user.email} (${user.role})`}
             className="h-8 w-8 rounded-full bg-muted border border-border flex items-center justify-center text-[11px] font-bold text-foreground uppercase"

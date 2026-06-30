@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { Card, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
+import ThemeToggle from '../../components/ui/ThemeToggle';
 import AnalyticsCard from '../../components/admin/AnalyticsCard';
 import UserManagementTable from '../../components/admin/UserManagementTable';
 import DocumentIngestionView from '../../components/admin/DocumentIngestionView';
@@ -164,6 +165,7 @@ export default function AdminPage() {
               {adminNavItems.find(item => item.id === activeTab)?.label || "Admin Workspace"}
             </h1>
           </div>
+          <ThemeToggle className="h-9 w-9 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer" />
         </header>
 
         {/* 3. Main Scrollable Content Area */}
