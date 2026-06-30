@@ -64,10 +64,12 @@ HELP_KEYWORDS = {"help", "what can you do", "how to use", "capabilities", "guide
 
 class IntentService:
     def __init__(self):
-        # Use llama-3-8b-8192 for fast lightweight classification
+        # Reuse the configured generation model for classification (the old
+        # hardcoded llama-3-8b-8192 was decommissioned by Groq, which forced the
+        # rule-based fallback for every message).
         if settings.GROQ_API_KEY != "mock-groq-key" and len(settings.GROQ_API_KEY) > 10:
             self.llm = ChatGroq(
-                model="llama-3-8b-8192",
+                model=settings.SQL_GENERATION_MODEL,
                 groq_api_key=settings.GROQ_API_KEY,
                 temperature=0.0
             )
@@ -80,20 +82,24 @@ class IntentService:
         msg_clean = re.sub(r'[^\w\s]', '', message.lower()).strip()
         tokens = set(msg_clean.split())
 
-        # Check analytical keywords first to capture data queries
+        # Check analytical keywords first to capture data queries.
+        # Match singular and plural ("customers" -> "customer").
         for token in tokens:
-            if token in ANALYTICAL_KEYWORDS:
+            if token in ANALYTICAL_KEYWORDS or token.rstrip("s") in ANALYTICAL_KEYWORDS:
                 return "DATA_QUERY"
 
-        # Check exact phrases
+        # Match phrases on word boundaries so e.g. "hi" doesn't match inside
+        # "which" and flip a data question into a greeting.
+        def has_phrase(phrase: str) -> bool:
+            return re.search(r'\b' + re.escape(phrase) + r'\b', msg_clean) is not None
         for phrase in GREETING_KEYWORDS:
-            if phrase in msg_clean:
+            if has_phrase(phrase):
                 return "GREETING"
         for phrase in SMALL_TALK_KEYWORDS:
-            if phrase in msg_clean:
+            if has_phrase(phrase):
                 return "SMALL_TALK"
         for phrase in HELP_KEYWORDS:
-            if phrase in msg_clean:
+            if has_phrase(phrase):
                 return "HELP"
 
         # Check token sets
