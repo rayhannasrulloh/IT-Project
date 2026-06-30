@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Sparkles, Mail, Lock, User as UserIcon, Loader2 } from 'lucide-react';
+import { Database, Mail, Lock, User as UserIcon, Loader2 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../../components/ui/card';
 
@@ -33,17 +33,14 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-background relative overflow-hidden px-4">
-      <div className="absolute top-1/4 left-1/4 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
-      <div className="absolute bottom-1/4 right-1/4 h-96 w-96 rounded-full bg-indigo-500/5 blur-3xl" />
-      
-      <div className="w-full max-w-md relative z-10">
+    <div className="min-h-screen w-full flex items-center justify-center bg-background px-4">
+      <div className="w-full max-w-md">
         <form onSubmit={handleRegister}>
-          <Card className="border-border bg-card shadow-lg">
+          <Card className="border-border bg-card">
             <CardHeader className="space-y-2 text-center pb-4">
               <div className="flex justify-center mb-1">
-                <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center shadow-sm">
-                  <Sparkles className="h-5 w-5 text-primary" />
+                <div className="h-10 w-10 bg-gray-100 dark:bg-gray-800 rounded-md flex items-center justify-center border border-border">
+                  <Database className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                 </div>
               </div>
               <CardTitle className="text-xl font-bold tracking-tight text-foreground">Create Account</CardTitle>
@@ -51,10 +48,10 @@ export default function RegisterPage() {
                 Join the Conda AI platform
               </CardDescription>
             </CardHeader>
-            
+
             <CardContent className="space-y-4">
               {error && (
-                <div className="p-3 bg-danger/10 border border-danger/25 text-danger text-xs rounded-lg">
+                <div className="p-3 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 text-xs rounded-md">
                   {error}
                 </div>
               )}
@@ -68,7 +65,7 @@ export default function RegisterPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="John Doe"
-                    className="w-full bg-background border border-border rounded-lg py-2.5 pl-10 pr-4 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary transition-colors"
+                    className="w-full bg-background border border-border rounded-md py-2.5 pl-10 pr-4 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-gray-400 transition-colors"
                     required
                   />
                 </div>
@@ -83,7 +80,7 @@ export default function RegisterPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@conda.ai"
-                    className="w-full bg-background border border-border rounded-lg py-2.5 pl-10 pr-4 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary transition-colors"
+                    className="w-full bg-background border border-border rounded-md py-2.5 pl-10 pr-4 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-gray-400 transition-colors"
                     required
                   />
                 </div>
@@ -98,7 +95,7 @@ export default function RegisterPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full bg-background border border-border rounded-lg py-2.5 pl-10 pr-4 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary transition-colors"
+                    className="w-full bg-background border border-border rounded-md py-2.5 pl-10 pr-4 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-gray-400 transition-colors"
                     required
                   />
                 </div>
@@ -112,7 +109,7 @@ export default function RegisterPage() {
 
               <div className="text-center text-xs text-muted-foreground">
                 Already have an account?{' '}
-                <Link href="/login" className="text-primary hover:text-primary/80 font-semibold transition-colors">
+                <Link href="/login" className="text-foreground hover:text-muted-foreground font-semibold transition-colors underline underline-offset-2">
                   Sign In
                 </Link>
               </div>

@@ -2,17 +2,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #F8FAFC;
-  --foreground: #0F172A;
+  --background: #F9FAFB;
+  --foreground: #111827;
   --card: #FFFFFF;
-  --card-foreground: #0F172A;
-  --primary: #EA580C;
+  --card-foreground: #111827;
+  --primary: #374151;
   --primary-foreground: #FFFFFF;
-  --border: #E2E8F0;
-  --text-secondary: #64748B;
-  --success: #16A34A;
-  --warning: #F59E0B;
-  --danger: #EF4444;
+  --border: #E5E7EB;
+  --text-secondary: #6B7280;
 }
 
 @theme inline {
@@ -24,38 +21,30 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-border: var(--border);
   --color-muted: var(--text-secondary);
-  --color-success: var(--success);
-  --color-warning: var(--warning);
-  --color-danger: var(--danger);
   --font-sans: 'Inter', sans-serif;
 }
 
 /* Dark theme is applied by toggling the `dark` class on <html> (see the inline
    script in layout.tsx); defaults to the OS preference on first visit. */
 .dark {
-  --background: #020617;
-  --foreground: #F8FAFC;
-  --card: #0F172A;
-  --card-foreground: #F8FAFC;
-  --primary: #2563EB;
-  --border: #1E293B;
-  --text-secondary: #94A3B8;
+  --background: #111827;
+  --foreground: #F9FAFB;
+  --card: #1F2937;
+  --card-foreground: #F9FAFB;
+  --primary: #D1D5DB;
+  --primary-foreground: #111827;
+  --border: #374151;
+  --text-secondary: #9CA3AF;
 }
 
 body {
-  /* Light: warm orange-tinted gradient. Dark: solid (overridden below). */
-  background: linear-gradient(160deg, #FFF1E6 0%, #F8FAFC 55%, #F1F5F9 100%);
-  background-attachment: fixed;
+  background: var(--background);
   color: var(--foreground);
   font-family: 'Inter', sans-serif;
   min-height: 100vh;
 }
 
-.dark body {
-  background: #020617;
-}
-
-/* Custom scrollbars for premium UX */
+/* Custom scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;

@@ -47,22 +47,22 @@ export const LogViewer: React.FC = () => {
           <p className="text-xs text-muted-foreground font-medium">Monitor natural language query translations and statement performance metrics.</p>
         </div>
         <div className="flex items-center space-x-2">
-          <div className="flex bg-muted rounded-lg p-0.5 border border-border scale-95">
+          <div className="flex bg-muted rounded-md p-0.5 border border-border scale-95">
             <button
               onClick={() => setFilter('all')}
-              className={`px-3 py-1 rounded-md text-xs font-semibold cursor-pointer transition-all ${filter === 'all' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+              className={`px-3 py-1 rounded-sm text-xs font-semibold cursor-pointer transition-all ${filter === 'all' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
             >
               All
             </button>
             <button
               onClick={() => setFilter('success')}
-              className={`px-3 py-1 rounded-md text-xs font-semibold cursor-pointer transition-all ${filter === 'success' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+              className={`px-3 py-1 rounded-sm text-xs font-semibold cursor-pointer transition-all ${filter === 'success' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
             >
               Success
             </button>
             <button
               onClick={() => setFilter('failed')}
-              className={`px-3 py-1 rounded-md text-xs font-semibold cursor-pointer transition-all ${filter === 'failed' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+              className={`px-3 py-1 rounded-sm text-xs font-semibold cursor-pointer transition-all ${filter === 'failed' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
             >
               Failed
             </button>
@@ -98,7 +98,7 @@ export const LogViewer: React.FC = () => {
                 const isExpanded = expandedLogId === log.log_id;
                 return (
                   <React.Fragment key={log.log_id}>
-                    <TableRow 
+                    <TableRow
                       onClick={() => toggleExpand(log.log_id)}
                       className="border-border/60 hover:bg-muted/10 cursor-pointer"
                     >
@@ -116,12 +116,12 @@ export const LogViewer: React.FC = () => {
                       </TableCell>
                       <TableCell className="py-3">
                         {log.status === 'success' ? (
-                          <span className="inline-flex items-center text-success text-xs font-semibold">
+                          <span className="inline-flex items-center text-gray-600 dark:text-gray-400 text-xs font-semibold">
                             <CheckCircle className="h-3.5 w-3.5 mr-1" />
                             Success
                           </span>
                         ) : (
-                          <span className="inline-flex items-center text-danger text-xs font-semibold">
+                          <span className="inline-flex items-center text-gray-500 dark:text-gray-400 text-xs font-semibold">
                             <AlertTriangle className="h-3.5 w-3.5 mr-1" />
                             Failed
                           </span>
@@ -135,22 +135,22 @@ export const LogViewer: React.FC = () => {
                     {isExpanded && (
                       <TableRow className="bg-muted/20 border-none">
                         <TableCell colSpan={5} className="p-4 pt-1">
-                          <div className="space-y-3 bg-card border border-border rounded-lg p-4 shadow-sm">
+                          <div className="space-y-3 bg-card border border-border rounded-md p-4">
                             {log.executed_sql && (
                               <div className="space-y-1.5">
-                                <span className="text-[10px] uppercase font-bold text-primary tracking-wider flex items-center space-x-1">
+                                <span className="text-[10px] uppercase font-bold text-gray-600 dark:text-gray-400 tracking-wider flex items-center space-x-1">
                                   <Terminal className="h-3 w-3" />
                                   <span>Compiled SQL Statement</span>
                                 </span>
-                                <pre className="p-3 bg-[#0f172a] rounded-lg text-xs font-mono text-blue-300 border border-border overflow-x-auto leading-normal">
+                                <pre className="p-3 bg-gray-900 dark:bg-gray-950 rounded-md text-xs font-mono text-gray-300 border border-border overflow-x-auto leading-normal">
                                   <code>{log.executed_sql}</code>
                                 </pre>
                               </div>
                             )}
                             {log.error_message && (
                               <div className="space-y-1">
-                                <span className="text-[10px] uppercase font-bold text-danger tracking-wider">Error Details</span>
-                                <p className="text-xs font-mono text-danger bg-danger/10 border border-danger/20 p-3 rounded-lg leading-relaxed">
+                                <span className="text-[10px] uppercase font-bold text-gray-600 dark:text-gray-400 tracking-wider">Error Details</span>
+                                <p className="text-xs font-mono text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-3 rounded-md leading-relaxed">
                                   {log.error_message}
                                 </p>
                               </div>

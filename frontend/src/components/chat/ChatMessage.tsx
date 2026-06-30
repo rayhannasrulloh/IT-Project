@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Sparkles, Terminal, Table as TableIcon, ThumbsUp, ThumbsDown, Copy, Check, MessageSquare } from 'lucide-react';
+import { Database, Terminal, Table as TableIcon, ThumbsUp, ThumbsDown, Copy, Check, MessageSquare } from 'lucide-react';
 import { Message } from '../../types';
 import { Button } from '../ui/button';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '../ui/table';
@@ -13,8 +13,7 @@ interface ChatMessageProps {
   message: Message;
 }
 
-// Lightweight, XSS-safe inline markdown for the explanation text: renders
-// **bold** and *italic* (the model emits these) instead of showing raw asterisks.
+// Lightweight, XSS-safe inline markdown: renders **bold** and *italic*.
 function renderInlineMarkdown(text: string): React.ReactNode[] {
   const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
   return parts.map((part, i) => {
@@ -34,14 +33,11 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   const [feedback, setFeedback] = useState<'like' | 'dislike' | null>(null);
   const [showSql, setShowSql] = useState(false);
 
-  // Compatible mappings for new/old backend schemas
   const isQueryResult = message.type === 'query_result' || !!message.generated_sql;
   const sqlContent = message.sql || message.generated_sql;
   const resultsList = message.results || message.sql_results?.rows || [];
   const columns = message.sql_results?.columns || (resultsList.length > 0 ? Object.keys(resultsList[0]) : []);
   const visualizationData = message.visualization || message.visualization_config;
-  // A single value (e.g. a total or one "top" result) is already stated in the
-  // explanation, so we skip the grid and offer SQL on demand instead.
   const isScalar = isQueryResult && resultsList.length === 1 && columns.length <= 1;
 
   const copyToClipboard = () => {
@@ -65,9 +61,9 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
     return (
       <div className="flex justify-end mb-6">
         <div className="flex items-start space-x-3 max-w-[80%]">
-          <div className="bg-primary text-primary-foreground rounded-2xl rounded-tr-sm px-4 py-3 shadow-sm active:scale-[0.98] transition-all">
+          <div className="bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900 rounded-md px-4 py-3 active:scale-[0.98] transition-all">
             <p className="text-sm font-medium leading-relaxed">{message.content}</p>
-            <div className="text-[10px] text-primary-foreground/75 mt-1.5 flex justify-end font-mono">
+            <div className="text-[10px] text-white/60 dark:text-gray-900/60 mt-1.5 flex justify-end font-mono">
               {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </div>
           </div>
@@ -79,20 +75,20 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
     );
   }
 
-  // Assistant Response styling
+  // Assistant response
   return (
     <div className="flex justify-start mb-6">
       <div className="flex items-start space-x-3 max-w-[90%]">
-        <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-primary to-blue-500 flex items-center justify-center flex-shrink-0 shadow-sm">
-          <Sparkles className="h-4 w-4 text-white" />
+        <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+          <Database className="h-4 w-4 text-gray-600 dark:text-gray-300" />
         </div>
-        <div className="flex-1 bg-card border border-border rounded-2xl rounded-tl-sm p-5 shadow-sm">
+        <div className="flex-1 bg-card border border-border rounded-md p-5">
           {/* Explanation Text */}
           <div className="prose max-w-none text-sm text-foreground leading-relaxed font-normal whitespace-pre-wrap">
             {renderInlineMarkdown(message.message || message.content || '')}
           </div>
 
-          {/* Compact view for single-value answers: just an on-demand SQL toggle */}
+          {/* Scalar: on-demand SQL toggle */}
           {isQueryResult && sqlContent && isScalar && (
             <div className="mt-3">
               <button
@@ -103,14 +99,14 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                 {showSql ? 'Hide SQL' : 'Show SQL'}
               </button>
               {showSql && (
-                <pre className="mt-2 bg-[#0f172a] p-3 rounded-lg overflow-x-auto text-[11px] text-blue-300 font-mono border border-border leading-normal">
+                <pre className="mt-2 bg-gray-900 dark:bg-gray-950 p-3 rounded-md overflow-x-auto text-[11px] text-gray-300 font-mono border border-border leading-normal">
                   <code>{sqlContent}</code>
                 </pre>
               )}
             </div>
           )}
 
-          {/* Conditional SQL / Grid Tabs (multi-row results) */}
+          {/* SQL / Grid Tabs (multi-row results) */}
           {isQueryResult && sqlContent && !isScalar && (
             <div className="mt-4">
               <Tabs defaultValue="results">
@@ -125,13 +121,12 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                       <span>SQL Query</span>
                     </TabsTrigger>
                   </TabsList>
-                  
+
                   <span className="text-[10px] text-muted-foreground font-mono">
                     {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
 
-                {/* Data Grid Content */}
                 <TabsContent value="results" className="pt-3">
                   {resultsList.length > 0 ? (
                     <div className="space-y-2">
@@ -164,26 +159,25 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                       </div>
                     </div>
                   ) : (
-                    <div className="h-28 flex flex-col items-center justify-center border border-dashed border-border rounded-lg text-muted-foreground text-xs">
+                    <div className="h-28 flex flex-col items-center justify-center border border-dashed border-border rounded-md text-muted-foreground text-xs">
                       <span>No tabular data returned for this query.</span>
                     </div>
                   )}
                 </TabsContent>
 
-                {/* SQL Query Content */}
                 <TabsContent value="sql" className="pt-3">
                   <div className="relative">
-                    <pre className="bg-[#0f172a] p-4 rounded-lg overflow-x-auto text-[11px] text-blue-300 font-mono border border-border leading-normal max-h-72">
+                    <pre className="bg-gray-900 dark:bg-gray-950 p-4 rounded-md overflow-x-auto text-[11px] text-gray-300 font-mono border border-border leading-normal max-h-72">
                       <code>{sqlContent}</code>
                     </pre>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={copyToClipboard}
-                      className="absolute top-2 right-2 h-7 w-7 p-0 bg-[#0f172a]/80 border border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-white"
+                      className="absolute top-2 right-2 h-7 w-7 p-0 bg-gray-800 border border-gray-700 hover:bg-gray-700 text-gray-400 hover:text-gray-100"
                       title="Copy SQL to Clipboard"
                     >
-                      {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+                      {copied ? <Check className="h-3.5 w-3.5 text-gray-300" /> : <Copy className="h-3.5 w-3.5" />}
                     </Button>
                   </div>
                 </TabsContent>
@@ -191,12 +185,12 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             </div>
           )}
 
-          {/* Plotly visualizer widget */}
+          {/* Plotly visualizer */}
           {isQueryResult && visualizationData && (
             <QueryVisualizer config={visualizationData} />
           )}
 
-          {/* Assistant feedback row */}
+          {/* Feedback row */}
           {isQueryResult && sqlContent && (
             <div className="flex justify-between items-center mt-4 pt-3 border-t border-border/80">
               <span className="text-[11px] text-muted-foreground italic font-medium">Was this query accurate?</span>
@@ -205,7 +199,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                   variant="ghost"
                   size="sm"
                   onClick={() => submitFeedback(5)}
-                  className={`h-7 w-7 p-0 hover:bg-muted ${feedback === 'like' ? 'text-success' : 'text-muted-foreground'}`}
+                  className={`h-7 w-7 p-0 hover:bg-muted ${feedback === 'like' ? 'text-gray-700 dark:text-gray-300' : 'text-muted-foreground'}`}
                   title="Thumbs up"
                 >
                   <ThumbsUp className="h-3.5 w-3.5" />
@@ -214,7 +208,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                   variant="ghost"
                   size="sm"
                   onClick={() => submitFeedback(1)}
-                  className={`h-7 w-7 p-0 hover:bg-muted ${feedback === 'dislike' ? 'text-danger' : 'text-muted-foreground'}`}
+                  className={`h-7 w-7 p-0 hover:bg-muted ${feedback === 'dislike' ? 'text-gray-700 dark:text-gray-300' : 'text-muted-foreground'}`}
                   title="Thumbs down"
                 >
                   <ThumbsDown className="h-3.5 w-3.5" />

@@ -5,9 +5,9 @@ import dynamic from 'next/dynamic';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 
 // Dynamically import Plotly with SSR disabled to prevent Node compilation errors
-const Plot = dynamic(() => import('react-plotly.js'), { 
+const Plot = dynamic(() => import('react-plotly.js'), {
   ssr: false,
-  loading: () => <div className="h-72 w-full flex items-center justify-center text-zinc-500">Loading charts library...</div>
+  loading: () => <div className="h-72 w-full flex items-center justify-center text-muted-foreground text-xs">Loading charts library...</div>
 });
 
 interface QueryVisualizerProps {
@@ -17,31 +17,30 @@ interface QueryVisualizerProps {
 export const QueryVisualizer: React.FC<QueryVisualizerProps> = ({ config }) => {
   if (!config) return null;
 
-  // Extend config layouts to fit the dark theme styles nicely
   const layout = {
     ...config.layout,
     autosize: true,
-    font: { color: '#94a3b8', family: 'Inter, sans-serif' },
+    font: { color: '#6B7280', family: 'Inter, sans-serif' },
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor: 'rgba(0,0,0,0)',
     xaxis: {
       ...config.layout?.xaxis,
-      gridcolor: '#1e293b',
-      linecolor: '#334155',
-      tickcolor: '#334155',
+      gridcolor: '#E5E7EB',
+      linecolor: '#D1D5DB',
+      tickcolor: '#D1D5DB',
     },
     yaxis: {
       ...config.layout?.yaxis,
-      gridcolor: '#1e293b',
-      linecolor: '#334155',
-      tickcolor: '#334155',
+      gridcolor: '#E5E7EB',
+      linecolor: '#D1D5DB',
+      tickcolor: '#D1D5DB',
     },
   };
 
   return (
-    <Card className="border-indigo-500/20 bg-indigo-950/5 mt-4">
+    <Card className="border-border bg-card mt-4">
       <CardHeader className="py-4">
-        <CardTitle className="text-sm font-medium text-indigo-300">Data Visualization Preview</CardTitle>
+        <CardTitle className="text-sm font-medium text-muted-foreground">Data Visualization Preview</CardTitle>
       </CardHeader>
       <CardContent className="flex justify-center overflow-hidden">
         <div className="w-full max-w-4xl h-80">
