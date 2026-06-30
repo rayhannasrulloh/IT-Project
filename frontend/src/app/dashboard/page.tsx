@@ -103,8 +103,8 @@ export default function DashboardPage() {
           </Button>
 
           {/* Conversations history list */}
-          <div className="space-y-1.5 overflow-y-auto max-h-[60vh] pr-1">
-            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block px-2 mb-2">Recent Threads</span>
+          <div className="space-y-0.5 overflow-y-auto max-h-[60vh] pr-1">
+            <span className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider block px-2 mb-1.5">Recent</span>
             {conversations.length === 0 ? (
               <span className="text-xs text-muted-foreground block px-2 italic">No chats yet</span>
             ) : (
@@ -114,16 +114,16 @@ export default function DashboardPage() {
                   <div
                     key={conv.conversation_id}
                     onClick={() => setCurrentConversationId(conv.conversation_id)}
-                    className={`group flex items-center justify-between px-3 py-2.5 rounded-lg text-xs cursor-pointer transition-all duration-150 ease-out border ${
-                      isActive 
-                        ? 'bg-primary/5 text-primary border-primary/20 font-semibold' 
-                        : 'text-muted-foreground hover:bg-muted hover:text-foreground border-transparent'
+                    className={`group flex items-center justify-between px-3 py-2 rounded-lg text-[13px] cursor-pointer transition-colors ${
+                      isActive
+                        ? 'bg-muted text-foreground font-medium'
+                        : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'
                     }`}
                   >
-                    <span className="truncate pr-2 max-w-[170px]">{conv.title}</span>
+                    <span className="truncate pr-2 max-w-[175px]">{conv.title}</span>
                     <button
                       onClick={(e) => handleDeleteChat(e, conv.conversation_id)}
-                      className="opacity-0 group-hover:opacity-100 hover:text-danger p-0.5 rounded transition-opacity"
+                      className="opacity-0 group-hover:opacity-100 hover:text-danger p-0.5 rounded transition-opacity shrink-0"
                       title="Delete Conversation"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
