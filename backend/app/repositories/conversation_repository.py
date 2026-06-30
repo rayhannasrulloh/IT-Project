@@ -2,7 +2,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import delete
 from typing import List, Optional
-from app.domain.models import Conversation, Message
+from datetime import datetime
+from app.models.conversations import Conversation
+from app.models.messages import Message
+from app.models.conversation_context import ConversationContext
 
 class ConversationRepository:
     def __init__(self, db: AsyncSession):
@@ -34,7 +37,7 @@ class ConversationRepository:
     async def add_message(
         self,
         conversation_id: str,
-        role: str,
+        role: str,  # maps to sender column
         content: str,
         generated_sql: Optional[str] = None,
         sql_results: Optional[dict] = None,
@@ -43,7 +46,7 @@ class ConversationRepository:
     ) -> Message:
         message = Message(
             conversation_id=conversation_id,
-            role=role,
+            sender=role,
             content=content,
             generated_sql=generated_sql,
             sql_results=sql_results,
@@ -57,7 +60,6 @@ class ConversationRepository:
         res = await self.db.execute(stmt)
         conv = res.scalar_one_or_none()
         if conv:
-            from datetime import datetime
             conv.updated_at = datetime.utcnow()
             
         await self.db.commit()
@@ -68,3 +70,52 @@ class ConversationRepository:
         stmt = select(Message).filter_by(conversation_id=conversation_id).order_by(Message.created_at.asc())
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
+
+    # --- Conversation Context Methods ---
+    async def get_context(self, conversation_id: str) -> Optional[ConversationContext]:
+        stmt = select(ConversationContext).filter_by(conversation_id=conversation_id)
+        result = await self.db.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def create_context(
+        self,
+        conversation_id: str,
+        pending_intent: Optional[str] = None,
+        missing_fields: Optional[List[str]] = None,
+        collected_data: Optional[dict] = None
+    ) -> ConversationContext:
+        context = ConversationContext(
+            conversation_id=conversation_id,
+            pending_intent=pending_intent,
+            missing_fields=missing_fields or [],
+            collected_data=collected_data or {}
+        )
+        self.db.add(context)
+        await self.db.commit()
+        await self.db.refresh(context)
+        return context
+
+    async def update_context(
+        self,
+        conversation_id: str,
+        pending_intent: Optional[str],
+        missing_fields: List[str],
+        collected_data: dict
+    ) -> Optional[ConversationContext]:
+        context = await self.get_context(conversation_id)
+        if context:
+            context.pending_intent = pending_intent
+            context.missing_fields = missing_fields
+            context.collected_data = collected_data
+            context.updated_at = datetime.utcnow()
+            await self.db.commit()
+            await self.db.refresh(context)
+        else:
+            context = await self.create_context(conversation_id, pending_intent, missing_fields, collected_data)
+        return context
+
+    async def delete_context(self, conversation_id: str) -> bool:
+        stmt = delete(ConversationContext).filter_by(conversation_id=conversation_id)
+        result = await self.db.execute(stmt)
+        await self.db.commit()
+        return (result.rowcount or 0) > 0

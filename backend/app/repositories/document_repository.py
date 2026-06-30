@@ -1,7 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from typing import List, Optional
-from app.domain.models import UploadedDocument, ExtractedTable, DocumentChunk
+from app.models.uploaded_documents import UploadedDocument
+from app.models.extracted_tables import ExtractedTable
+from app.models.document_chunks import DocumentChunk
 
 class DocumentRepository:
     def __init__(self, db: AsyncSession):

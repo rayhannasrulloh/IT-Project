@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.domain.models import Customer, Product, Order, Payment, OrderItem, Profile
+from app.models import Customer, Product, Order, Payment, OrderItem, Profile
 
 # Mock data definitions
 MOCK_PROFILES = [
