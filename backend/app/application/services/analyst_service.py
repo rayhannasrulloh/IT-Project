@@ -250,10 +250,45 @@ class AnalystService:
 
         return signature(gold_rows) == signature(gen_rows)
 
+    @staticmethod
+    def _describe_results(query: str, rows: List[dict]) -> str:
+        """
+        Build a meaningful business summary from the result rows WITHOUT an LLM.
+        Used as the offline/rate-limited fallback so the user still gets a real
+        answer sentence (e.g. "Your total revenue is 14,970,759,000") instead of
+        a generic "found N rows" message.
+        """
+        if not rows:
+            return "No matching records were found for your question."
+
+        def fmt(v):
+            if isinstance(v, bool):
+                return str(v)
+            if isinstance(v, (int, float, Decimal)):
+                f = float(v)
+                return f"{f:,.0f}" if f.is_integer() else f"{f:,.2f}"
+            return str(v)
+
+        cols = list(rows[0].keys())
+
+        # Single scalar answer (e.g. a total, a count, an average).
+        if len(rows) == 1 and len(cols) == 1:
+            col = cols[0]
+            return f"{query.strip().rstrip('?')}: {fmt(rows[0][col])} ({col.replace('_', ' ')})."
+
+        # Single row with a few fields.
+        if len(rows) == 1:
+            parts = ", ".join(f"{c.replace('_', ' ')} {fmt(rows[0][c])}" for c in cols)
+            return f"Here is the result — {parts}."
+
+        # Multiple rows: report the count and describe the top (first) entry.
+        top = ", ".join(f"{c.replace('_', ' ')} {fmt(rows[0][c])}" for c in cols)
+        return f"Found {len(rows)} results. The top entry is {top}."
+
     async def generate_explanation(self, query: str, sql: str, rows: List[dict]) -> str:
         """Generates natural language explanation of the dataset results."""
         if self.is_mock:
-            return f"Based on the query, here are the results for: '{query}'. The system queried the database and identified the relevant entries matching your parameters."
+            return self._describe_results(query, rows)
 
         prompt = f"""Explain the following query results to a business user:
 Question: {query}
@@ -270,7 +305,8 @@ Write a clean, professional, action-oriented business summary under 4 sentences.
             res = await self.exp_llm.ainvoke(messages)
             return res.content.strip()
         except Exception:
-            return f"Found {len(rows)} entries matching the query parameters."
+            # Rate-limited / offline: fall back to a deterministic business summary.
+            return self._describe_results(query, rows)
 
     def generate_plotly_config(self, columns: List[str], rows: List[dict]) -> Optional[dict]:
         """Recommends a chart layout for Plotly.js in the frontend based on output columns."""
