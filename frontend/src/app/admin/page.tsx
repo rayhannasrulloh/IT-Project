@@ -121,10 +121,10 @@ export default function AdminPage() {
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className={`w-full text-left flex items-center space-x-2.5 px-3 py-2.5 rounded-lg text-xs cursor-pointer transition-all duration-150 ease-out border ${
+                  className={`w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] cursor-pointer transition-colors ${
                     isActive
-                      ? 'bg-primary/5 text-primary border-primary/20 font-semibold'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground border-transparent'
+                      ? 'bg-primary/10 text-primary font-medium'
+                      : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -157,7 +157,7 @@ export default function AdminPage() {
       <div className="flex-1 ml-64 flex flex-col min-h-screen">
         
         {/* 2. Sticky Top Navigation Bar */}
-        <header className="h-16 border-b border-border bg-card/85 backdrop-blur-md sticky top-0 z-10 px-6 flex items-center justify-between">
+        <header className="h-16 border-b border-border/60 bg-background/80 backdrop-blur-md sticky top-0 z-10 px-6 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <ShieldCheck className="h-4 w-4 text-primary" />
             <h1 className="font-bold text-sm text-foreground">
@@ -168,7 +168,7 @@ export default function AdminPage() {
 
         {/* 3. Main Scrollable Content Area */}
         <main className="flex-1 p-6 overflow-y-auto bg-background">
-          <div className="max-w-6xl mx-auto bg-card border border-border rounded-[12px] p-6 shadow-sm">
+          <div className="max-w-6xl mx-auto bg-card border border-border/60 rounded-2xl p-6">
             {activeTab === 'analytics' && <AnalyticsCard />}
             {activeTab === 'users' && <UserManagementTable />}
             {activeTab === 'documents' && <DocumentIngestionView />}
