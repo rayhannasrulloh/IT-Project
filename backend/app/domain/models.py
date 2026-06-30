@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime
 from sqlalchemy import Column, String, Integer, Float, ForeignKey, DateTime, Boolean, Text, JSON, Numeric
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
@@ -140,6 +141,24 @@ class BenchmarkResult(Base):
     execution_time_ms = Column(Integer, nullable=True)
     error_message = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class ConversationContext(Base):
+    """
+    Tracks an outstanding clarification for a conversation so a follow-up answer
+    can be merged with the original question (multi-turn disambiguation).
+    Matches the pre-existing `conversation_context` table (uuid / jsonb columns).
+    One pending row per conversation at a time.
+    """
+    __tablename__ = "conversation_context"
+
+    context_id = Column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid.uuid4()))
+    conversation_id = Column(UUID(as_uuid=False), nullable=False, index=True)
+    pending_intent = Column(String, nullable=True)   # the original natural-language question
+    missing_fields = Column(JSONB, nullable=True)    # {"clarification": "..."} we asked the user
+    collected_data = Column(JSONB, nullable=True)     # reserved for future slot-filling
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
 
 class Feedback(Base):

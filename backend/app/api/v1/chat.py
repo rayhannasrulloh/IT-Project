@@ -10,6 +10,7 @@ from app.api.schemas import (
 )
 from app.infrastructure.repositories.conversation_repository import ConversationRepository
 from app.infrastructure.repositories.query_log_repository import QueryLogRepository
+from app.infrastructure.repositories.context_repository import ConversationContextRepository
 from app.application.services.analyst_service import AnalystService
 from app.domain.models import Feedback
 from app.services.intent_service import IntentService
@@ -103,9 +104,16 @@ async def submit_query(
     # Save User message
     await conv_repo.add_message(conversation_id=conv_id, role="user", content=payload.query_text)
 
-    # 3. Intent Detection Layer
-    intent_service = IntentService()
-    intent = await intent_service.detect_intent(payload.query_text)
+    ctx_repo = ConversationContextRepository(db)
+    pending = await ctx_repo.get_pending(conv_id)
+    original_intent = pending.pending_intent if pending else payload.query_text
+
+    # 3. Intent Detection Layer — only classify a fresh message. If we are waiting
+    # on the user's answer to a clarification, skip straight to SQL resolution.
+    intent = "DATA_QUERY"
+    if not pending:
+        intent_service = IntentService()
+        intent = await intent_service.detect_intent(payload.query_text)
 
     if intent != "DATA_QUERY":
         if intent == "GREETING":
@@ -170,13 +178,29 @@ async def submit_query(
         )
         return assistant_msg
 
-    # 4. LLM SQL Generation (Only run for DATA_QUERY)
+    # 4. LLM SQL Generation. When resolving a pending clarification, merge the
+    # original question with the user's answer so the agent has full context.
+    if pending:
+        prior_clar = (pending.missing_fields or {}).get("clarification", "")
+        gen_input = (
+            f'The user originally asked: "{pending.pending_intent}". '
+            f'You asked for clarification: "{prior_clar}". '
+            f'The user has now answered: "{payload.query_text}". '
+            f'Use that answer to write the final SQL for the original question.'
+        )
+        await ctx_repo.clear(conv_id)
+    else:
+        gen_input = payload.query_text
+
     is_ambiguous, clarification_question, sql, reasoning = await analyst_service.generate_sql(
-        payload.query_text, chat_history
+        gen_input, chat_history
     )
 
     if is_ambiguous:
-        # Save Assistant clarification question message and log query
+        # Remember the question so the user's next message resolves it (multi-turn).
+        await ctx_repo.set_pending(
+            conv_id, original_intent, clarification_question or "Could you clarify your request?"
+        )
         assistant_msg = await conv_repo.add_message(
             conversation_id=conv_id,
             role="assistant",
