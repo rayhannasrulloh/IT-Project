@@ -1,25 +1,27 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { 
-  Sparkles, LogOut, MessageSquare, ShieldCheck, 
-  Database, Plus, Trash2, Shield
+import {
+  Sparkles, LogOut, MessageSquare, ShieldCheck,
+  Database, Plus, Trash2, Shield, History, X
 } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useChatStore } from '../../store/useChatStore';
 import api from '../../services/api';
 import { ChatWindow } from '../../components/chat/ChatWindow';
-import { Button } from '../../components/ui/button';
+import SchemaExplorer from '../../components/chat/SchemaExplorer';
 
 export default function DashboardPage() {
   const router = useRouter();
   const { user, isAuthenticated, clearSession } = useAuthStore();
-  const { 
-    conversations, currentConversationId, 
-    setConversations, setCurrentConversationId, setMessages, setLoading 
+  const {
+    conversations, currentConversationId,
+    setConversations, setCurrentConversationId, setMessages, setLoading
   } = useChatStore();
+  const [activePanel, setActivePanel] = useState<'recent' | 'schema' | null>(null);
+  const togglePanel = (p: 'recent' | 'schema') => setActivePanel((prev) => (prev === p ? null : p));
 
   // 1. Redirect if not authenticated
   useEffect(() => {
@@ -78,89 +80,109 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-background text-foreground flex">
       
-      {/* 1. Collapsible Left Sidebar — a thin icon rail that expands on hover */}
-      <aside className="group w-16 hover:w-64 h-screen fixed left-0 top-0 border-r border-border bg-card flex flex-col justify-between p-3 z-30 transition-[width] duration-200 ease-out overflow-hidden">
-        <div className="space-y-4 min-w-0">
-          {/* Logo Brand */}
-          <div className="flex items-center gap-2.5 px-1 h-8">
-            <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center shadow-sm shrink-0">
-              <Database className="h-4 w-4 text-white" />
-            </div>
-            <div className="hidden group-hover:block whitespace-nowrap">
-              <span className="font-bold text-sm text-foreground tracking-tight block">Conda AI</span>
-              <span className="text-[10px] text-muted-foreground font-mono block -mt-0.5">PostgreSQL compiler</span>
-            </div>
+      {/* 1. Icon rail — click an icon to open its panel (VS Code style) */}
+      <aside className="w-14 h-screen fixed left-0 top-0 border-r border-border bg-card flex flex-col items-center justify-between py-3 z-40">
+        <div className="flex flex-col items-center gap-1">
+          {/* Brand */}
+          <div className="h-9 w-9 bg-primary rounded-lg flex items-center justify-center shadow-sm mb-2">
+            <Sparkles className="h-4 w-4 text-white" />
           </div>
-
-          {/* New Chat Button */}
-          <Button
-            onClick={handleNewChat}
-            variant="outline"
-            className="w-full flex items-center justify-center gap-2 border-border hover:border-primary/45 hover:bg-muted py-2.5 text-xs font-semibold"
-            title="New Analyst Chat"
+          {/* New chat */}
+          <button
+            onClick={() => { handleNewChat(); setActivePanel(null); }}
+            title="New chat"
+            className="h-10 w-10 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
           >
-            <Plus className="h-4 w-4 text-primary shrink-0" />
-            <span className="hidden group-hover:inline whitespace-nowrap">New Analyst Chat</span>
-          </Button>
-
-          {/* Conversations history list (only when expanded) */}
-          <div className="hidden group-hover:block space-y-0.5 overflow-y-auto max-h-[60vh] pr-1">
-            <span className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider block px-2 mb-1.5">Recent</span>
-            {conversations.length === 0 ? (
-              <span className="text-xs text-muted-foreground block px-2 italic">No chats yet</span>
-            ) : (
-              conversations.map((conv) => {
-                const isActive = currentConversationId === conv.conversation_id;
-                return (
-                  <div
-                    key={conv.conversation_id}
-                    onClick={() => setCurrentConversationId(conv.conversation_id)}
-                    className={`group/item flex items-center justify-between px-3 py-2 rounded-lg text-[13px] cursor-pointer transition-colors ${
-                      isActive
-                        ? 'bg-muted text-foreground font-medium'
-                        : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'
-                    }`}
-                  >
-                    <span className="truncate pr-2 max-w-[175px] whitespace-nowrap">{conv.title}</span>
-                    <button
-                      onClick={(e) => handleDeleteChat(e, conv.conversation_id)}
-                      className="opacity-0 group-hover/item:opacity-100 hover:text-danger p-0.5 rounded transition-opacity shrink-0"
-                      title="Delete Conversation"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                );
-              })
-            )}
-          </div>
+            <Plus className="h-5 w-5" />
+          </button>
+          {/* Recent chats */}
+          <button
+            onClick={() => togglePanel('recent')}
+            title="Recent chats"
+            className={`h-10 w-10 rounded-lg flex items-center justify-center transition-colors cursor-pointer ${activePanel === 'recent' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}
+          >
+            <History className="h-5 w-5" />
+          </button>
+          {/* Schema explorer */}
+          <button
+            onClick={() => togglePanel('schema')}
+            title="Schema explorer"
+            className={`h-10 w-10 rounded-lg flex items-center justify-center transition-colors cursor-pointer ${activePanel === 'schema' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}
+          >
+            <Database className="h-5 w-5" />
+          </button>
         </div>
 
-        {/* User tag info */}
-        <div className="space-y-2 pt-3 border-t border-border min-w-0">
-          <div className="hidden group-hover:flex p-3 bg-muted/60 rounded-lg border border-border/80 text-[11px] text-muted-foreground flex-col gap-0.5 whitespace-nowrap">
-            <div className="font-semibold text-foreground truncate">{user.email}</div>
-            <div className="flex items-center space-x-1 mt-0.5 text-[9px] uppercase tracking-wider font-bold">
-              {user.role === 'admin' ? (
-                <span className="text-primary flex items-center"><Shield className="h-2.5 w-2.5 mr-0.5" /> Admin Sandbox</span>
-              ) : (
-                <span className="text-muted-foreground">User Analyst</span>
-              )}
-            </div>
+        {/* Bottom: user avatar + sign out */}
+        <div className="flex flex-col items-center gap-2">
+          <div
+            title={`${user.email} (${user.role})`}
+            className="h-8 w-8 rounded-full bg-muted border border-border flex items-center justify-center text-[11px] font-bold text-foreground uppercase"
+          >
+            {user.email.charAt(0)}
           </div>
           <button
             onClick={handleLogout}
-            className="w-full text-xs font-semibold text-muted-foreground hover:text-danger flex items-center justify-center group-hover:justify-start gap-2 px-3 py-2 rounded-lg hover:bg-danger/5 transition-colors cursor-pointer"
-            title="Sign Out"
+            title="Sign out"
+            className="h-10 w-10 rounded-lg flex items-center justify-center text-muted-foreground hover:text-danger hover:bg-danger/5 transition-colors cursor-pointer"
           >
-            <LogOut className="h-4 w-4 shrink-0" />
-            <span className="hidden group-hover:inline whitespace-nowrap">Sign Out</span>
+            <LogOut className="h-5 w-5" />
           </button>
         </div>
       </aside>
 
-      {/* Outer Content Frame wrapper (offset by the collapsed rail width) */}
-      <div className="flex-1 ml-16 flex flex-col min-h-screen">
+      {/* Flyout panel (Recent or Schema) — sits beside the rail and pushes content */}
+      {activePanel && (
+        <div className="w-72 h-screen fixed left-14 top-0 border-r border-border bg-card z-30 flex flex-col">
+          <button
+            onClick={() => setActivePanel(null)}
+            title="Close"
+            className="absolute top-3.5 right-3 z-10 text-muted-foreground hover:text-foreground p-1 rounded cursor-pointer"
+          >
+            <X className="h-4 w-4" />
+          </button>
+
+          <div className="flex-1 overflow-y-auto">
+            {activePanel === 'recent' ? (
+              <div className="p-3">
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block px-1 mt-1 mb-2">Recent Chats</span>
+                <div className="space-y-0.5">
+                  {conversations.length === 0 ? (
+                    <span className="text-xs text-muted-foreground block px-2 py-2 italic">No chats yet</span>
+                  ) : (
+                    conversations.map((conv) => {
+                      const isActive = currentConversationId === conv.conversation_id;
+                      return (
+                        <div
+                          key={conv.conversation_id}
+                          onClick={() => setCurrentConversationId(conv.conversation_id)}
+                          className={`group/item flex items-center justify-between px-3 py-2 rounded-lg text-[13px] cursor-pointer transition-colors ${
+                            isActive ? 'bg-muted text-foreground font-medium' : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'
+                          }`}
+                        >
+                          <span className="truncate pr-2">{conv.title}</span>
+                          <button
+                            onClick={(e) => handleDeleteChat(e, conv.conversation_id)}
+                            className="opacity-0 group-hover/item:opacity-100 hover:text-danger p-0.5 rounded transition-opacity shrink-0"
+                            title="Delete Conversation"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            ) : (
+              <SchemaExplorer />
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Main content — offset by the rail, and by the panel when one is open */}
+      <div className={`flex-1 flex flex-col min-h-screen transition-[margin] duration-200 ${activePanel ? 'ml-[344px]' : 'ml-14'}`}>
         
         {/* 2. Sticky Top Navigation Bar */}
         <header className="h-16 border-b border-border bg-card/85 backdrop-blur-md sticky top-0 z-10 px-6 flex items-center justify-between">
