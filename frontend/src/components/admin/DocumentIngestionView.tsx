@@ -78,15 +78,15 @@ export const DocumentIngestionView: React.FC = () => {
           <p className="text-xs text-muted-foreground">Upload CSV logs or PDF papers to parse unstructured text into relational columns.</p>
         </div>
         <div>
-          <label className="inline-flex items-center space-x-2 px-4 py-2 bg-primary hover:bg-primary/90 rounded-[10px] text-xs font-semibold text-primary-foreground cursor-pointer shadow-sm active:scale-[0.98] transition-all">
+          <label className="inline-flex items-center space-x-2 px-4 py-2 bg-gray-800 dark:bg-gray-200 hover:bg-gray-700 dark:hover:bg-gray-300 rounded-md text-xs font-semibold text-white dark:text-gray-900 cursor-pointer active:scale-[0.98] transition-all">
             {uploading ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin text-primary-foreground" />
+                <Loader2 className="h-4 w-4 animate-spin" />
                 <span>Uploading...</span>
               </>
             ) : (
               <>
-                <Upload className="h-4 w-4 text-primary-foreground" />
+                <Upload className="h-4 w-4" />
                 <span>Upload Document</span>
               </>
             )}
@@ -96,13 +96,13 @@ export const DocumentIngestionView: React.FC = () => {
       </div>
 
       {error && (
-        <div className="p-3 bg-danger/10 border border-danger/25 text-danger text-xs rounded-lg">
+        <div className="p-3 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-md">
           {error}
         </div>
       )}
 
       {documents.length === 0 && !loading && (
-        <div className="h-44 border border-dashed border-border rounded-[12px] flex flex-col items-center justify-center text-center p-6 space-y-2 bg-muted/20">
+        <div className="h-44 border border-dashed border-border rounded-md flex flex-col items-center justify-center text-center p-6 space-y-2 bg-muted/20">
           <Upload className="h-8 w-8 text-muted-foreground" />
           <div className="text-sm font-semibold text-foreground">No documents ingested</div>
           <p className="text-xs text-muted-foreground max-w-sm font-medium">Upload business datasets (CSV) or reports (PDF). Our pipeline will automatically extract structures.</p>
@@ -125,9 +125,9 @@ export const DocumentIngestionView: React.FC = () => {
               <TableRow key={doc.document_id} className="border-border/60">
                 <TableCell className="py-3 flex items-center space-x-2 text-xs text-foreground font-semibold">
                   {doc.file_type === 'CSV' ? (
-                    <FileSpreadsheet className="h-4 w-4 text-emerald-550" />
+                    <FileSpreadsheet className="h-4 w-4 text-muted-foreground" />
                   ) : (
-                    <FileText className="h-4 w-4 text-rose-550" />
+                    <FileText className="h-4 w-4 text-muted-foreground" />
                   )}
                   <span className="truncate max-w-[200px]">{doc.filename}</span>
                 </TableCell>
@@ -139,19 +139,19 @@ export const DocumentIngestionView: React.FC = () => {
                 </TableCell>
                 <TableCell className="py-3">
                   {doc.status === 'completed' && (
-                    <span className="inline-flex items-center text-success text-xs font-semibold">
+                    <span className="inline-flex items-center text-gray-600 dark:text-gray-400 text-xs font-semibold">
                       <CheckCircle className="h-3.5 w-3.5 mr-1" />
                       Ready
                     </span>
                   )}
                   {doc.status === 'processing' && (
-                    <span className="inline-flex items-center text-primary text-xs font-semibold">
+                    <span className="inline-flex items-center text-muted-foreground text-xs font-semibold">
                       <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
                       Parsing...
                     </span>
                   )}
                   {doc.status === 'failed' && (
-                    <span className="inline-flex items-center text-danger text-xs font-semibold">
+                    <span className="inline-flex items-center text-gray-500 text-xs font-semibold">
                       <AlertTriangle className="h-3.5 w-3.5 mr-1" />
                       Failed
                     </span>
@@ -177,8 +177,8 @@ export const DocumentIngestionView: React.FC = () => {
 
       {/* Modal for Extracted Table inspection */}
       {activeTable && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-150 ease-out shadow-md">
-          <div className="bg-card border border-border rounded-[12px] max-w-4xl w-full max-h-[85vh] overflow-hidden flex flex-col shadow-lg">
+        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-card border border-border rounded-md max-w-4xl w-full max-h-[85vh] overflow-hidden flex flex-col">
             <div className="p-5 border-b border-border flex justify-between items-center bg-muted/20">
               <div>
                 <h4 className="text-sm font-bold text-foreground font-mono">{activeTable.table_name}</h4>
@@ -193,7 +193,7 @@ export const DocumentIngestionView: React.FC = () => {
                 <X className="h-4 w-4" />
               </Button>
             </div>
-            
+
             <div className="p-5 overflow-auto flex-1 bg-background">
               <Table>
                 <TableHeader>

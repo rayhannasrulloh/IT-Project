@@ -2,26 +2,26 @@
 @import "tailwindcss";
 
 :root {
-  /* Cursor Design System Colors */
-  --background: #f7f7f4; /* canvas */
-  --foreground: #26251e; /* ink */
-  --card: #ffffff; /* surface-card */
-  --card-foreground: #26251e; /* ink */
-  --primary: #f54e00; /* Cursor Orange */
-  --primary-foreground: #ffffff; /* on-primary */
-  --border: #e6e5e0; /* hairline */
-  --text-secondary: #5a5852; /* body */
-  --muted: #807d72; /* muted */
-  --success: #1f8a65;
-  --warning: #c08532;
-  --danger: #cf2d56;
-  
+  /* Grayscale wireframe palette */
+  --background: #F9FAFB;
+  --foreground: #111827;
+  --card: #FFFFFF;
+  --card-foreground: #111827;
+  --primary: #374151;
+  --primary-foreground: #FFFFFF;
+  --border: #E5E7EB;
+  --text-secondary: #6B7280;
+  --muted: #9CA3AF;
+  --success: #4B5563;
+  --warning: #6B7280;
+  --danger: #1F2937;
+
   /* Timeline specific colors to expose to Tailwind if needed */
-  --timeline-thinking: #dfa88f;
-  --timeline-grep: #9fc9a2;
-  --timeline-read: #9fbbe0;
-  --timeline-edit: #c0a8dd;
-  --timeline-done: #c08532;
+  --timeline-thinking: #D1D5DB;
+  --timeline-grep: #9CA3AF;
+  --timeline-read: #6B7280;
+  --timeline-edit: #4B5563;
+  --timeline-done: #374151;
 }
 
 @theme {
@@ -37,9 +37,32 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
-  
+
   --font-sans: var(--font-inter), system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), monospace;
+}
+
+/* Dark theme is applied by toggling the `dark` class on <html> (see the inline
+   script in layout.tsx); defaults to the OS preference on first visit. */
+.dark {
+  --background: #111827;
+  --foreground: #F9FAFB;
+  --card: #1F2937;
+  --card-foreground: #F9FAFB;
+  --primary: #D1D5DB;
+  --primary-foreground: #111827;
+  --border: #374151;
+  --text-secondary: #9CA3AF;
+  --muted: #6B7280;
+  --success: #9CA3AF;
+  --warning: #D1D5DB;
+  --danger: #F9FAFB;
+
+  --timeline-thinking: #374151;
+  --timeline-grep: #4B5563;
+  --timeline-read: #6B7280;
+  --timeline-edit: #9CA3AF;
+  --timeline-done: #D1D5DB;
 }
 
 body {

@@ -2,10 +2,11 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Sparkles, Mail, Lock, Loader2, ArrowRight } from 'lucide-react';
+import { Database, Mail, Lock, Loader2, ArrowRight } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { Button } from '../../components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../../components/ui/card';
+import ThemeToggle from '../../components/ui/ThemeToggle';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -25,7 +26,7 @@ export default function LoginPage() {
     try {
       let mockUid = "regular-user-uuid-87654321";
       let mockRole = "user";
-      
+
       if (email.includes("admin")) {
         mockUid = "admin-user-uuid-12345678";
         mockRole = "admin";
@@ -57,18 +58,22 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-background relative overflow-hidden px-4">
-      {/* Background soft ambient glows */}
-      <div className="absolute top-1/4 left-1/4 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
-      <div className="absolute bottom-1/4 right-1/4 h-96 w-96 rounded-full bg-indigo-500/5 blur-3xl" />
-      
+    <div className="min-h-screen w-full flex items-center justify-center relative px-4 bg-background">
+      {/* Top-right controls */}
+      <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+        <span className="text-[10px] uppercase tracking-wider text-gray-400 border border-gray-200 dark:border-gray-700 rounded px-2 py-0.5 font-medium">
+          Prototype
+        </span>
+        <ThemeToggle className="h-9 w-9 rounded-md flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer" />
+      </div>
+
       <div className="w-full max-w-md relative z-10">
         <form onSubmit={handleLogin}>
-          <Card className="border-border bg-card shadow-lg">
+          <Card className="border-border bg-card">
             <CardHeader className="space-y-2 text-center pb-4">
               <div className="flex justify-center mb-1">
-                <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center shadow-sm">
-                  <Sparkles className="h-5 w-5 text-primary" />
+                <div className="h-10 w-10 bg-gray-100 dark:bg-gray-800 rounded-md flex items-center justify-center border border-border">
+                  <Database className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                 </div>
               </div>
               <CardTitle className="text-xl font-bold tracking-tight text-foreground">Conda AI</CardTitle>
@@ -76,10 +81,10 @@ export default function LoginPage() {
                 Natural language interface to compile PostgreSQL queries
               </CardDescription>
             </CardHeader>
-            
+
             <CardContent className="space-y-4">
               {error && (
-                <div className="p-3 bg-danger/10 border border-danger/25 text-danger text-xs rounded-lg leading-relaxed">
+                <div className="p-3 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 text-xs rounded-md leading-relaxed">
                   {error}
                 </div>
               )}
@@ -93,7 +98,7 @@ export default function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@conda.ai"
-                    className="w-full bg-background border border-border rounded-lg py-2.5 pl-10 pr-4 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary transition-colors"
+                    className="w-full bg-background border border-border rounded-md py-2.5 pl-10 pr-4 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-gray-400 transition-colors"
                     required
                   />
                 </div>
@@ -108,7 +113,7 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full bg-background border border-border rounded-lg py-2.5 pl-10 pr-4 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary transition-colors"
+                    className="w-full bg-background border border-border rounded-md py-2.5 pl-10 pr-4 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-gray-400 transition-colors"
                     required
                   />
                 </div>
@@ -127,7 +132,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => handleQuickLogin('user')}
-                    className="py-2 px-3 bg-muted hover:bg-border/40 border border-border rounded-lg text-xs font-medium text-foreground transition-colors flex items-center justify-between cursor-pointer"
+                    className="py-2.5 px-3 bg-muted/40 hover:bg-muted border border-border rounded-md text-xs font-medium text-foreground transition-colors flex items-center justify-between cursor-pointer"
                   >
                     <span>User Sandbox</span>
                     <ArrowRight className="h-3 w-3 text-muted-foreground" />
@@ -135,7 +140,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => handleQuickLogin('admin')}
-                    className="py-2 px-3 bg-muted hover:bg-border/40 border border-border rounded-lg text-xs font-medium text-foreground transition-colors flex items-center justify-between cursor-pointer"
+                    className="py-2.5 px-3 bg-muted/40 hover:bg-muted border border-border rounded-md text-xs font-medium text-foreground transition-colors flex items-center justify-between cursor-pointer"
                   >
                     <span>Admin Sandbox</span>
                     <ArrowRight className="h-3 w-3 text-muted-foreground" />
