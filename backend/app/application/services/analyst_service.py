@@ -339,23 +339,38 @@ All monetary amounts are in Indonesian Rupiah (IDR) — format them as "Rp" or "
         # Plotly configuration payload
         if (date_cols or str_cols) and num_cols:
             x_col = date_cols[0] if date_cols else str_cols[0]
-            y_col = num_cols[0]
-            
+            # Prefer a real metric on the Y axis: skip id columns, and when several
+            # numbers remain the aggregate is usually the last selected column.
+            metric_cols = [c for c in num_cols if not c.lower().endswith("_id")]
+            y_col = (metric_cols or num_cols)[-1]
+
             chart_type = "line" if date_cols else "bar"
-            
-            # Simple bar or scatter plot
+
+            # Keep bar charts readable: cap to the top 20 categories by value.
+            plot_rows = rows
+            if chart_type == "bar" and len(rows) > 20:
+                plot_rows = sorted(
+                    rows,
+                    key=lambda r: r.get(y_col) if isinstance(r.get(y_col), (int, float)) else 0,
+                    reverse=True,
+                )[:20]
+                title = f"Top 20 {y_col} by {x_col}"
+            else:
+                title = f"{y_col} by {x_col}"
+
+            # The frontend recolors the series to match the active theme.
             return {
                 "type": chart_type,
                 "data": [
                     {
-                        "x": [r.get(x_col) for r in rows],
-                        "y": [r.get(y_col) for r in rows],
+                        "x": [r.get(x_col) for r in plot_rows],
+                        "y": [r.get(y_col) for r in plot_rows],
                         "type": chart_type,
                         "marker": {"color": "#6366f1"}
                     }
                 ],
                 "layout": {
-                    "title": f"{y_col} by {x_col}",
+                    "title": title,
                     "xaxis": {"title": x_col},
                     "yaxis": {"title": y_col},
                     "margin": {"t": 40, "b": 40, "l": 40, "r": 40},
@@ -364,7 +379,7 @@ All monetary amounts are in Indonesian Rupiah (IDR) — format them as "Rp" or "
                     "font": {"color": "#94a3b8"}
                 }
             }
-        
+
         return None
 
     def _mock_sql_generation(self, query_text: str) -> Tuple[bool, Optional[str], Optional[str], str]:
