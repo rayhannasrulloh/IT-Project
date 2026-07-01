@@ -15,19 +15,22 @@ const SUGGESTED_PROMPTS = [
 ];
 
 export const ChatWindow: React.FC = () => {
-  const {
-    currentConversationId, messages, isLoading,
-    setConversations, setCurrentConversationId, setMessages, addMessage, setLoading
+  const { 
+    currentConversationId, messages, isLoading, 
+    setConversations, setCurrentConversationId, setMessages, addMessage, setLoading 
   } = useChatStore();
 
   const [input, setInput] = useState('');
   const [loadingHistory, setLoadingHistory] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
+  // Load a conversation's message history whenever one is selected (or after a
+  // new chat is created). Selecting "New Chat" sets the id to null -> stays empty.
   useEffect(() => {
     if (!currentConversationId) return;
     let cancelled = false;
@@ -45,6 +48,7 @@ export const ChatWindow: React.FC = () => {
     return () => { cancelled = true; };
   }, [currentConversationId, setMessages]);
 
+  // Handle Submitting Query
   const handleSubmit = async (text: string) => {
     if (!text.trim() || isLoading) return;
     setInput('');
@@ -65,7 +69,7 @@ export const ChatWindow: React.FC = () => {
 
     try {
       const response = await api.submitQuery(text, currentConversationId || undefined);
-
+      
       if (!currentConversationId && response.conversation_id) {
         setCurrentConversationId(response.conversation_id);
         const list = await api.listConversations();
@@ -94,19 +98,21 @@ export const ChatWindow: React.FC = () => {
 
   return (
     <div className="flex">
-      <div className="flex-1 flex flex-col justify-between overflow-hidden h-[calc(100vh-8rem)]">
 
-        {/* Messages stream */}
+      {/* Center Dialogue Viewport — blends with the page background (no card frame) */}
+      <div className="flex-1 flex flex-col justify-between overflow-hidden h-[calc(100vh-8rem)]">
+        
+        {/* Messages Stream scroll container */}
         <div className="flex-1 overflow-y-auto p-6 scrollbar-thin">
           {messages.length === 0 && loadingHistory ? (
             <div className="h-full flex flex-col items-center justify-center text-center space-y-3">
-              <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
               <span className="text-xs text-muted-foreground font-semibold">Loading conversation...</span>
             </div>
           ) : messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center max-w-2xl mx-auto text-center px-4">
-              <div className="h-11 w-11 rounded-md bg-gray-100 dark:bg-gray-800 border border-border flex items-center justify-center mb-6">
-                <Terminal className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+              <div className="h-11 w-11 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
+                <Terminal className="h-5 w-5 text-primary" />
               </div>
               <h2 className="text-2xl font-semibold text-foreground tracking-tight mb-2.5">
                 What would you like to analyze?
@@ -121,10 +127,10 @@ export const ChatWindow: React.FC = () => {
                   <button
                     key={prompt}
                     onClick={() => handleSubmit(prompt)}
-                    className="group flex items-center gap-3 px-4 py-3 text-left rounded-md border border-border bg-muted/20 hover:bg-muted/50 hover:border-gray-300 dark:hover:border-gray-600 text-sm text-foreground/90 transition-all duration-150 ease-out cursor-pointer"
+                    className="group flex items-center gap-3 px-4 py-3 text-left rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/50 hover:border-border text-sm text-foreground/90 transition-all duration-150 ease-out cursor-pointer"
                   >
                     <span className="flex-1">{prompt}</span>
-                    <ArrowRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-gray-600 dark:group-hover:text-gray-300 group-hover:translate-x-0.5 transition-all" />
+                    <ArrowRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
                   </button>
                 ))}
               </div>
@@ -136,8 +142,8 @@ export const ChatWindow: React.FC = () => {
               ))}
               {isLoading && (
                 <div className="flex justify-start mb-6">
-                  <div className="flex items-center space-x-2 bg-muted/40 border border-border p-4 rounded-md max-w-sm">
-                    <Loader2 className="h-4 w-4 animate-spin text-gray-500" />
+                  <div className="flex items-center space-x-2 bg-muted/40 border border-border/80 p-4 rounded-xl max-w-sm">
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
                     <span className="text-xs text-muted-foreground font-semibold">Analyst compiling SQL query...</span>
                   </div>
                 </div>
@@ -147,11 +153,11 @@ export const ChatWindow: React.FC = () => {
           )}
         </div>
 
-        {/* Input bar */}
+        {/* Input Bar form */}
         <div className="px-4 pb-4 pt-3">
           <form
             onSubmit={(e) => { e.preventDefault(); handleSubmit(input); }}
-            className="max-w-3xl mx-auto flex items-center gap-2 bg-muted/30 rounded-md border border-border px-3 py-2 focus-within:border-gray-400 focus-within:bg-card transition-all duration-150"
+            className="max-w-3xl mx-auto flex items-center gap-2 bg-muted/30 rounded-2xl border border-border px-3 py-2 shadow-sm focus-within:border-primary/40 focus-within:bg-card transition-all duration-150"
           >
             <input
               type="text"
@@ -165,7 +171,7 @@ export const ChatWindow: React.FC = () => {
               type="submit"
               size="sm"
               disabled={!input.trim() || isLoading}
-              className="h-9 w-9 p-0 rounded-md flex items-center justify-center shrink-0"
+              className="h-9 w-9 p-0 rounded-xl flex items-center justify-center shrink-0"
             >
               {isLoading ? <Loader2 className="h-4 w-4 animate-spin text-primary-foreground" /> : <Send className="h-4 w-4 text-primary-foreground" />}
             </Button>
@@ -177,6 +183,7 @@ export const ChatWindow: React.FC = () => {
         </div>
 
       </div>
+
     </div>
   );
 };

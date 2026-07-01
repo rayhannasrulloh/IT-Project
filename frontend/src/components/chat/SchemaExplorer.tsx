@@ -80,7 +80,7 @@ export const SchemaExplorer: React.FC = () => {
   return (
     <Card className="border-border/60 bg-card shadow-sm h-full flex flex-col">
       <CardHeader className="px-4 py-3.5 border-b border-border/60 flex flex-row items-center gap-2">
-        <Database className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+        <Database className="h-4 w-4 text-primary" />
         <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Schema Explorer</CardTitle>
       </CardHeader>
       <CardContent className="p-2 space-y-0.5 flex-1 overflow-y-auto">
@@ -108,8 +108,8 @@ export const SchemaExplorer: React.FC = () => {
                   {table.columns.map((col) => (
                     <div key={col.name} className="py-1.5 pl-1 flex items-center justify-between text-xs">
                       <div className="flex items-center gap-1.5 font-mono">
-                        {col.isPk && <Key className="h-3 w-3 text-gray-500 dark:text-gray-400" />}
-                        {col.isFk && <Key className="h-3 w-3 text-gray-400 dark:text-gray-500 rotate-90" />}
+                        {col.isPk && <Key className="h-3 w-3 text-amber-500" />}
+                        {col.isFk && <Key className="h-3 w-3 text-primary rotate-90" />}
                         <span className="text-foreground/90">{col.name}</span>
                       </div>
                       <span className="text-muted-foreground/70 font-mono text-[10px]">{col.type}</span>

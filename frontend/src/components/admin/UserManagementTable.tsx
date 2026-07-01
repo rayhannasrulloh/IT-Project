@@ -31,7 +31,7 @@ export const UserManagementTable: React.FC = () => {
   const handleToggleRole = async (userId: string, currentRole: 'admin' | 'user') => {
     const nextRole = currentRole === 'admin' ? 'user' : 'admin';
     if (!confirm(`Are you sure you want to change this user's role to ${nextRole}?`)) return;
-
+    
     try {
       await api.updateUserRole(userId, nextRole);
       setUsers(users.map(u => u.id === userId ? { ...u, role: nextRole } : u));
@@ -53,7 +53,7 @@ export const UserManagementTable: React.FC = () => {
       </div>
 
       {error && (
-        <div className="p-3 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-md">
+        <div className="p-3 bg-danger/10 border border-danger/20 text-danger text-xs rounded-lg">
           {error}
         </div>
       )}
@@ -101,12 +101,12 @@ export const UserManagementTable: React.FC = () => {
                   </TableCell>
                   <TableCell className="py-3">
                     {profile.role === 'admin' ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-[10px] font-semibold bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900 border border-gray-700 dark:border-gray-300">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary/10 text-primary border border-primary/20">
                         <ShieldCheck className="h-3 w-3 mr-1" />
                         Admin
                       </span>
                     ) : (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-[10px] font-semibold bg-muted text-muted-foreground border border-border/80">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-muted text-muted-foreground border border-border/80">
                         <Shield className="h-3 w-3 mr-1" />
                         User
                       </span>

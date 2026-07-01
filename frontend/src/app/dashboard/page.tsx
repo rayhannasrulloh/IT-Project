@@ -4,8 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
-  Database, LogOut, MessageSquare, ShieldCheck,
-  Plus, Trash2, History, X
+  Sparkles, LogOut, MessageSquare, ShieldCheck,
+  Database, Plus, Trash2, Shield, History, X
 } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useChatStore } from '../../store/useChatStore';
@@ -24,12 +24,14 @@ export default function DashboardPage() {
   const [activePanel, setActivePanel] = useState<'recent' | 'schema' | null>(null);
   const togglePanel = (p: 'recent' | 'schema') => setActivePanel((prev) => (prev === p ? null : p));
 
+  // 1. Redirect if not authenticated
   useEffect(() => {
     if (!isAuthenticated) {
       router.push('/login');
     }
   }, [isAuthenticated, router]);
 
+  // 2. Fetch Conversations on Mount
   useEffect(() => {
     if (!isAuthenticated) return;
     const fetchConvs = async () => {
@@ -78,19 +80,19 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen text-foreground flex">
-
-      {/* Icon rail */}
+      
+      {/* 1. Icon rail — click an icon to open its panel (VS Code style) */}
       <aside className="w-14 h-screen fixed left-0 top-0 border-r border-border bg-card flex flex-col items-center justify-between py-3 z-40">
         <div className="flex flex-col items-center gap-1">
           {/* Brand */}
-          <div className="h-9 w-9 bg-gray-800 dark:bg-gray-200 rounded-md flex items-center justify-center mb-2">
-            <Database className="h-4 w-4 text-white dark:text-gray-900" />
+          <div className="h-9 w-9 bg-primary rounded-lg flex items-center justify-center shadow-sm mb-2">
+            <Sparkles className="h-4 w-4 text-white" />
           </div>
           {/* New chat */}
           <button
             onClick={() => { handleNewChat(); setActivePanel(null); }}
             title="New chat"
-            className="h-10 w-10 rounded-md flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-150 active:scale-90 cursor-pointer"
+            className="h-10 w-10 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-150 active:scale-90 cursor-pointer"
           >
             <Plus className="h-5 w-5" />
           </button>
@@ -98,7 +100,7 @@ export default function DashboardPage() {
           <button
             onClick={() => togglePanel('recent')}
             title="Recent chats"
-            className={`h-10 w-10 rounded-md flex items-center justify-center transition-all duration-150 active:scale-90 cursor-pointer ${activePanel === 'recent' ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}
+            className={`h-10 w-10 rounded-lg flex items-center justify-center transition-all duration-150 active:scale-90 cursor-pointer ${activePanel === 'recent' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}
           >
             <History className="h-5 w-5" />
           </button>
@@ -106,7 +108,7 @@ export default function DashboardPage() {
           <button
             onClick={() => togglePanel('schema')}
             title="Schema explorer"
-            className={`h-10 w-10 rounded-md flex items-center justify-center transition-all duration-150 active:scale-90 cursor-pointer ${activePanel === 'schema' ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}
+            className={`h-10 w-10 rounded-lg flex items-center justify-center transition-all duration-150 active:scale-90 cursor-pointer ${activePanel === 'schema' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}
           >
             <Database className="h-5 w-5" />
           </button>
@@ -124,20 +126,20 @@ export default function DashboardPage() {
           <button
             onClick={handleLogout}
             title="Sign out"
-            className="h-10 w-10 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-150 active:scale-90 cursor-pointer"
+            className="h-10 w-10 rounded-lg flex items-center justify-center text-muted-foreground hover:text-danger hover:bg-danger/5 transition-all duration-150 active:scale-90 cursor-pointer"
           >
             <LogOut className="h-5 w-5" />
           </button>
         </div>
       </aside>
 
-      {/* Flyout panel */}
+      {/* Flyout panel (Recent or Schema) — sits beside the rail and pushes content */}
       {activePanel && (
         <div className="w-72 h-screen fixed left-14 top-0 border-r border-border bg-card z-30 flex flex-col">
           <button
             onClick={() => setActivePanel(null)}
             title="Close"
-            className="absolute top-3.5 right-3 z-10 text-muted-foreground hover:text-foreground p-1 rounded-md cursor-pointer"
+            className="absolute top-3.5 right-3 z-10 text-muted-foreground hover:text-foreground p-1 rounded cursor-pointer"
           >
             <X className="h-4 w-4" />
           </button>
@@ -156,14 +158,14 @@ export default function DashboardPage() {
                         <div
                           key={conv.conversation_id}
                           onClick={() => setCurrentConversationId(conv.conversation_id)}
-                          className={`group/item flex items-center justify-between px-3 py-2 rounded-md text-[13px] cursor-pointer transition-colors ${
+                          className={`group/item flex items-center justify-between px-3 py-2 rounded-lg text-[13px] cursor-pointer transition-colors ${
                             isActive ? 'bg-muted text-foreground font-medium' : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'
                           }`}
                         >
                           <span className="truncate pr-2">{conv.title}</span>
                           <button
                             onClick={(e) => handleDeleteChat(e, conv.conversation_id)}
-                            className="opacity-0 group-hover/item:opacity-100 hover:text-foreground p-0.5 rounded-md transition-opacity shrink-0"
+                            className="opacity-0 group-hover/item:opacity-100 hover:text-danger p-0.5 rounded transition-opacity shrink-0"
                             title="Delete Conversation"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
@@ -181,33 +183,30 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Main content */}
+      {/* Main content — offset by the rail, and by the panel when one is open */}
       <div className={`flex-1 flex flex-col min-h-screen transition-[margin] duration-200 ${activePanel ? 'ml-[344px]' : 'ml-14'}`}>
-
-        {/* Header */}
-        <header className="h-16 border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-10 px-6 flex items-center justify-between">
+        
+        {/* 2. Sticky Top Navigation Bar */}
+        <header className="h-16 border-b border-border/60 bg-background/80 backdrop-blur-md sticky top-0 z-10 px-6 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <MessageSquare className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+            <MessageSquare className="h-4 w-4 text-primary" />
             <h1 className="font-bold text-sm text-foreground">Chat Workspace</h1>
           </div>
 
-          <div className="flex items-center gap-3">
-            <span className="text-[10px] uppercase tracking-wider text-gray-400 border border-gray-200 dark:border-gray-700 rounded px-2 py-0.5 font-medium">
-              Prototype
-            </span>
+          <div className="flex items-center space-x-4">
             {user.role === 'admin' && (
               <Link
                 href="/admin"
-                className="text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted px-3.5 py-1.5 rounded-md flex items-center space-x-1.5 transition-all border border-transparent hover:border-border"
+                className="text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted px-3.5 py-1.5 rounded-lg flex items-center space-x-1.5 transition-all border border-transparent hover:border-border"
               >
-                <ShieldCheck className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400" />
+                <ShieldCheck className="h-3.5 w-3.5 text-primary" />
                 <span>Admin Panel</span>
               </Link>
             )}
           </div>
         </header>
 
-        {/* Main content area */}
+        {/* 3. Main Scrollable Content Area */}
         <main className="flex-1 p-6 overflow-y-auto">
           <div className="max-w-6xl mx-auto">
             <ChatWindow />

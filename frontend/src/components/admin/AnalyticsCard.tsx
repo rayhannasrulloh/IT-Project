@@ -35,24 +35,28 @@ export const AnalyticsCard: React.FC = () => {
       value: stats?.total_users ?? 0,
       description: "Unique client profile entries",
       icon: Users,
+      color: "text-primary bg-primary/5 border-primary/20"
     },
     {
       title: "Active Data Conversations",
       value: stats?.total_conversations ?? 0,
       description: "Historical analyst chat threads",
       icon: MessageSquare,
+      color: "text-primary bg-primary/5 border-primary/20"
     },
     {
       title: "SQL Statements Executed",
       value: stats?.total_queries ?? 0,
       description: "Translated NL database logs",
       icon: Terminal,
+      color: "text-primary bg-primary/5 border-primary/20"
     },
     {
       title: "Uploaded Documents",
       value: stats?.total_documents ?? 0,
       description: "Ingested CSV files and PDF articles",
       icon: FileText,
+      color: "text-primary bg-primary/5 border-primary/20"
     }
   ];
 
@@ -62,12 +66,12 @@ export const AnalyticsCard: React.FC = () => {
         {items.map((item, index) => {
           const Icon = item.icon;
           return (
-            <Card key={index} className="hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-150 ease-out bg-card">
+            <Card key={index} className="hover:border-primary/20 hover:shadow-md transition-all duration-150 ease-out bg-card">
               <CardHeader className="flex flex-row items-center justify-between pb-2 p-5">
                 <CardTitle className="text-xs uppercase font-bold text-muted-foreground tracking-wider">
                   {item.title}
                 </CardTitle>
-                <div className="h-8 w-8 rounded-md flex items-center justify-center border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+                <div className={`h-8 w-8 rounded-lg flex items-center justify-center border ${item.color}`}>
                   <Icon className="h-4 w-4" />
                 </div>
               </CardHeader>
@@ -82,10 +86,10 @@ export const AnalyticsCard: React.FC = () => {
 
       {/* Query Accuracy Health Meter */}
       {stats && (
-        <Card className="border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+        <Card className="border-primary/15 bg-primary/5 shadow-sm">
           <CardHeader className="p-5 pb-3 flex flex-row items-center space-x-2">
-            <Activity className="h-4 w-4 text-gray-500 dark:text-gray-400 animate-pulse" />
-            <CardTitle className="text-sm font-bold text-gray-700 dark:text-gray-300">SQL Compiler Success Rate</CardTitle>
+            <Activity className="h-4 w-4 text-primary animate-pulse" />
+            <CardTitle className="text-sm font-bold text-primary">SQL Compiler Success Rate</CardTitle>
           </CardHeader>
           <CardContent className="p-5 pt-0 flex flex-col sm:flex-row items-center sm:justify-between gap-4">
             <div className="space-y-1">
@@ -94,9 +98,9 @@ export const AnalyticsCard: React.FC = () => {
                 Calculated ratio of SQL compiles executing in PostgreSQL without database error exceptions.
               </p>
             </div>
-            <div className="w-full sm:w-64 bg-muted h-2.5 rounded-full overflow-hidden border border-border">
-              <div
-                className="bg-gray-600 dark:bg-gray-400 h-full rounded-full transition-all duration-300 ease-out"
+            <div className="w-full sm:w-64 bg-muted h-2.5 rounded-full overflow-hidden border border-border shadow-sm">
+              <div 
+                className="bg-primary h-full rounded-full transition-all duration-300 ease-out" 
                 style={{ width: `${stats.query_success_rate}%` }}
               />
             </div>

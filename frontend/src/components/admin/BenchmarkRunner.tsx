@@ -35,6 +35,7 @@ export const BenchmarkRunner: React.FC = () => {
     : 0;
   const isHealthy = accuracy >= 80;
 
+  // Per-category execution-accuracy breakdown
   const categoryBreakdown = Object.values(
     results.reduce((acc, r) => {
       const key = r.category || 'uncategorized';
@@ -53,39 +54,39 @@ export const BenchmarkRunner: React.FC = () => {
           <p className="text-xs text-muted-foreground font-medium">Runs the agent against a 50+ question golden dataset and compares each generated query's result set against the gold answer.</p>
         </div>
         <div className="flex items-center gap-2">
-          <select
-            value={sample}
-            onChange={(e) => setSample(Number(e.target.value))}
-            disabled={running}
-            className="bg-muted border border-border rounded-md text-xs font-medium text-foreground px-2 py-2 cursor-pointer focus:outline-none focus:border-gray-400"
-            title="Quick keeps a live demo under the LLM rate limit; Full runs the entire suite."
-          >
-            <option value={10}>Quick (10 questions)</option>
-            <option value={25}>Standard (25 questions)</option>
-            <option value={0}>Full suite (52 questions)</option>
-          </select>
-          <Button
-            onClick={runBenchmark}
-            disabled={running}
-            className="flex items-center space-x-2 cursor-pointer px-4"
-          >
-            {running ? (
-              <>
-                <Cpu className="h-4 w-4 animate-spin text-primary-foreground" />
-                <span>Running Suite...</span>
-              </>
-            ) : (
-              <>
-                <Play className="h-4 w-4 text-primary-foreground fill-primary-foreground" />
-                <span>Execute Diagnostics</span>
-              </>
-            )}
-          </Button>
+        <select
+          value={sample}
+          onChange={(e) => setSample(Number(e.target.value))}
+          disabled={running}
+          className="bg-muted border border-border rounded-lg text-xs font-medium text-foreground px-2 py-2 cursor-pointer focus:outline-none focus:border-primary"
+          title="Quick keeps a live demo under the LLM rate limit; Full runs the entire suite."
+        >
+          <option value={10}>Quick (10 questions)</option>
+          <option value={25}>Standard (25 questions)</option>
+          <option value={0}>Full suite (52 questions)</option>
+        </select>
+        <Button
+          onClick={runBenchmark}
+          disabled={running}
+          className="flex items-center space-x-2 bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer px-4"
+        >
+          {running ? (
+            <>
+              <Cpu className="h-4 w-4 animate-spin text-primary-foreground" />
+              <span>Running Suite...</span>
+            </>
+          ) : (
+            <>
+              <Play className="h-4 w-4 text-primary-foreground fill-primary-foreground" />
+              <span>Execute Diagnostics</span>
+            </>
+          )}
+        </Button>
         </div>
       </div>
 
       {error && (
-        <div className="p-3 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-md">
+        <div className="p-3 bg-danger/10 border border-danger/20 text-danger text-xs rounded-lg">
           {error}
         </div>
       )}
@@ -93,32 +94,32 @@ export const BenchmarkRunner: React.FC = () => {
       {/* Summary Scorecards */}
       {results.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-muted/50 border border-border rounded-md p-4 flex items-center space-x-3">
-            <div className="h-10 w-10 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-md flex items-center justify-center border border-border">
+          <div className="bg-muted/50 border border-border rounded-xl p-4 flex items-center space-x-3">
+            <div className="h-10 w-10 bg-primary/10 text-primary rounded-lg flex items-center justify-center">
               <Zap className="h-5 w-5" />
             </div>
             <div>
-              <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Execution Accuracy</span>
+              <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider font-semibold">Execution Accuracy</span>
               <div className="text-lg font-bold text-foreground mt-0.5">{correctCount} / {totalTests} ({accuracy}%)</div>
             </div>
           </div>
 
-          <div className="bg-muted/50 border border-border rounded-md p-4 flex items-center space-x-3">
-            <div className="h-10 w-10 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-md flex items-center justify-center border border-border">
+          <div className="bg-muted/50 border border-border rounded-xl p-4 flex items-center space-x-3">
+            <div className="h-10 w-10 bg-primary/10 text-primary rounded-lg flex items-center justify-center">
               <Clock className="h-5 w-5" />
             </div>
             <div>
-              <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Mean Compile Latency</span>
+              <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider font-semibold">Mean Compile Latency</span>
               <div className="text-lg font-bold text-foreground mt-0.5">{avgLatency}ms</div>
             </div>
           </div>
 
-          <div className="bg-muted/50 border border-border rounded-md p-4 flex items-center space-x-3">
-            <div className="h-10 w-10 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-md flex items-center justify-center border border-border">
+          <div className="bg-muted/50 border border-border rounded-xl p-4 flex items-center space-x-3">
+            <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${isHealthy ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>
               {isHealthy ? <CheckCircle className="h-5 w-5" /> : <ShieldAlert className="h-5 w-5" />}
             </div>
             <div>
-              <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Suite Status</span>
+              <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider font-semibold">Suite Status</span>
               <div className="text-lg font-bold text-foreground mt-0.5">{isHealthy ? "Healthy (≥80%)" : "Needs Review"}</div>
             </div>
           </div>
@@ -133,11 +134,11 @@ export const BenchmarkRunner: React.FC = () => {
             return (
               <div
                 key={c.category}
-                className="bg-muted/40 border border-border rounded-md px-3 py-1.5 text-xs"
+                className="bg-muted/40 border border-border rounded-lg px-3 py-1.5 text-xs"
                 title={`${c.correct} of ${c.total} correct`}
               >
                 <span className="font-semibold text-foreground capitalize">{c.category}</span>
-                <span className="ml-2 font-bold text-muted-foreground">
+                <span className={`ml-2 font-bold ${pct >= 80 ? 'text-success' : pct >= 50 ? 'text-warning' : 'text-danger'}`}>
                   {pct}%
                 </span>
                 <span className="ml-1 text-muted-foreground">({c.correct}/{c.total})</span>
@@ -173,12 +174,12 @@ export const BenchmarkRunner: React.FC = () => {
                 </TableCell>
                 <TableCell className="py-3">
                   {r.is_correct ? (
-                    <span className="inline-flex items-center text-gray-600 dark:text-gray-400 text-xs font-bold">
+                    <span className="inline-flex items-center text-success text-xs font-bold">
                       <CheckCircle className="h-3.5 w-3.5 mr-1" />
                       Match
                     </span>
                   ) : (
-                    <span className="inline-flex items-center text-gray-500 dark:text-gray-400 text-xs font-bold">
+                    <span className="inline-flex items-center text-danger text-xs font-bold">
                       <ShieldAlert className="h-3.5 w-3.5 mr-1" />
                       Mismatch
                     </span>
@@ -190,7 +191,7 @@ export const BenchmarkRunner: React.FC = () => {
                       {r.generated_sql}
                     </span>
                   ) : (
-                    <span className="text-gray-600 dark:text-gray-400 font-medium">
+                    <span className="text-danger font-medium">
                       {r.error_message || 'Compilation empty'}
                     </span>
                   )}
