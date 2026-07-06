@@ -2,6 +2,7 @@ import re
 import json
 from typing import List, Dict, Any, Optional
 from app.services.groq_service import GroqService
+from app.utils.prompts import RESULT_RELEVANCE_SYSTEM_PROMPT
 from langchain.schema import HumanMessage, SystemMessage
 
 class ResponseFormatter:
@@ -113,3 +114,29 @@ Rules:
             return await self.groq.invoke(messages, model="llama-3-8b-8192", temperature=0.3)
         except Exception:
             return self.format_table_summary(question, columns, rows)
+
+    async def validate_answer_relevance(
+        self, question: str, sql: Optional[str], columns: List[str], rows: List[Dict[str, Any]]
+    ) -> bool:
+        """
+        Best-effort semantic check: does this non-empty result plausibly answer the
+        user's question? Used to keep the Query Log honest beyond "the SQL didn't error".
+        In mock mode there's no LLM to grade with, so we can't semantically judge —
+        only the caller's zero-row check applies there.
+        """
+        if self.groq.is_mock:
+            return True
+
+        prompt = f"""Question: {question}
+SQL: {sql or 'N/A'}
+Columns: {', '.join(columns)}
+Sample rows: {json.dumps(rows[:5])}"""
+        messages = [
+            SystemMessage(content=RESULT_RELEVANCE_SYSTEM_PROMPT),
+            HumanMessage(content=prompt)
+        ]
+        try:
+            verdict = await self.groq.invoke(messages, model="llama-3-8b-8192", temperature=0.0)
+            return verdict.strip().upper().startswith("YES")
+        except Exception:
+            return True

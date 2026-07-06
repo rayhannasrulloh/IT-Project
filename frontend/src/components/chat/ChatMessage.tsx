@@ -60,7 +60,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   if (isUser) {
     return (
       <div className="flex justify-end mb-6">
-        <div className="flex items-start space-x-3 w-full max-w-[80%]">
+        <div className="flex items-start space-x-3 max-w-[80%]">
           <div className="bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900 rounded-md px-4 py-3 active:scale-[0.98] transition-all">
             <p className="text-sm font-medium leading-relaxed">{message.content}</p>
             <div className="text-[10px] text-white/60 dark:text-gray-900/60 mt-1.5 flex justify-end font-mono">

@@ -132,8 +132,19 @@ Write a clean, professional, action-oriented business summary under 4 sentences.
                     "db_message": db_msg
                 }
 
+        # 2b. Fetch recent conversation state: reused for intent context & SQL generation
+        messages_list = await self.conv_repo.get_messages(conversation_id)
+        previous_result = None
+        previous_sql = None
+        for m in reversed(messages_list):
+            if m.sender == "assistant" and m.sql_results:
+                previous_result = m.sql_results
+                previous_sql = m.generated_sql
+                break
+        has_recent_result = previous_result is not None
+
         # 3. Standard Intent Detection
-        intent = await self.intent_service.detect_intent(query_text)
+        intent = await self.intent_service.detect_intent(query_text, has_recent_result=has_recent_result)
 
         if intent != "DATA_QUERY":
             # Direct conversational text responses
@@ -222,11 +233,12 @@ Write a clean, professional, action-oriented business summary under 4 sentences.
 
         # 5. Pipeline Run: SQL compile & execute
         chat_history = []
-        messages_list = await self.conv_repo.get_messages(conversation_id)
         for m in messages_list[-6:]:
             chat_history.append({"role": m.sender, "content": m.content})
 
-        is_amb_llm, clar_llm, sql, reasoning = await self.sql_service.generate_sql(query_text, chat_history)
+        is_amb_llm, clar_llm, sql, reasoning, direct_answer = await self.sql_service.generate_sql(
+            query_text, chat_history, previous_result=previous_result, previous_sql=previous_sql
+        )
 
         if is_amb_llm and clar_llm:
             await self.context_service.update_context(
@@ -244,6 +256,30 @@ Write a clean, professional, action-oriented business summary under 4 sentences.
                 "type": "clarification",
                 "message": clar_llm,
                 "missing_fields": ["clarification"],
+                "db_message": db_msg
+            }
+
+        if direct_answer and not sql:
+            # Answered conversationally from the previously-fetched result set;
+            # no new query needed, so nothing new touches the database.
+            db_msg = await self.conv_repo.add_message(
+                conversation_id=conversation_id,
+                role="assistant",
+                content=direct_answer,
+                generated_sql=previous_sql,
+                sql_results=previous_result
+            )
+            await self.query_repo.log_query(
+                user_id=user_id,
+                question=query_text,
+                generated_sql=previous_sql,
+                execution_time_ms=0,
+                rows_returned=len((previous_result or {}).get("rows", [])),
+                status="success"
+            )
+            return {
+                "type": "conversation",
+                "message": direct_answer,
                 "db_message": db_msg
             }
 
@@ -318,13 +354,23 @@ Write a clean, professional, action-oriented business summary under 4 sentences.
             explanation=explanation
         )
 
+        # Determine whether the result actually fits the question, not just whether
+        # the SQL executed without error, before recording the Query Log status.
+        if not rows:
+            result_matches = False
+            mismatch_reason = "No matching data found for this query."
+        else:
+            result_matches = await self.formatter.validate_answer_relevance(query_text, sql, columns, rows)
+            mismatch_reason = None if result_matches else "Result does not appear to match the user's question."
+
         await self.query_repo.log_query(
             user_id=user_id,
             question=query_text,
             generated_sql=sql,
             execution_time_ms=duration,
             rows_returned=len(rows),
-            status="success"
+            status="success" if result_matches else "failed",
+            error_message=mismatch_reason
         )
 
         return {

@@ -109,15 +109,37 @@ class IntentService:
 
         return False
 
-    async def detect_intent(self, message: str) -> str:
+    def looks_like_followup(self, message: str) -> bool:
+        """
+        Rule-based check for conversational follow-ups that refer back to a result
+        already on screen (e.g. "why is that?", "break it down by city"), and thus
+        don't repeat any schema/business keywords of their own.
+        """
+        msg = message.lower().strip()
+        msg_clean = re.sub(r'[^\w\s]', '', msg).strip()
+        if not msg_clean:
+            return False
+
+        followup_words = {
+            "why", "that", "those", "it", "them", "these", "this",
+            "instead", "breakdown", "filter", "compare", "further",
+            "explain", "elaborate", "sort", "narrow", "exclude", "only"
+        }
+        tokens = set(msg_clean.split())
+        return bool(tokens.intersection(followup_words))
+
+    async def detect_intent(self, message: str, has_recent_result: bool = False) -> str:
         """
         Classifies the user message into one of the supported categories:
         GREETING, SMALL_TALK, HELP, DATA_QUERY, CLARIFICATION_REPLY, UNSUPPORTED.
         Enforces the priority order:
         1. Check rule-based intent detection.
         2. If rule-based checks identify a DATA_QUERY, GREETING, or HELP, return immediately.
-        3. If uncertain, fallback to LLM.
-        4. Never let LLM override an obvious data query.
+        3. If there's a recent query result in this conversation, treat referential
+           follow-up phrasing ("why is that?", "break it down further") as DATA_QUERY
+           too, instead of falling through to UNSUPPORTED.
+        4. If uncertain, fallback to LLM.
+        5. Never let LLM override an obvious data query.
         """
         if not message.strip():
             return "SMALL_TALK"
@@ -131,6 +153,8 @@ class IntentService:
             return "HELP"
         if self.looks_like_small_talk(message):
             return "SMALL_TALK"
+        if has_recent_result and self.looks_like_followup(message):
+            return "DATA_QUERY"
 
         # LLM fallback
         if self.groq.is_mock:

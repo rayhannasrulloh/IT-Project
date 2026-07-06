@@ -120,7 +120,7 @@ async def test_sql_generation_and_safety():
     sql_service = SqlService()
     
     # Mock SQL compilation
-    is_amb, clar, sql, reasoning = await sql_service.generate_sql("Who are our top customers by revenue?")
+    is_amb, clar, sql, reasoning, direct_answer = await sql_service.generate_sql("Who are our top customers by revenue?")
     assert not is_amb
     assert sql is not None
     assert "customers" in sql.lower()

@@ -54,7 +54,7 @@ class BenchmarkService:
         
         for q in questions:
             start_time = time.time()
-            is_ambiguous, clarification, gen_sql, reasoning = await self.sql_service.generate_sql(q.question)
+            is_ambiguous, clarification, gen_sql, reasoning, direct_answer = await self.sql_service.generate_sql(q.question)
             compile_time = int((time.time() - start_time) * 1000)
             
             passed = False

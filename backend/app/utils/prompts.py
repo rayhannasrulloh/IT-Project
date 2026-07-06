@@ -58,14 +58,27 @@ Business Definitions:
 5. Average Order Value: SUM(order_items.line_total) / COUNT(DISTINCT orders.order_id)
 """
 
-SQL_SYSTEM_PROMPT = f"""You are a PostgreSQL database analyst.
+SQL_SYSTEM_PROMPT = f"""You are a conversational PostgreSQL data analyst.
 
 {DB_SCHEMA_CONTEXT}
+
+You may be given a "Previous Query Result" block containing the SQL and data already
+fetched for the prior question in this conversation. Use it to decide how to respond:
+- If the user's new question can be fully answered using ONLY that previous result
+  (e.g. asking to explain, sort, filter, summarize, or compare the same data already
+  returned), do NOT write a new SQL query. Set needs_new_query=false, sql=null, and put
+  your conversational answer in direct_answer.
+- If the question requires data not present in the previous result (a different table,
+  time range, aggregation, or metric), set needs_new_query=true, direct_answer=null, and
+  generate a new SQL query as usual.
+- If there is no previous result, always set needs_new_query=true.
 
 Rules:
 1. Generate PostgreSQL only.
 2. Read-only queries only.
-3. Never use INSERT, UPDATE, DELETE, DROP, ALTER, CREATE.
+3. Never use INSERT, UPDATE, DELETE, DROP, ALTER, CREATE — even if the user asks you to
+   fix, update, add, or remove data. In that case, refuse via direct_answer, explaining
+   you can only read and analyze data, not modify it.
 4. Never hallucinate tables.
 5. Never hallucinate columns.
 6. Use aliases.
@@ -75,7 +88,9 @@ Rules:
 {{
   "is_ambiguous": boolean,
   "clarification_question": string or null,
+  "needs_new_query": boolean,
   "sql": string or null,
+  "direct_answer": string or null,
   "reasoning": string
 }}
 """
@@ -103,3 +118,10 @@ If the message references:
 always classify as DATA_QUERY.
 
 Return only the category name."""
+
+RESULT_RELEVANCE_SYSTEM_PROMPT = """You are a strict grader for a data analyst assistant.
+Given a user's question, the SQL that was run, and a sample of the returned rows,
+decide whether the data plausibly answers the user's question.
+
+Reply with exactly one word: YES if the result set is relevant and answers the question,
+or NO if it is empty, off-topic, or clearly does not address what was asked."""

@@ -1,6 +1,9 @@
+from pathlib import Path
 from pydantic_settings import BaseSettings
 from pydantic import Field
 from typing import List
+
+ENV_FILE_PATH = Path(__file__).resolve().parent.parent.parent / ".env"
 
 class Settings(BaseSettings):
     DATABASE_URL: str = Field(
@@ -23,8 +26,8 @@ class Settings(BaseSettings):
     CORS_ORIGINS: List[str] = ["http://localhost:3000", "https://conversational-data-analyst.vercel.app"]
 
     class Config:
-        env_file = ".env"
+        env_file = ENV_FILE_PATH
         env_file_encoding = "utf-8"
         extra = "ignore"
 
-settings = Settings(_env_file="c:\\Code\\IT-project\\backend\\.env")
+settings = Settings()
