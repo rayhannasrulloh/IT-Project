@@ -90,7 +90,17 @@ Rules:
    (the selling price). products.cost is the internal cost of goods — use it ONLY
    for profit/margin/markup calculations, never as the product's price.
 8. If the question is ambiguous or lacks enough information to write a valid query, ask a clarification question.
-9. Return JSON only in the following schema:
+9. FOLLOW-UPS: the conversation history above shows earlier questions and the SQL
+   you used. When the new question is a follow-up that refers to a previous result
+   (e.g. "break it down by month", "only Gold tier", "what about last month",
+   "sort it descending", "just the top 5", "and their cities"), adapt the PREVIOUS
+   query with the new constraint — keep the earlier filters/joins, don't restart
+   from scratch and don't drop context.
+10. GROUNDING: rely only on the schema and data. Never invent columns, tables, or
+    values, and never rely on outside/world knowledge. If the answer isn't
+    obtainable from this schema, set is_ambiguous=true with a clarification rather
+    than guessing.
+11. Return JSON only in the following schema:
 {{
   "is_ambiguous": boolean,
   "clarification_question": string or null,
@@ -129,12 +139,18 @@ class AnalystService:
         messages = [
             SystemMessage(content=SYSTEM_PROMPT)
         ]
-        
-        # Add conversation history context if available
-        for msg in chat_history[-6:]:  # limit context to last 3 turns
-            messages.append(HumanMessage(content=f"User: {msg['user']}\nAnalyst: {msg['analyst']}"))
-            
-        messages.append(HumanMessage(content=f"Generate SQL for this question: {query_text}"))
+
+        # Add conversation history (last 4 turns) so follow-up questions can build
+        # on the previous query. Include the SQL each turn ran, not just the reply.
+        for msg in chat_history[-8:]:
+            turn = f"Earlier question: {msg.get('user', '')}"
+            if msg.get("sql"):
+                turn += f"\nSQL used for it:\n{msg['sql']}"
+            if msg.get("analyst"):
+                turn += f"\nAnswer given: {msg['analyst']}"
+            messages.append(HumanMessage(content=turn))
+
+        messages.append(HumanMessage(content=f"Now generate SQL for this question: {query_text}"))
 
         try:
             response = await self.sql_llm.ainvoke(messages)
@@ -290,18 +306,25 @@ class AnalystService:
         if self.is_mock:
             return self._describe_results(query, rows)
 
-        prompt = f"""Explain the following query results to a business user:
-Question: {query}
-SQL Executed: {sql}
-Results (First 5 rows): {json.dumps(rows[:5])}
+        prompt = f"""The user asked: "{query}"
+SQL executed: {sql}
+Query result rows (this is the ONLY source of truth): {json.dumps(rows[:20])}
+Total rows returned: {len(rows)}
 
-Write a clean, professional business summary under 4 sentences. Keep the tone helpful.
-Summarize the result ONLY — do not offer to run more analysis, do not invite the
-user to ask for a breakdown, and do not end with a question or a call to action.
-All monetary amounts are in Indonesian Rupiah (IDR) — format them as "Rp" or "IDR", never use "$" or "USD".
+Write a clean, professional business summary of these results under 4 sentences.
+
+STRICT GROUNDING RULES — follow exactly:
+- Base your answer ONLY on the result rows above. They are the single source of truth.
+- Do NOT use any outside knowledge, general facts, or assumptions.
+- Report the numbers EXACTLY as they appear. Do NOT recompute, re-round, correct,
+  or second-guess them — even if a value looks wrong or surprising, state it as-is.
+- Never mention any value, name, or figure that is not present in the rows above.
+- If the rows do not contain what the user asked for, say the data does not include it.
+- Summarize only — no follow-up offers, no questions, no calls to action.
+- All monetary amounts are Indonesian Rupiah (IDR) — format as "Rp" or "IDR", never "$"/"USD".
 """
         messages = [
-            SystemMessage(content="You are a data interpretation assistant."),
+            SystemMessage(content="You are a data interpretation assistant. You report only what is in the query results, never adding outside knowledge or correcting the data."),
             HumanMessage(content=prompt)
         ]
         try:

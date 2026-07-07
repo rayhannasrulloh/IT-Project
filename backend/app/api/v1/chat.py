@@ -92,14 +92,17 @@ async def submit_query(
         if not conv or conv.user_id != current_user.id:
             raise HTTPException(status_code=404, detail="Conversation not found or unauthorized")
 
-    # 2. Pull recent message logs for history context
+    # 2. Pull recent message logs for history context (include the SQL each
+    #    prior turn ran, so follow-up questions can adapt the previous query)
     msgs = await conv_repo.get_messages(conv_id)
     chat_history = []
     for m in msgs:
         if m.role == "user":
-            chat_history.append({"user": m.content, "analyst": ""})
+            chat_history.append({"user": m.content, "analyst": "", "sql": ""})
         elif m.role == "assistant" and chat_history:
             chat_history[-1]["analyst"] = m.content
+            if getattr(m, "generated_sql", None):
+                chat_history[-1]["sql"] = m.generated_sql
 
     # Save User message
     await conv_repo.add_message(conversation_id=conv_id, role="user", content=payload.query_text)
