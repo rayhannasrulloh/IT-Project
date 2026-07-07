@@ -26,6 +26,8 @@ class UpdateRoleRequest(BaseModel):
 class QueryRequest(BaseModel):
     conversation_id: Optional[str] = Field(None, description="Optional conversation UUID to continue a thread")
     query_text: str = Field(..., description="Natural language question to compile to SQL")
+    model_provider: Optional[str] = Field(None, description="Optional LLM provider override ('groq' or 'openrouter')")
+    model: Optional[str] = Field(None, description="Optional model name override")
 
 
 # --- Response Schemas (Finalized Specifications) ---
@@ -165,11 +167,16 @@ class ExtractedTableResponse(BaseModel):
 class QueryLogResponse(BaseModel):
     log_id: str
     user_id: str
+    user_email: Optional[str] = None
     question: str
+    query_text: Optional[str] = None
     generated_sql: Optional[str] = None
+    executed_sql: Optional[str] = None
     execution_time_ms: Optional[int] = None
+    execution_duration_ms: Optional[int] = None
     rows_returned: Optional[int] = None
     status: str
+    error_message: Optional[str] = None
     created_at: datetime
 
     class Config:

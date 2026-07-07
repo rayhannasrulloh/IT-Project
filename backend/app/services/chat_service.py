@@ -13,7 +13,7 @@ from app.services.context_service import ContextService
 from app.services.clarification_service import ClarificationService
 from app.services.sql_service import SqlService
 from app.services.visualization_service import VisualizationService
-from app.services.groq_service import GroqService
+from app.services.llm_service import LlmService
 from app.services.response_formatter import ResponseFormatter
 from app.utils.serializer import serialize_rows, serialize_row
 from app.utils.sql_validator import validate_sql_safety
@@ -30,12 +30,15 @@ class ChatService:
         self.clarification_service = ClarificationService()
         self.sql_service = SqlService()
         self.viz_service = VisualizationService()
-        self.groq = GroqService()
+        self.llm = LlmService()
         self.formatter = ResponseFormatter()
 
     async def execute_query(self, sql: str) -> Tuple[List[str], List[Dict[str, Any]], int]:
         """Executes SQL query and returns (columns, rows, duration_ms)"""
         start = time.time()
+        # Strip trailing semicolons and whitespace to prevent syntax errors inside subqueries
+        sql = sql.strip().rstrip(";")
+        
         # Append safe limits
         if "LIMIT" not in sql.upper():
             sql = f"SELECT * FROM ({sql}) AS subq LIMIT 100"
@@ -61,7 +64,7 @@ class ChatService:
 
     async def generate_explanation(self, query: str, sql: str, rows: List[dict]) -> str:
         """Generates conversational plain text explanation of table datasets."""
-        if self.groq.is_mock:
+        if self.llm.is_mock:
             return f"Based on the query, here are the results for: '{query}'."
 
         prompt = f"""Explain the following query results to a business user:
@@ -76,11 +79,18 @@ Write a clean, professional, action-oriented business summary under 4 sentences.
             HumanMessage(content=prompt)
         ]
         try:
-            return await self.groq.invoke(messages, model="llama-3-8b-8192", temperature=0.3)
+            return await self.llm.invoke(messages, model="llama-3-8b-8192", temperature=0.3)
         except Exception:
             return f"Found {len(rows)} entries matching the query parameters."
 
-    async def handle_message(self, user_id: str, query_text: str, conversation_id: Optional[str] = None) -> Dict[str, Any]:
+    async def handle_message(
+        self, 
+        user_id: str, 
+        query_text: str, 
+        conversation_id: Optional[str] = None,
+        model_provider: Optional[str] = None,
+        model: Optional[str] = None
+    ) -> Dict[str, Any]:
         """
         Main pipeline logic: Intent detection, context check, query compiling & execution.
         Returns a dictionary response compliant with either specified JSON shapes or full Message model.
@@ -133,7 +143,7 @@ Write a clean, professional, action-oriented business summary under 4 sentences.
                 }
 
         # 3. Standard Intent Detection
-        intent = await self.intent_service.detect_intent(query_text)
+        intent = await self.intent_service.detect_intent(query_text, provider=model_provider, model=model)
 
         if intent != "DATA_QUERY":
             # Direct conversational text responses
@@ -226,7 +236,12 @@ Write a clean, professional, action-oriented business summary under 4 sentences.
         for m in messages_list[-6:]:
             chat_history.append({"role": m.sender, "content": m.content})
 
-        is_amb_llm, clar_llm, sql, reasoning = await self.sql_service.generate_sql(query_text, chat_history)
+        is_amb_llm, clar_llm, sql, reasoning = await self.sql_service.generate_sql(
+            query_text, 
+            chat_history, 
+            provider=model_provider, 
+            model=model
+        )
 
         if is_amb_llm and clar_llm:
             await self.context_service.update_context(
@@ -277,6 +292,7 @@ Write a clean, professional, action-oriented business summary under 4 sentences.
         try:
             columns, rows, duration = await self.execute_query(sql)
         except Exception as db_err:
+            await self.db.rollback()
             exec_status = "failed"
             err_msg = str(db_err)
 
@@ -304,7 +320,13 @@ Write a clean, professional, action-oriented business summary under 4 sentences.
             }
 
         # Success flow: explanations & viz
-        explanation = await self.formatter.generate_natural_response(query_text, columns, rows)
+        explanation = await self.formatter.generate_natural_response(
+            query_text, 
+            columns, 
+            rows, 
+            provider=model_provider, 
+            model=model
+        )
         viz_config = self.viz_service.generate_plotly_config(columns, rows)
         
         sql_payload = {"columns": columns, "rows": rows}
@@ -318,13 +340,17 @@ Write a clean, professional, action-oriented business summary under 4 sentences.
             explanation=explanation
         )
 
+        log_status = "success" if len(rows) > 0 else "failed"
+        log_err = None if len(rows) > 0 else "Query returned an empty dataset"
+
         await self.query_repo.log_query(
             user_id=user_id,
             question=query_text,
             generated_sql=sql,
             execution_time_ms=duration,
             rows_returned=len(rows),
-            status="success"
+            status=log_status,
+            error_message=log_err
         )
 
         return {

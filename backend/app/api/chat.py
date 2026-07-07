@@ -28,7 +28,9 @@ async def submit_chat_message(
         res = await service.handle_message(
             user_id=current_user.id,
             query_text=payload.query_text,
-            conversation_id=payload.conversation_id
+            conversation_id=payload.conversation_id,
+            model_provider=payload.model_provider,
+            model=payload.model
         )
         
         # Format the response based on the type
@@ -68,7 +70,9 @@ async def submit_query_compat(
         res = await service.handle_message(
             user_id=current_user.id,
             query_text=payload.query_text,
-            conversation_id=payload.conversation_id
+            conversation_id=payload.conversation_id,
+            model_provider=payload.model_provider,
+            model=payload.model
         )
         
         db_msg = res["db_message"]

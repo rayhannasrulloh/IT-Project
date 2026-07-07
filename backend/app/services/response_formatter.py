@@ -1,12 +1,12 @@
 import re
 import json
 from typing import List, Dict, Any, Optional
-from app.services.groq_service import GroqService
+from app.services.llm_service import LlmService
 from langchain.schema import HumanMessage, SystemMessage
 
 class ResponseFormatter:
     def __init__(self):
-        self.groq = GroqService()
+        self.llm = LlmService()
 
     def format_single_value(self, question: str, column: str, value: Any) -> str:
         """Formats a single cell result value (like a count or total sum) into a natural sentence."""
@@ -73,7 +73,14 @@ class ResponseFormatter:
         """Helper to get a basic summary of columns and rows count."""
         return f"Query returned {len(rows)} rows with columns: {', '.join(columns)}."
 
-    async def generate_natural_response(self, question: str, columns: List[str], rows: List[Dict[str, Any]]) -> str:
+    async def generate_natural_response(
+        self, 
+        question: str, 
+        columns: List[str], 
+        rows: List[Dict[str, Any]],
+        provider: Optional[str] = None,
+        model: Optional[str] = None
+    ) -> str:
         """
         Main formatter driver: converts columns and database rows into natural language.
         Combines rule-based heuristics and LLM inference.
@@ -87,7 +94,7 @@ class ResponseFormatter:
             val = rows[0][col]
             return self.format_single_value(question, col, val)
 
-        if self.groq.is_mock:
+        if self.llm.is_mock:
             return self.format_table_summary(question, columns, rows)
 
         # Fallback to LLM for rich human summaries
@@ -110,6 +117,6 @@ Rules:
             HumanMessage(content=prompt)
         ]
         try:
-            return await self.groq.invoke(messages, model="llama-3-8b-8192", temperature=0.3)
+            return await self.llm.invoke(messages, model=model or "llama-3-8b-8192", temperature=0.3, provider=provider)
         except Exception:
             return self.format_table_summary(question, columns, rows)

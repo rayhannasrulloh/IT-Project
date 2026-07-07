@@ -27,9 +27,8 @@ const DATABASE_SCHEMA: TableMeta[] = [
     description: "Inventory items and purchase cost catalog",
     columns: [
       { name: "product_id", type: "integer", isPk: true },
-      { name: "product_name", type: "varchar(150)" },
-      { name: "category", type: "varchar(100)" },
-      { name: "unit_price", type: "decimal(10,2)" },
+      { name: "name", type: "varchar(150)" },
+      { name: "price", type: "decimal(10,2)" },
       { name: "cost", type: "decimal(10,2)" }
     ]
   },
@@ -39,21 +38,8 @@ const DATABASE_SCHEMA: TableMeta[] = [
     columns: [
       { name: "order_id", type: "integer", isPk: true },
       { name: "customer_id", type: "integer", isFk: true },
-      { name: "order_date", type: "timestamp" },
       { name: "status", type: "varchar(50)" },
-      { name: "order_total", type: "decimal(12,2)" }
-    ]
-  },
-  {
-    name: "payments",
-    description: "Records invoice payment transactions and methods",
-    columns: [
-      { name: "payment_id", type: "integer", isPk: true },
-      { name: "order_id", type: "integer", isFk: true },
-      { name: "amount", type: "decimal(12,2)" },
-      { name: "method", type: "varchar(50)" },
-      { name: "paid_date", type: "timestamp" },
-      { name: "status", type: "varchar(50)" }
+      { name: "order_date", type: "timestamp" }
     ]
   },
   {
@@ -64,8 +50,7 @@ const DATABASE_SCHEMA: TableMeta[] = [
       { name: "order_id", type: "integer", isFk: true },
       { name: "product_id", type: "integer", isFk: true },
       { name: "quantity", type: "integer" },
-      { name: "unit_price", type: "decimal(10,2)" },
-      { name: "line_total", type: "decimal(12,2)" }
+      { name: "price_at_purchase", type: "decimal(10,2)" }
     ]
   }
 ];
@@ -80,7 +65,6 @@ export const SchemaExplorer: React.FC = () => {
   return (
     <Card className="border-border bg-card shadow-sm h-full flex flex-col">
       <CardHeader className="p-4 border-b border-border/80 flex flex-row items-center space-x-2 bg-muted/20">
-        <Database className="h-5 w-5 text-primary" />
         <CardTitle className="text-sm font-bold text-foreground">Database Schema Explorer</CardTitle>
       </CardHeader>
       <CardContent className="p-3 space-y-1.5 flex-1 overflow-y-auto">

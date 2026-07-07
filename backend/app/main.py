@@ -67,6 +67,13 @@ app.include_router(benchmark.router, prefix="/api/v1")
 app.include_router(admin.router, prefix="/api/v1")
 app.include_router(documents.router, prefix="/api/v1")
 
+# Explicit mapping for exact requested export paths (without /v1 prefix)
+from app.core.security import require_admin
+from fastapi import Depends
+from app.api.admin import export_logs_csv, export_logs_pdf
+app.add_api_route("/api/admin/logs/export/csv", export_logs_csv, methods=["GET"], dependencies=[Depends(require_admin)])
+app.add_api_route("/api/admin/logs/export/pdf", export_logs_pdf, methods=["GET"], dependencies=[Depends(require_admin)])
+
 @app.get("/")
 def read_root():
     """Health check endpoint."""

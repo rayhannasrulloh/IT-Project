@@ -1,12 +1,12 @@
 import re
 from typing import Optional
 from langchain.schema import HumanMessage, SystemMessage
-from app.services.groq_service import GroqService
+from app.services.llm_service import LlmService
 from app.utils.prompts import INTENT_SYSTEM_PROMPT
 
 class IntentService:
     def __init__(self):
-        self.groq = GroqService()
+        self.llm = LlmService()
 
     def looks_like_greeting(self, message: str) -> bool:
         """Rule-based check for greeting keywords."""
@@ -109,7 +109,7 @@ class IntentService:
 
         return False
 
-    async def detect_intent(self, message: str) -> str:
+    async def detect_intent(self, message: str, provider: Optional[str] = None, model: Optional[str] = None) -> str:
         """
         Classifies the user message into one of the supported categories:
         GREETING, SMALL_TALK, HELP, DATA_QUERY, CLARIFICATION_REPLY, UNSUPPORTED.
@@ -133,7 +133,7 @@ class IntentService:
             return "SMALL_TALK"
 
         # LLM fallback
-        if self.groq.is_mock:
+        if self.llm.is_mock:
             return "UNSUPPORTED"
 
         messages = [
@@ -142,7 +142,7 @@ class IntentService:
         ]
 
         try:
-            raw = await self.groq.invoke(messages, model="llama-3-8b-8192", temperature=0.0)
+            raw = await self.llm.invoke(messages, model=model or "llama-3-8b-8192", temperature=0.0, provider=provider)
             label = re.sub(r'[^\w_]', '', raw.strip().upper())
             
             valid_labels = {"GREETING", "SMALL_TALK", "HELP", "DATA_QUERY", "CLARIFICATION_REPLY", "UNSUPPORTED"}
@@ -152,7 +152,7 @@ class IntentService:
         except Exception:
             return "UNSUPPORTED"
 
-    async def is_data_query(self, message: str) -> bool:
+    async def is_data_query(self, message: str, provider: Optional[str] = None, model: Optional[str] = None) -> bool:
         """Determines if the intent requires generating SQL."""
-        intent = await self.detect_intent(message)
+        intent = await self.detect_intent(message, provider=provider, model=model)
         return intent == "DATA_QUERY"

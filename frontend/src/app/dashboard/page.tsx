@@ -84,11 +84,9 @@ export default function DashboardPage() {
           {/* Logo Brand */}
           <div className="flex items-center space-x-2.5 px-2">
             <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center shadow-sm">
-              <Database className="h-4 w-4 text-white" />
             </div>
             <div>
               <span className="font-bold text-sm text-foreground tracking-tight block">Conda AI</span>
-              <span className="text-[10px] text-muted-foreground font-mono block -mt-0.5">PostgreSQL compiler</span>
             </div>
           </div>
 
@@ -163,7 +161,6 @@ export default function DashboardPage() {
         {/* 2. Sticky Top Navigation Bar */}
         <header className="h-16 border-b border-border bg-card/85 backdrop-blur-md sticky top-0 z-10 px-6 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <MessageSquare className="h-4 w-4 text-primary" />
             <h1 className="font-bold text-sm text-foreground">Chat Workspace</h1>
           </div>
 

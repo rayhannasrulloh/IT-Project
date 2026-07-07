@@ -3,7 +3,15 @@ import {
   ExtractedTable, SystemStats, QueryLog, BenchmarkResult 
 } from '../types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const getApiBaseUrl = (): string => {
+  let url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    url = 'http://' + url;
+  }
+  return url;
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 class ApiService {
   private getAuthToken(): string | null {
@@ -30,10 +38,16 @@ class ApiService {
       headers.set('Content-Type', 'application/json');
     }
 
-    const response = await fetch(`${API_BASE_URL}${path}`, {
-      ...options,
-      headers,
-    });
+    let response: Response;
+    try {
+      response = await fetch(`${API_BASE_URL}${path}`, {
+        ...options,
+        headers,
+      });
+    } catch (fetchErr: any) {
+      console.error('API connection failed:', fetchErr);
+      throw new Error('Failed to connect to the backend server. Please verify the API server is running.');
+    }
 
     if (!response.ok) {
       const errBody = await response.json().catch(() => ({}));
@@ -115,8 +129,41 @@ class ApiService {
     return this.request<SystemStats>('/api/v1/admin/stats');
   }
 
-  async getLogs(): Promise<QueryLog[]> {
-    return this.request<QueryLog[]>('/api/v1/admin/logs');
+  async getLogs(filters?: {
+    user_email?: string;
+    start_date?: string;
+    end_date?: string;
+    query_text?: string;
+    status?: string;
+  }): Promise<QueryLog[]> {
+    let path = '/api/v1/admin/logs';
+    const params = new URLSearchParams();
+    if (filters?.user_email) params.append('user_email', filters.user_email);
+    if (filters?.start_date) params.append('start_date', filters.start_date);
+    if (filters?.end_date) params.append('end_date', filters.end_date);
+    if (filters?.query_text) params.append('query_text', filters.query_text);
+    if (filters?.status && filters.status !== 'all') params.append('status', filters.status);
+    
+    const queryStr = params.toString();
+    if (queryStr) {
+      path += `?${queryStr}`;
+    }
+    return this.request<QueryLog[]>(path);
+  }
+
+  async downloadFile(path: string): Promise<Blob> {
+    const token = this.getAuthToken();
+    const headers = new Headers();
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+      headers,
+    });
+    if (!response.ok) {
+      throw new Error('Failed to download report');
+    }
+    return response.blob();
   }
 
   async listUsers(): Promise<Profile[]> {

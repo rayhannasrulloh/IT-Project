@@ -2,7 +2,6 @@ from app.core.database import Base
 from app.models.customers import Customer
 from app.models.products import Product
 from app.models.orders import Order
-from app.models.payments import Payment
 from app.models.order_items import OrderItem
 from app.models.profiles import Profile
 from app.models.conversations import Conversation

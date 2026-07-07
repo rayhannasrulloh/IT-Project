@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Terminal, Loader2, ArrowRight, BookOpen } from 'lucide-react';
+import { Send, Terminal, Loader2, ArrowRight, BookOpen, Mic, MicOff } from 'lucide-react';
 import { useChatStore } from '../../store/useChatStore';
 import api from '../../services/api';
 import ChatMessage from './ChatMessage';
@@ -23,6 +23,62 @@ export const ChatWindow: React.FC = () => {
 
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Voice recognition states and refs
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        const rec = new SpeechRecognition();
+        rec.continuous = true;
+        rec.interimResults = true;
+        rec.lang = 'en-US';
+
+        rec.onresult = (event: any) => {
+          let fullTranscript = '';
+          for (let j = 0; j < event.results.length; ++j) {
+            fullTranscript += event.results[j][0].transcript;
+          }
+          if (fullTranscript.trim()) {
+            setInput(fullTranscript.trim());
+          }
+        };
+
+        rec.onerror = (event: any) => {
+          console.error("Speech recognition error", event.error);
+          setIsListening(false);
+        };
+
+        rec.onend = () => {
+          setIsListening(false);
+        };
+
+        recognitionRef.current = rec;
+      }
+    }
+  }, []);
+
+  const toggleListening = () => {
+    if (!recognitionRef.current) {
+      alert("Voice input is not supported in this browser. Please use Chrome, Edge, or Safari.");
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      try {
+        recognitionRef.current.start();
+        setIsListening(true);
+      } catch (err) {
+        console.error("Failed to start speech recognition", err);
+      }
+    }
+  };
 
   // Scroll to bottom
   useEffect(() => {
@@ -144,6 +200,19 @@ export const ChatWindow: React.FC = () => {
               className="flex-1 bg-transparent border-none text-sm text-foreground placeholder-muted-foreground focus:outline-none py-2"
               disabled={isLoading}
             />
+            <button
+              type="button"
+              onClick={toggleListening}
+              disabled={isLoading}
+              className={`p-2 rounded-lg cursor-pointer hover:bg-muted transition-colors ${
+                isListening 
+                  ? 'text-danger bg-danger/10 animate-pulse' 
+                  : 'text-muted-foreground'
+              }`}
+              title={isListening ? "Stop voice input" : "Start voice input"}
+            >
+              {isListening ? <MicOff className="h-4.5 w-4.5" /> : <Mic className="h-4.5 w-4.5" />}
+            </button>
             <Button
               type="submit"
               size="sm"

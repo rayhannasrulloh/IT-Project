@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models import Customer, Product, Order, Payment, OrderItem, Profile
+from app.models import Customer, Product, Order, OrderItem, Profile
 
 # Mock data definitions
 MOCK_PROFILES = [
@@ -30,11 +30,11 @@ MOCK_CUSTOMERS = [
 ]
 
 MOCK_PRODUCTS = [
-    {"product_name": "Cloud Data Platform", "category": "Software", "unit_price": Decimal("1500.00"), "cost": Decimal("300.00")},
-    {"product_name": "Enterprise Analytics Suite", "category": "Software", "unit_price": Decimal("2500.00"), "cost": Decimal("500.00")},
-    {"product_name": "Data Integration Pipeline", "category": "Software", "unit_price": Decimal("800.00"), "cost": Decimal("150.00")},
-    {"product_name": "Premium Support Contract", "category": "Support", "unit_price": Decimal("500.00"), "cost": Decimal("200.00")},
-    {"product_name": "ML Model Deployment Package", "category": "Consulting", "unit_price": Decimal("5000.00"), "cost": Decimal("1500.00")}
+    {"name": "Cloud Data Platform", "price": Decimal("1500.00"), "cost": Decimal("300.00")},
+    {"name": "Enterprise Analytics Suite", "price": Decimal("2500.00"), "cost": Decimal("500.00")},
+    {"name": "Data Integration Pipeline", "price": Decimal("800.00"), "cost": Decimal("150.00")},
+    {"name": "Premium Support Contract", "price": Decimal("500.00"), "cost": Decimal("200.00")},
+    {"name": "ML Model Deployment Package", "price": Decimal("5000.00"), "cost": Decimal("1500.00")}
 ]
 
 async def seed_database(db: AsyncSession):
@@ -72,10 +72,10 @@ async def seed_database(db: AsyncSession):
         products_q = await db.execute(select(Product))
         products = list(products_q.scalars().all())
 
-    # 4. Seed Orders, OrderItems, Payments
+    # 4. Seed Orders, OrderItems
     order_check = await db.execute(select(Order).limit(1))
     if not order_check.scalar_one_or_none() and customers and products:
-        print("Seeding orders, order items, and payments...")
+        print("Seeding orders and order items...")
         base_date = datetime.utcnow() - timedelta(days=90)
         
         for i in range(30):  # Generate 30 orders
@@ -84,13 +84,11 @@ async def seed_database(db: AsyncSession):
             
             # Select random products for this order
             chosen_products = random.sample(products, k=random.randint(1, 3))
-            order_total = Decimal("0.00")
             
             order = Order(
                 customer=customer,
                 order_date=order_date,
-                status=random.choice(["Completed", "Completed", "Completed", "Pending", "Cancelled"]),
-                order_total=Decimal("0.00")  # placeholder, calculate below
+                status=random.choice(["Completed", "Completed", "Completed", "Pending", "Cancelled"])
             )
             db.add(order)
             await db.flush()  # get order.order_id
@@ -98,50 +96,16 @@ async def seed_database(db: AsyncSession):
             order_items = []
             for prod in chosen_products:
                 qty = random.randint(1, 5)
-                unit_price = prod.unit_price
-                line_total = unit_price * qty
-                order_total += line_total
                 
                 item = OrderItem(
                     order_id=order.order_id,
                     product_id=prod.product_id,
                     quantity=qty,
-                    unit_price=unit_price,
-                    line_total=line_total
+                    price_at_purchase=prod.price
                 )
                 order_items.append(item)
             
-            order.order_total = order_total
             db.add_all(order_items)
-
-            # Create payment if completed or pending (some payments might fail)
-            if order.status == "Completed":
-                pay = Payment(
-                    order_id=order.order_id,
-                    amount=order_total,
-                    method=random.choice(["Credit Card", "PayPal", "Bank Transfer"]),
-                    paid_date=order_date + timedelta(minutes=random.randint(5, 120)),
-                    status="Success"
-                )
-                db.add(pay)
-            elif order.status == "Pending" and random.random() > 0.3:
-                pay = Payment(
-                    order_id=order.order_id,
-                    amount=order_total,
-                    method=random.choice(["Credit Card", "PayPal"]),
-                    paid_date=order_date,
-                    status="Pending"
-                )
-                db.add(pay)
-            elif order.status == "Cancelled":
-                pay = Payment(
-                    order_id=order.order_id,
-                    amount=order_total,
-                    method="Credit Card",
-                    paid_date=order_date,
-                    status="Failed"
-                )
-                db.add(pay)
                 
         await db.commit()
         print("Database seeding completed successfully.")

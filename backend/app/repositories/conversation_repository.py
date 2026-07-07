@@ -6,6 +6,7 @@ from datetime import datetime
 from app.models.conversations import Conversation
 from app.models.messages import Message
 from app.models.conversation_context import ConversationContext
+from app.models.feedback import Feedback
 
 class ConversationRepository:
     def __init__(self, db: AsyncSession):
@@ -29,6 +30,12 @@ class ConversationRepository:
         return list(result.scalars().all())
 
     async def delete(self, conversation_id: str) -> bool:
+        # Delete related child records first to satisfy foreign key constraints
+        await self.db.execute(delete(Feedback).filter_by(conversation_id=conversation_id))
+        await self.db.execute(delete(Message).filter_by(conversation_id=conversation_id))
+        await self.db.execute(delete(ConversationContext).filter_by(conversation_id=conversation_id))
+        
+        # Delete the main conversation record
         stmt = delete(Conversation).filter_by(conversation_id=conversation_id)
         result = await self.db.execute(stmt)
         await self.db.commit()

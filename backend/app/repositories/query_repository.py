@@ -22,8 +22,16 @@ class QueryRepository:
         status: str,
         error_message: Optional[str] = None
     ) -> QueryLog:
+        # Resolve user email from profiles
+        user_email = None
+        if user_id:
+            email_stmt = select(Profile.email).filter_by(id=user_id)
+            email_res = await self.db.execute(email_stmt)
+            user_email = email_res.scalar_one_or_none()
+
         log = QueryLog(
             user_id=user_id,
+            user_email=user_email,
             question=question,
             generated_sql=generated_sql,
             execution_time_ms=execution_time_ms,
@@ -41,8 +49,32 @@ class QueryRepository:
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
-    async def get_all_logs(self, limit: int = 100) -> List[QueryLog]:
-        stmt = select(QueryLog).order_by(QueryLog.created_at.desc()).limit(limit)
+    async def get_all_logs(
+        self,
+        limit: int = 100,
+        user_email: Optional[str] = None,
+        start_date: Optional[Any] = None,
+        end_date: Optional[Any] = None,
+        query_text: Optional[str] = None,
+        status: Optional[str] = None
+    ) -> List[QueryLog]:
+        stmt = select(QueryLog).order_by(QueryLog.created_at.desc())
+        
+        if user_email:
+            stmt = stmt.filter(QueryLog.user_email.ilike(f"%{user_email}%"))
+        if start_date:
+            stmt = stmt.filter(QueryLog.created_at >= start_date)
+        if end_date:
+            stmt = stmt.filter(QueryLog.created_at <= end_date)
+        if query_text:
+            stmt = stmt.filter(
+                (QueryLog.question.ilike(f"%{query_text}%")) |
+                (QueryLog.generated_sql.ilike(f"%{query_text}%"))
+            )
+        if status:
+            stmt = stmt.filter(QueryLog.status == status)
+            
+        stmt = stmt.limit(limit)
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 

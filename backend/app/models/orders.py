@@ -10,8 +10,5 @@ class Order(Base):
     customer_id = Column(Integer, ForeignKey("customers.customer_id"), nullable=False)
     order_date = Column(DateTime, default=datetime.utcnow, nullable=False)
     status = Column(String(50), nullable=False)  # Completed, Pending, Cancelled
-    order_total = Column(Numeric(12, 2), nullable=False)
-
     customer = relationship("Customer", back_populates="orders")
-    payments = relationship("Payment", back_populates="order", cascade="all, delete-orphan")
     order_items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")

@@ -11,12 +11,12 @@ from app.models.benchmark_questions import BenchmarkQuestion
 GOLDEN_TESTS = [
     {
         "question": "What is the total revenue we generated?",
-        "gold_sql": "SELECT SUM(amount) FROM payments WHERE status = 'Success';",
+        "gold_sql": "SELECT SUM(quantity * unit_price) FROM order_items;",
         "gold_answer": "total_revenue"
     },
     {
         "question": "Find the top customer by order total.",
-        "gold_sql": "SELECT c.name, SUM(o.order_total) as total FROM customers c JOIN orders o ON c.customer_id = o.customer_id GROUP BY c.name ORDER BY total DESC LIMIT 1;",
+        "gold_sql": "SELECT c.name, SUM(oi.quantity * oi.unit_price) as total FROM customers c JOIN orders o ON c.customer_id = o.customer_id JOIN order_items oi ON o.order_id = oi.order_id GROUP BY c.name ORDER BY total DESC LIMIT 1;",
         "gold_answer": "customer_name"
     },
     {

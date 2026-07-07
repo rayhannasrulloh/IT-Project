@@ -11,7 +11,7 @@ class ClarificationService:
                 "message": "Which revenue would you like to see?\n• Total revenue\n• Revenue by month\n• Revenue by product\n• Revenue by customer"
             },
             {
-                "trigger": lambda q: ("sales" in q or "revenue" in q) and not any(x in q for x in ["today", "this month", "last month", "this year", "year", "period", "range"]),
+                "trigger": lambda q: ("sales" in q or "revenue" in q) and not any(x in q for x in ["today", "this month", "last month", "this year", "year", "period", "range", "by", "each"]),
                 "pending_intent": "sales_analysis",
                 "missing_fields": ["time_period"],
                 "message": "For which period?\n• Today\n• This month\n• Last month\n• This year\n• Custom date range"
@@ -29,7 +29,7 @@ class ClarificationService:
                 "message": "Would you like:\n• Total orders\n• Orders by status\n• Orders over time\n• Orders by customer"
             },
             {
-                "trigger": lambda q: "product" in q and ("perform" in q or "best" in q or "top" in q) and not any(x in q for x in ["revenue", "quantity", "profit", "sold"]),
+                "trigger": lambda q: "product" in q and ("perform" in q or "best" in q or "top" in q) and not any(x in q for x in ["revenue", "quantity", "profit", "sold", "selling", "sales"]),
                 "pending_intent": "product_performance",
                 "missing_fields": ["performance_metric"],
                 "message": "How would you like to measure performance?\n• Revenue\n• Quantity sold\n• Profit"

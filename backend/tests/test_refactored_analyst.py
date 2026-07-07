@@ -110,7 +110,7 @@ def test_response_formatter():
     res = formatter.format_table_summary("Which city has the most customers?", ["city", "customers"], [{"city": "Surabaya", "customers": 124}])
     assert res == "Surabaya has the highest number of customers with 124 registered customers."
     
-    res = formatter.format_table_summary("What are the top selling products?", ["product_name"], [{"product_name": "Laptop Pro"}, {"product_name": "Wireless Mouse"}])
+    res = formatter.format_table_summary("What are the top selling products?", ["name"], [{"name": "Laptop Pro"}, {"name": "Wireless Mouse"}])
     assert "1. Laptop Pro" in res
     assert "2. Wireless Mouse" in res
 

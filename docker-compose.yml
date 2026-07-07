@@ -29,19 +29,11 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app
-    environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/conversational_analyst
-      - DATABASE_SYNC_URL=postgresql://postgres:password@db:5432/conversational_analyst
-      - GROQ_API_KEY=mock-groq-key
-      - SUPABASE_URL=https://mock.supabase.co
-      - SUPABASE_ANON_KEY=mock-anon-key
-      - SUPABASE_JWT_SECRET=mock-jwt-secret-must-be-long-enough-32-chars
-      - ENVIRONMENT=development
-      - SQL_GENERATION_MODEL=llama-3.3-70b-versatile
-      - EXPLANATION_MODEL=llama-3-8b-8192
-    depends_on:
-      db:
-        condition: service_healthy
+    env_file:
+      - ./backend/.env
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
 
   frontend:
     build:
@@ -56,11 +48,8 @@ services:
       - ./frontend:/app
       - /app/node_modules
       - /app/.next
-    environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000
-      - NEXT_PUBLIC_SUPABASE_URL=https://mock.supabase.co
-      - NEXT_PUBLIC_SUPABASE_ANON_KEY=mock-anon-key
-      - NODE_ENV=development
+    env_file:
+      - ./frontend/.env
     depends_on:
       - backend
 
