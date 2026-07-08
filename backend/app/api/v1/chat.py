@@ -158,9 +158,16 @@ async def submit_query(
                 "To explain a query, ask a business question and I will outline both the "
                 "SQL structure and explain the results in plain business terms."
             )
+        elif intent == "OUT_OF_SCOPE":
+            content = (
+                "I'm a data analyst for your business database — I can only answer "
+                "questions about your customers, products, orders, and payments. "
+                "I can't help with that topic. Try asking something like "
+                "\"What is our total revenue?\" or \"Who are our top customers?\""
+            )
         else: # SMALL_TALK or others
             content = (
-                "I'm doing great, thank you! I'm here and ready to help you analyze your business database. "
+                "I'm here to help you analyze your business database. "
                 "What data would you like to explore today?"
             )
 
@@ -171,13 +178,15 @@ async def submit_query(
             content=content
         )
 
-        # Log query log activity
+        # Off-topic questions we can't answer from the data are logged as failed;
+        # greetings/help/etc. are handled successfully.
         await log_repo.log_query(
             user_id=current_user.id,
             query_text=payload.query_text,
             executed_sql=None,
             execution_duration_ms=0,
-            status="success"
+            status="failed" if intent == "OUT_OF_SCOPE" else "success",
+            error_message="Out of scope — not answerable from the business data." if intent == "OUT_OF_SCOPE" else None,
         )
         return assistant_msg
 

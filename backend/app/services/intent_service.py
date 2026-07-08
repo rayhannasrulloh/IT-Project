@@ -14,8 +14,15 @@ Your job is to classify the user's message into exactly ONE of the following lab
 - EXPLAIN_SQL
 - VISUALIZATION_REQUEST
 - EXPORT_REQUEST
+- OUT_OF_SCOPE
 
 Definitions:
+
+OUT_OF_SCOPE:
+Questions that are NOT about the company's business data and are NOT greetings,
+small talk, or help — e.g. general/world knowledge, facts, math, coding help,
+or anything unrelated to customers, products, orders, payments.
+Examples: "what is the capital of France?", "who won the world cup?", "write me a poem", "what is 2+2?"
 
 GREETING:
 Greetings and salutations.
@@ -134,8 +141,8 @@ class IntentService:
             label = re.sub(r'[^\w_]', '', label)
             
             valid_labels = {
-                "GREETING", "SMALL_TALK", "HELP", "DATA_QUERY", 
-                "EXPLAIN_SQL", "VISUALIZATION_REQUEST", "EXPORT_REQUEST"
+                "GREETING", "SMALL_TALK", "HELP", "DATA_QUERY",
+                "EXPLAIN_SQL", "VISUALIZATION_REQUEST", "EXPORT_REQUEST", "OUT_OF_SCOPE"
             }
             
             if label in valid_labels:
