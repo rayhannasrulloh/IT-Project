@@ -25,15 +25,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        {/* Apply the saved (or system) theme before paint to avoid a flash */}
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`} suppressHydrationWarning>
+        {/* Apply the saved (or system) theme before paint to avoid a flash. Placed
+            as the first body child (not a manual <head>) so SSR and client render
+            it identically and hydration doesn't mismatch. */}
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}})();`,
           }}
         />
-      </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}>
         <Providers>
           {children}
         </Providers>
