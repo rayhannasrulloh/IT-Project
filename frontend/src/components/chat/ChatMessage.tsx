@@ -99,12 +99,18 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                 <Database className="h-3 w-3" /> Referenced from:
               </span>
               {message.references.tables.map((t) => (
-                <span
-                  key={t.table}
-                  title={t.description}
-                  className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted/60 border border-border/60 font-mono text-foreground/80"
-                >
-                  {t.table}
+                <span key={t.table} className="relative inline-flex group/ref">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted/60 border border-border/60 font-mono text-foreground/80 cursor-help">
+                    {t.table}
+                  </span>
+                  {/* Custom tooltip — instant, theme-aware, with an arrow */}
+                  <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 opacity-0 translate-y-1 group-hover/ref:opacity-100 group-hover/ref:translate-y-0 transition-all duration-150">
+                    <span className="block whitespace-nowrap rounded-lg bg-card border border-border shadow-lg px-2.5 py-1.5 text-[11px] text-foreground">
+                      <span className="font-semibold capitalize">{t.table}</span>
+                      <span className="text-muted-foreground"> — {t.description}</span>
+                    </span>
+                    <span className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 h-2 w-2 rotate-45 bg-card border-b border-r border-border" />
+                  </span>
                 </span>
               ))}
               <span className="text-muted-foreground/70">
