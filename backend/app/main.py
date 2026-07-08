@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 from app.core.config import settings
 from app.core.database import engine, Base, AsyncSessionLocal
 from app.core.seeder import seed_database
-from app.api import auth, chat, conversations, benchmark, admin, documents
+from app.api.v1 import auth, chat, documents, admin
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -62,17 +62,8 @@ async def global_exception_handler(request: Request, exc: Exception):
 # Mount API Routers
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(chat.router, prefix="/api/v1")
-app.include_router(conversations.router, prefix="/api/v1")
-app.include_router(benchmark.router, prefix="/api/v1")
-app.include_router(admin.router, prefix="/api/v1")
 app.include_router(documents.router, prefix="/api/v1")
-
-# Explicit mapping for exact requested export paths (without /v1 prefix)
-from app.core.security import require_admin
-from fastapi import Depends
-from app.api.admin import export_logs_csv, export_logs_pdf
-app.add_api_route("/api/admin/logs/export/csv", export_logs_csv, methods=["GET"], dependencies=[Depends(require_admin)])
-app.add_api_route("/api/admin/logs/export/pdf", export_logs_pdf, methods=["GET"], dependencies=[Depends(require_admin)])
+app.include_router(admin.router, prefix="/api/v1")
 
 @app.get("/")
 def read_root():

@@ -5,7 +5,7 @@ from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.core.database import get_db
-from app.models.profiles import Profile
+from app.domain.models import Profile
 
 security = HTTPBearer()
 

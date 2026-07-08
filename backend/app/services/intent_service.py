@@ -1,8 +1,8 @@
 import re
-from typing import Optional
+from typing import List
+from langchain_groq import ChatGroq
 from langchain.schema import HumanMessage, SystemMessage
 from app.core.config import settings
-from app.services.llm_service import LlmService
 
 INTENT_SYSTEM_PROMPT = """You are an Intent Classification Engine for a Conversational Data Analyst application.
 
@@ -61,24 +61,10 @@ Rules:
 """
 
 # Keywords lists for fallback checks
-DATA_QUERY_KEYWORDS = {
-    # Schema words (singular and plural)
-    "customer", "customers", "product", "products", "order", "orders", 
-    "payment", "payments", "order_item", "order_items", "customer_id", 
-    "name", "city", "tier", "product_name", "category", "order_total", 
-    "order_date", "status", "amount", "method", "quantity", "line_total",
-    "cost", "unit_price", "price",
-    # Data keywords
-    "show", "list", "count", "total", "average", "sum", "top", 
-    "best", "highest", "lowest", "revenue", "sales", "profit", 
-    "compare", "trend", "growth", "report", "statistics", "analytics", 
-    "dashboard", "monthly", "yearly", "selling",
-    # Cities
-    "surabaya", "jakarta", "new york", "chicago", "los angeles", 
-    "houston", "san francisco", "ny", "la", "boston", "seattle"
+ANALYTICAL_KEYWORDS = {
+    "show", "list", "count", "total", "revenue", "sales", "average", "top",
+    "customer", "order", "product", "profit", "payment", "selling", "revenue", "cost"
 }
-
-DATA_QUERY_PHRASES = ["how many", "group by", "average order value", "order total", "order date"]
 
 GREETING_KEYWORDS = {"hello", "hi", "hey", "good morning", "good afternoon", "good evening", "halo"}
 SMALL_TALK_KEYWORDS = {"how are you", "thank you", "thanks", "who are you", "nice to meet you", "howdy", "apa kabar"}
@@ -86,48 +72,62 @@ HELP_KEYWORDS = {"help", "what can you do", "how to use", "capabilities", "guide
 
 class IntentService:
     def __init__(self):
-        self.llm = LlmService()
+        # Reuse the configured generation model for classification (the old
+        # hardcoded llama-3-8b-8192 was decommissioned by Groq, which forced the
+        # rule-based fallback for every message).
+        if settings.GROQ_API_KEY != "mock-groq-key" and len(settings.GROQ_API_KEY) > 10:
+            self.llm = ChatGroq(
+                model=settings.SQL_GENERATION_MODEL,
+                groq_api_key=settings.GROQ_API_KEY,
+                temperature=0.0
+            )
+            self.is_mock = False
+        else:
+            self.is_mock = True
 
-    async def detect_intent(self, message: str, provider: Optional[str] = None, model: Optional[str] = None) -> str:
-        """Classifies the user message into one of the supported categories:
-        GREETING, SMALL_TALK, HELP, DATA_QUERY, EXPLAIN_SQL, VISUALIZATION_REQUEST, EXPORT_REQUEST, OUT_OF_SCOPE.
-        """
-        if not message or not message.strip():
-            return "SMALL_TALK"
-
+    def detect_intent_fallback(self, message: str) -> str:
+        """Local rule-based heuristic classification when Groq is offline or mock."""
         msg_clean = re.sub(r'[^\w\s]', '', message.lower()).strip()
         tokens = set(msg_clean.split())
 
-        # Check analytical keywords first to capture data queries
+        # Check analytical keywords first to capture data queries.
+        # Match singular and plural ("customers" -> "customer").
         for token in tokens:
-            if token in DATA_QUERY_KEYWORDS:
-                return "DATA_QUERY"
-        for phrase in DATA_QUERY_PHRASES:
-            if phrase in msg_clean:
+            if token in ANALYTICAL_KEYWORDS or token.rstrip("s") in ANALYTICAL_KEYWORDS:
                 return "DATA_QUERY"
 
-        # Check exact phrases
+        # Match phrases on word boundaries so e.g. "hi" doesn't match inside
+        # "which" and flip a data question into a greeting.
+        def has_phrase(phrase: str) -> bool:
+            return re.search(r'\b' + re.escape(phrase) + r'\b', msg_clean) is not None
         for phrase in GREETING_KEYWORDS:
-            if phrase in msg_clean:
+            if has_phrase(phrase):
                 return "GREETING"
         for phrase in SMALL_TALK_KEYWORDS:
-            if phrase in msg_clean:
+            if has_phrase(phrase):
                 return "SMALL_TALK"
         for phrase in HELP_KEYWORDS:
-            if phrase in msg_clean:
+            if has_phrase(phrase):
                 return "HELP"
 
         # Check token sets
         if tokens.intersection(GREETING_KEYWORDS):
             return "GREETING"
-        if tokens.intersection(HELP_KEYWORDS):
-            return "HELP"
         if tokens.intersection(SMALL_TALK_KEYWORDS):
             return "SMALL_TALK"
+        if tokens.intersection(HELP_KEYWORDS):
+            return "HELP"
 
-        # LLM fallback
-        if self.llm.is_mock:
-            return "UNSUPPORTED"
+        # Default fallback
+        return "SMALL_TALK"
+
+    async def detect_intent(self, message: str) -> str:
+        """Classifies the user's message into one of the supported intents."""
+        if not message.strip():
+            return "SMALL_TALK"
+
+        if self.is_mock:
+            return self.detect_intent_fallback(message)
 
         messages = [
             SystemMessage(content=INTENT_SYSTEM_PROMPT),
@@ -135,8 +135,11 @@ class IntentService:
         ]
 
         try:
-            raw = await self.llm.invoke(messages, model=model or "llama-3-8b-8192", temperature=0.0, provider=provider)
-            label = re.sub(r'[^\w_]', '', raw.strip().upper())
+            response = await self.llm.ainvoke(messages)
+            label = response.content.strip().upper()
+            
+            # Clean up the output in case the LLM returned punctuation or trailing comments
+            label = re.sub(r'[^\w_]', '', label)
             
             valid_labels = {
                 "GREETING", "SMALL_TALK", "HELP", "DATA_QUERY",
@@ -145,11 +148,13 @@ class IntentService:
             
             if label in valid_labels:
                 return label
-            return "UNSUPPORTED"
-        except Exception:
-            return "UNSUPPORTED"
+            else:
+                return self.detect_intent_fallback(message)
+        except Exception as e:
+            print(f"Intent classification API call failed: {str(e)}. Using fallback.")
+            return self.detect_intent_fallback(message)
 
-    async def is_data_query(self, message: str, provider: Optional[str] = None, model: Optional[str] = None) -> bool:
+    async def is_data_query(self, message: str) -> bool:
         """Determines if the intent requires generating SQL."""
-        intent = await self.detect_intent(message, provider=provider, model=model)
+        intent = await self.detect_intent(message)
         return intent == "DATA_QUERY"

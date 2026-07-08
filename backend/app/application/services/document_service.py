@@ -1,10 +1,11 @@
 import os
+import csv
 import pandas as pd
 from pypdf import PdfReader
-from typing import List
+from typing import List, Dict, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.repositories.document_repository import DocumentRepository
-from app.models.uploaded_documents import UploadedDocument
+from app.infrastructure.repositories.document_repository import DocumentRepository
+from app.domain.models import UploadedDocument
 
 class DocumentService:
     def __init__(self, db: AsyncSession):
@@ -56,9 +57,12 @@ class DocumentService:
     async def _process_csv(self, doc: UploadedDocument):
         """Parses CSV, extracting all rows into structured table registry."""
         df = pd.read_csv(doc.storage_path)
+        
+        # Clean headers and rows for JSON compatibility
         headers = [str(col) for col in df.columns]
         rows = df.fillna("").to_dict(orient="records")
 
+        # Write to extracted tables
         table_name = os.path.splitext(doc.filename)[0].lower().replace(" ", "_")
         await self.repo.add_extracted_table(
             document_id=doc.document_id,
@@ -71,26 +75,30 @@ class DocumentService:
         """Parses PDF pages, extracting text and segmenting chunks."""
         reader = PdfReader(doc.storage_path)
         chunks = []
-        full_text = ""
         
+        full_text = ""
         for i, page in enumerate(reader.pages):
             text = page.extract_text()
             if text:
                 full_text += text + "\n"
+                
+                # Create discrete page chunks
                 chunks.append({
                     "content": text.strip(),
                     "metadata": {"page": i + 1, "filename": doc.filename},
                     "embedding": self._generate_mock_embedding(text)
                 })
 
+        # Save individual chunks
         if chunks:
             await self.repo.add_chunks(doc.document_id, chunks)
 
+        # Detect tabular structures in text (simple heuristic) and save as extracted table
         lines = [line.strip() for line in full_text.split("\n") if line.strip()]
         table_rows = []
         headers = ["Line No", "Text Content"]
         
-        for idx, line in enumerate(lines[:100]):
+        for idx, line in enumerate(lines[:100]):  # Limit to first 100 rows for preview representation
             table_rows.append({"Line No": idx + 1, "Text Content": line})
             
         await self.repo.add_extracted_table(
@@ -102,6 +110,7 @@ class DocumentService:
 
     def _generate_mock_embedding(self, text: str) -> List[float]:
         """Generates simple dummy embeddings for mock vector storage capability."""
+        # Returns standard 8-dimensional float representation
         seed = sum(ord(c) for c in text[:100]) if text else 0
         import random
         random.seed(seed)

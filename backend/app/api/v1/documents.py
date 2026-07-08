@@ -3,10 +3,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 from app.core.database import get_db
 from app.core.security import get_current_user
-from app.models.profiles import Profile
-from app.schemas.chat import DocumentResponse, ExtractedTableResponse
-from app.repositories.document_repository import DocumentRepository
-from app.services.document_service import DocumentService
+from app.domain.models import Profile
+from app.api.schemas import DocumentResponse, ExtractedTableResponse
+from app.infrastructure.repositories.document_repository import DocumentRepository
+from app.application.services.document_service import DocumentService
 
 router = APIRouter(prefix="/documents", tags=["Document Intelligence"])
 
@@ -17,7 +17,11 @@ async def upload_document(
     current_user: Profile = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    """Uploads a CSV or PDF file, saves it, and schedules background parsing."""
+    """
+    Uploads a CSV or PDF file, saves it, and schedules an asynchronous
+    background parser to extract content and structure tables.
+    """
+    # Verify extension
     ext = file.filename.split(".")[-1].lower()
     if ext not in ["csv", "pdf"]:
         raise HTTPException(status_code=400, detail="Only CSV and PDF file formats are supported")
@@ -27,6 +31,7 @@ async def upload_document(
 
     doc_service = DocumentService(db)
     
+    # Register document and write locally
     doc = await doc_service.upload_document(
         user_id=current_user.id,
         filename=file.filename,
@@ -34,11 +39,13 @@ async def upload_document(
         storage_dir=storage_dir
     )
 
+    # Schedule background processing
     background_tasks.add_task(doc_service.process_document, doc.document_id)
+
     return doc
 
 
-@router.get("", response_model=List[DocumentResponse])
+@router.get("/", response_model=List[DocumentResponse])
 async def list_documents(
     current_user: Profile = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)

@@ -1,7 +1,11 @@
 import os
 from pydantic_settings import BaseSettings
 from pydantic import Field
-from typing import List, Optional
+from typing import List
+
+# backend/.env resolved relative to this file (works on any machine / CWD).
+# Falls back to real OS env vars (e.g. Railway/Vercel) when the file is absent.
+_ENV_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), ".env")
 
 class Settings(BaseSettings):
     DATABASE_URL: str = Field(
@@ -13,9 +17,6 @@ class Settings(BaseSettings):
         description="Sync database connection URL for migrations and seeding"
     )
     GROQ_API_KEY: str = Field(..., description="API Key for Groq service")
-    OPENROUTER_API_KEY: Optional[str] = Field(default=None, description="API Key for OpenRouter service")
-    LLM_PROVIDER: str = Field(default="groq", description="LLM provider: 'groq' or 'openrouter'")
-    OPENROUTER_MODEL: str = Field(default="tencent/hy3:free", description="OpenRouter model name")
     SUPABASE_URL: str = Field(..., description="Supabase API endpoint URL")
     SUPABASE_ANON_KEY: str = Field(..., description="Supabase anonymous client key")
     SUPABASE_JWT_SECRET: str = Field(..., description="JWT Secret to verify Supabase Auth tokens locally")
@@ -31,7 +32,4 @@ class Settings(BaseSettings):
         env_file_encoding = "utf-8"
         extra = "ignore"
 
-# Resolve the path to the .env file dynamically
-current_dir = os.path.dirname(os.path.abspath(__file__))
-env_file_path = os.path.abspath(os.path.join(current_dir, "..", "..", ".env"))
-settings = Settings(_env_file=env_file_path)
+settings = Settings(_env_file=_ENV_PATH)

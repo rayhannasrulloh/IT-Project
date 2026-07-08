@@ -81,18 +81,47 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen text-foreground flex">
       
-      {/* 1. Fixed Left Sidebar */}
-      <aside className="w-64 h-screen fixed left-0 top-0 border-r border-border bg-card flex flex-col justify-between p-4 z-20">
-        <div className="space-y-6">
-          {/* Logo Brand */}
-          <div className="flex items-center space-x-2.5 px-2">
-            <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center shadow-sm">
-              <Database className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <span className="font-bold text-sm text-foreground tracking-tight block">Conda AI</span>
-              <span className="text-[10px] text-muted-foreground font-mono block -mt-0.5">PostgreSQL compiler</span>
-            </div>
+      {/* 1. Icon rail — click an icon to open its panel (VS Code style) */}
+      <aside className="w-14 h-screen fixed left-0 top-0 border-r border-border bg-card flex flex-col items-center justify-between py-3 z-40">
+        <div className="flex flex-col items-center gap-1">
+          {/* Brand */}
+          <div className="h-9 w-9 bg-primary rounded-lg flex items-center justify-center shadow-sm mb-2">
+            <Sparkles className="h-4 w-4 text-white" />
+          </div>
+          {/* New chat */}
+          <button
+            onClick={() => { handleNewChat(); setActivePanel(null); }}
+            title="New chat"
+            className="h-10 w-10 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-150 active:scale-90 cursor-pointer"
+          >
+            <Plus className="h-5 w-5" />
+          </button>
+          {/* Recent chats */}
+          <button
+            onClick={() => togglePanel('recent')}
+            title="Recent chats"
+            className={`h-10 w-10 rounded-lg flex items-center justify-center transition-all duration-150 active:scale-90 cursor-pointer ${activePanel === 'recent' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}
+          >
+            <History className="h-5 w-5" />
+          </button>
+          {/* Schema explorer */}
+          <button
+            onClick={() => togglePanel('schema')}
+            title="Schema explorer"
+            className={`h-10 w-10 rounded-lg flex items-center justify-center transition-all duration-150 active:scale-90 cursor-pointer ${activePanel === 'schema' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}
+          >
+            <Database className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Bottom: theme toggle + user avatar + sign out */}
+        <div className="flex flex-col items-center gap-2">
+          <ThemeToggle />
+          <div
+            title={`${user.email} (${user.role})`}
+            className="h-8 w-8 rounded-full bg-muted border border-border flex items-center justify-center text-[11px] font-bold text-foreground uppercase"
+          >
+            {user.email.charAt(0)}
           </div>
           <button
             onClick={handleLogout}
@@ -160,6 +189,7 @@ export default function DashboardPage() {
         {/* 2. Sticky Top Navigation Bar */}
         <header className="h-16 border-b border-border/60 bg-background/80 backdrop-blur-md sticky top-0 z-10 px-6 flex items-center justify-between">
           <div className="flex items-center space-x-2">
+            <MessageSquare className="h-4 w-4 text-primary" />
             <h1 className="font-bold text-sm text-foreground">Chat Workspace</h1>
           </div>
 

@@ -25,6 +25,7 @@ export const ChatWindow: React.FC = () => {
   const [listening, setListening] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
 
   // Scroll to bottom
   useEffect(() => {
@@ -200,6 +201,17 @@ export const ChatWindow: React.FC = () => {
               className="flex-1 bg-transparent border-none text-sm text-foreground placeholder-muted-foreground focus:outline-none px-2 py-1.5"
               disabled={isLoading}
             />
+            {speechSupported && (
+              <button
+                type="button"
+                onClick={toggleMic}
+                disabled={isLoading}
+                title={listening ? 'Stop listening' : 'Voice input'}
+                className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 transition-colors cursor-pointer ${listening ? 'text-danger bg-danger/10 animate-pulse' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}`}
+              >
+                {listening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+              </button>
+            )}
             <Button
               type="submit"
               size="sm"
