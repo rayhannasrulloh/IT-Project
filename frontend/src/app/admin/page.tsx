@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   ShieldAlert, LogOut, MessageSquare, ShieldCheck,
-  BarChart3, Users, FileSpreadsheet, History, Cpu, Database, Shield, Table2
+  BarChart3, Users, FileSpreadsheet, History, Cpu, Database, Shield, Table2, Activity
 } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { Card, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
@@ -16,11 +16,16 @@ import DocumentIngestionView from '../../components/admin/DocumentIngestionView'
 import LogViewer from '../../components/admin/LogViewer';
 import BenchmarkRunner from '../../components/admin/BenchmarkRunner';
 import BusinessDataManager from '../../components/admin/BusinessDataManager';
+import EvaluationMatrix from '../../components/admin/EvaluationMatrix';
 
-export default function AdminPage() {
+interface AdminPageProps {
+  defaultTab?: 'analytics' | 'users' | 'data' | 'documents' | 'logs' | 'benchmarks' | 'evaluation';
+}
+
+export default function AdminPage({ defaultTab = 'analytics' }: AdminPageProps) {
   const router = useRouter();
   const { user, isAuthenticated, clearSession } = useAuthStore();
-  const [activeTab, setActiveTab] = useState<'analytics' | 'users' | 'data' | 'documents' | 'logs' | 'benchmarks'>('analytics');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'users' | 'data' | 'documents' | 'logs' | 'benchmarks' | 'evaluation'>(defaultTab);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -81,6 +86,7 @@ export default function AdminPage() {
 
   const adminNavItems = [
     { id: 'analytics' as const, label: 'System Analytics', icon: BarChart3 },
+    { id: 'evaluation' as const, label: 'Evaluation Matrix', icon: Activity },
     { id: 'users' as const, label: 'User Policies', icon: Users },
     { id: 'data' as const, label: 'Business Data', icon: Table2 },
     { id: 'documents' as const, label: 'Ingest Documents', icon: FileSpreadsheet },
@@ -174,6 +180,7 @@ export default function AdminPage() {
         <main className="flex-1 p-6 overflow-y-auto">
           <div className="max-w-6xl mx-auto bg-card border border-border/60 rounded-2xl p-6">
             {activeTab === 'analytics' && <AnalyticsCard />}
+            {activeTab === 'evaluation' && <EvaluationMatrix />}
             {activeTab === 'users' && <UserManagementTable />}
             {activeTab === 'data' && <BusinessDataManager />}
             {activeTab === 'documents' && <DocumentIngestionView />}

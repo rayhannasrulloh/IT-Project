@@ -125,6 +125,9 @@ class QueryLog(Base):
     execution_duration_ms = Column(Integer, nullable=True)
     status = Column(String(50), nullable=False)  # success, failed
     error_message = Column(Text, nullable=True)
+    llm_latency_ms = Column(Float, nullable=True)
+    input_tokens = Column(Integer, nullable=True)
+    output_tokens = Column(Integer, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     user = relationship("Profile", back_populates="query_logs")

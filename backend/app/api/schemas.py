@@ -378,3 +378,34 @@ class BenchmarkResultResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class EvaluationMetricsResponse(BaseModel):
+    sql_syntax_success_rate: float
+    data_matching_rate: float
+    average_latency_seconds: float
+    total_input_tokens: int
+    total_output_tokens: int
+    total_tokens: int
+    total_queries: int
+    valid_data_count: int
+    empty_dataset_count: int
+    out_of_scope_count: int
+    failed_other_count: int
+    recent_logs: List[Dict[str, Any]]
+
+
+class TestSuiteCaseResult(BaseModel):
+    nl_query: str
+    category: str
+    expected_output: str
+    model_output: Optional[str] = None
+    status: str  # "Pass" | "Fail"
+    latency_ms: int
+    error_message: Optional[str] = None
+
+
+class TestSuiteResponse(BaseModel):
+    test_results: List[TestSuiteCaseResult]
+    metrics: Dict[str, Any]
+

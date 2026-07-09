@@ -17,7 +17,10 @@ class QueryLogRepository:
         executed_sql: Optional[str],
         execution_duration_ms: Optional[int],
         status: str,
-        error_message: Optional[str] = None
+        error_message: Optional[str] = None,
+        llm_latency_ms: Optional[float] = None,
+        input_tokens: Optional[int] = None,
+        output_tokens: Optional[int] = None
     ) -> QueryLog:
         log = QueryLog(
             user_id=user_id,
@@ -25,7 +28,10 @@ class QueryLogRepository:
             executed_sql=executed_sql,
             execution_duration_ms=execution_duration_ms,
             status=status,
-            error_message=error_message
+            error_message=error_message,
+            llm_latency_ms=llm_latency_ms,
+            input_tokens=input_tokens,
+            output_tokens=output_tokens
         )
         self.db.add(log)
         await self.db.commit()

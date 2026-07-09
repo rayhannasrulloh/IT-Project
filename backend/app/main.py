@@ -19,6 +19,11 @@ async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         print("Synchronising database tables schema...")
         await conn.run_sync(Base.metadata.create_all)
+        # Ensure new columns exist in case table is already created
+        from sqlalchemy import text
+        await conn.execute(text("ALTER TABLE query_logs ADD COLUMN IF NOT EXISTS llm_latency_ms DOUBLE PRECISION;"))
+        await conn.execute(text("ALTER TABLE query_logs ADD COLUMN IF NOT EXISTS input_tokens INTEGER;"))
+        await conn.execute(text("ALTER TABLE query_logs ADD COLUMN IF NOT EXISTS output_tokens INTEGER;"))
         print("Database schema synchronization complete.")
 
     # 2. Run Database Seeder

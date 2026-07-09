@@ -1,7 +1,8 @@
 import {
   Profile, Conversation, Message, UploadedDocument,
   ExtractedTable, SystemStats, QueryLog, BenchmarkResult,
-  Customer, Product, Order, Payment, ImportResult
+  Customer, Product, Order, Payment, ImportResult,
+  EvaluationMetrics, TestSuiteResponse
 } from '../types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -203,6 +204,16 @@ class ApiService {
     return this.request<ImportResult>(`/api/v1/admin/data/${entity}/import`, {
       method: 'POST',
       body: formData,
+    });
+  }
+
+  async getEvaluationMetrics(): Promise<EvaluationMetrics> {
+    return this.request<EvaluationMetrics>('/api/v1/admin/evaluation/metrics');
+  }
+
+  async runTestSuite(): Promise<TestSuiteResponse> {
+    return this.request<TestSuiteResponse>('/api/v1/admin/evaluation/test-suite', {
+      method: 'POST',
     });
   }
 }

@@ -132,3 +132,46 @@ export interface BenchmarkResult {
   category: string | null;
   created_at: string;
 }
+
+export interface EvaluationMetrics {
+  sql_syntax_success_rate: number;
+  data_matching_rate: number;
+  average_latency_seconds: number;
+  total_input_tokens: number;
+  total_output_tokens: number;
+  total_tokens: number;
+  total_queries: number;
+  valid_data_count: number;
+  empty_dataset_count: number;
+  out_of_scope_count: number;
+  failed_other_count: number;
+  recent_logs: Array<{
+    created_at: string | null;
+    status: 'success' | 'failed';
+    llm_latency_ms: number;
+    input_tokens: number;
+    output_tokens: number;
+    query_text: string;
+  }>;
+}
+
+export interface TestSuiteCaseResult {
+  nl_query: string;
+  category: string;
+  expected_output: string;
+  model_output: string | null;
+  status: 'Pass' | 'Fail';
+  latency_ms: number;
+  error_message: string | null;
+}
+
+export interface TestSuiteResponse {
+  test_results: TestSuiteCaseResult[];
+  metrics: {
+    total_run: number;
+    passed: number;
+    failed: number;
+    accuracy_rate: number;
+    avg_latency_ms: number;
+  };
+}

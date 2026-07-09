@@ -1,4 +1,5 @@
 import random
+import time
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
@@ -142,10 +143,20 @@ async def submit_query(
 
     # 3. Intent Detection Layer — only classify a fresh message. If we are waiting
     # on the user's answer to a clarification, skip straight to SQL resolution.
+    total_latency_ms = 0.0
+    total_input_tokens = 0
+    total_output_tokens = 0
+
     intent = "DATA_QUERY"
     if not pending:
         intent_service = IntentService()
+        start_intent_time = time.time()
         intent = await intent_service.detect_intent(payload.query_text)
+        intent_latency_ms = (time.time() - start_intent_time) * 1000
+        total_latency_ms += intent_latency_ms
+        # Estimate intent detection token usage (approx. 250 input tokens for system prompt + user msg, 5 output tokens)
+        total_input_tokens += len(payload.query_text) // 4 + 250
+        total_output_tokens += 5
 
     if intent != "DATA_QUERY":
         if intent == "GREETING":
@@ -211,6 +222,9 @@ async def submit_query(
             execution_duration_ms=0,
             status="failed" if intent == "OUT_OF_SCOPE" else "success",
             error_message="Out of scope — not answerable from the business data." if intent == "OUT_OF_SCOPE" else None,
+            llm_latency_ms=total_latency_ms,
+            input_tokens=total_input_tokens,
+            output_tokens=total_output_tokens
         )
         return assistant_msg
 
@@ -228,9 +242,12 @@ async def submit_query(
     else:
         gen_input = payload.query_text
 
-    is_ambiguous, clarification_question, sql, reasoning = await analyst_service.generate_sql(
+    is_ambiguous, clarification_question, sql, reasoning, sql_llm_meta = await analyst_service.generate_sql(
         gen_input, chat_history
     )
+    total_latency_ms += sql_llm_meta.get("latency_ms", 0.0)
+    total_input_tokens += sql_llm_meta.get("input_tokens", 0)
+    total_output_tokens += sql_llm_meta.get("output_tokens", 0)
 
     if is_ambiguous:
         # Remember the question so the user's next message resolves it (multi-turn).
@@ -249,7 +266,10 @@ async def submit_query(
             executed_sql=None,
             execution_duration_ms=0,
             status="failed",
-            error_message="Ambiguous query prompt"
+            error_message="Ambiguous query prompt",
+            llm_latency_ms=total_latency_ms,
+            input_tokens=total_input_tokens,
+            output_tokens=total_output_tokens
         )
         return assistant_msg
 
@@ -266,7 +286,10 @@ async def submit_query(
             executed_sql=None,
             execution_duration_ms=0,
             status="failed",
-            error_message="SQL compiler returned empty statement"
+            error_message="SQL compiler returned empty statement",
+            llm_latency_ms=total_latency_ms,
+            input_tokens=total_input_tokens,
+            output_tokens=total_output_tokens
         )
         return assistant_msg
 
@@ -287,7 +310,10 @@ async def submit_query(
             executed_sql=sql,
             execution_duration_ms=0,
             status="failed",
-            error_message=err_msg
+            error_message=err_msg,
+            llm_latency_ms=total_latency_ms,
+            input_tokens=total_input_tokens,
+            output_tokens=total_output_tokens
         )
         return assistant_msg
 
@@ -313,7 +339,11 @@ async def submit_query(
     explanation = ""
     viz_config = None
     if exec_status == "success":
-        explanation = await analyst_service.generate_explanation(payload.query_text, sql, rows)
+        explanation, exp_llm_meta = await analyst_service.generate_explanation(payload.query_text, sql, rows)
+        total_latency_ms += exp_llm_meta.get("latency_ms", 0.0)
+        total_input_tokens += exp_llm_meta.get("input_tokens", 0)
+        total_output_tokens += exp_llm_meta.get("output_tokens", 0)
+        
         viz_config = analyst_service.generate_plotly_config(columns, rows)
         summary_content = explanation
     else:
@@ -338,7 +368,10 @@ async def submit_query(
         executed_sql=sql,
         execution_duration_ms=duration,
         status=log_status,
-        error_message=err_msg
+        error_message=err_msg,
+        llm_latency_ms=total_latency_ms,
+        input_tokens=total_input_tokens,
+        output_tokens=total_output_tokens
     )
 
     return assistant_msg
