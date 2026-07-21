@@ -213,15 +213,18 @@ async def submit_query(
             content=content
         )
 
-        # Off-topic questions we can't answer from the data are logged as failed;
-        # greetings/help/etc. are handled successfully.
+        # Greetings / help / small-talk are conversational — no data was requested,
+        # so they count as SUCCESS. An out-of-scope question DID ask for data the
+        # analyst can't provide, so it delivered no data -> FAILED, reported as
+        # "no data provided".
+        no_data = intent == "OUT_OF_SCOPE"
         await log_repo.log_query(
             user_id=current_user.id,
             query_text=payload.query_text,
             executed_sql=None,
             execution_duration_ms=0,
-            status="failed" if intent == "OUT_OF_SCOPE" else "success",
-            error_message="Out of scope — not answerable from the business data." if intent == "OUT_OF_SCOPE" else None,
+            status="failed" if no_data else "success",
+            error_message="No data provided (question is outside the business data)." if no_data else None,
             llm_latency_ms=total_latency_ms,
             input_tokens=total_input_tokens,
             output_tokens=total_output_tokens
@@ -258,15 +261,17 @@ async def submit_query(
             conversation_id=conv_id,
             role="assistant",
             content=clarification_question or "Could you clarify your request?",
-            explanation="Request is ambiguous; clarification needed."
+            explanation="No data provided — the question needs more detail."
         )
+        # Too vague to fetch data, so no data was delivered -> FAILED, reported as
+        # "no data provided" (the user still gets the clarifying question as the reply).
         await log_repo.log_query(
             user_id=current_user.id,
             query_text=payload.query_text,
             executed_sql=None,
             execution_duration_ms=0,
             status="failed",
-            error_message="Ambiguous query prompt",
+            error_message="No data provided (the question needs more detail).",
             llm_latency_ms=total_latency_ms,
             input_tokens=total_input_tokens,
             output_tokens=total_output_tokens
@@ -333,7 +338,7 @@ async def submit_query(
     log_status = exec_status
     if exec_status == "success" and len(rows) == 0:
         log_status = "failed"
-        err_msg = "Query executed but returned no data (not found / inaccessible)."
+        err_msg = "No data provided (no matching records found)."
 
     # 6. Explanation and Plotly Config Recommendation
     explanation = ""
