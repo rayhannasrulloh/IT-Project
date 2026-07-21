@@ -25,7 +25,11 @@ class Settings(BaseSettings):
     SQL_GENERATION_MODEL: str = Field(default="llama-3.3-70b-versatile", description="Groq model to generate SQL")
     EXPLANATION_MODEL: str = Field(default="llama-3-8b-8192", description="Groq model to generate explanations")
     
-    CORS_ORIGINS: List[str] = ["http://localhost:3000", "https://conversational-data-analyst.vercel.app"]
+    CORS_ORIGINS: List[str] = [
+        "http://localhost:3000",
+        "https://conda-git-main-rayhannasrullohs-projects.vercel.app",
+        "https://conda-nu.vercel.app"
+    ]
 
     class Config:
         env_file = ".env"
