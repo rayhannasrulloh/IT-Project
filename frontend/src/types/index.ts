@@ -4,6 +4,7 @@ export interface Profile {
   full_name: string | null;
   role: 'admin' | 'user';
   created_at: string;
+  token?: string;
 }
 
 export interface Conversation {

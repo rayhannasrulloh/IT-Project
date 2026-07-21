@@ -42,7 +42,7 @@ export default function LoginPage() {
         email.split('@')[0].toUpperCase()
       );
 
-      setSession(profile, mockToken);
+      setSession(profile, profile.token || mockToken);
       router.push('/dashboard');
     } catch (err: any) {
       setError(err.message || "Failed to establish database session. Ensure FastAPI backend is running on port 8000.");

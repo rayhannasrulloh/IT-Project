@@ -41,6 +41,7 @@ class ProfileResponse(ProfileBase):
     id: str
     role: str
     created_at: datetime
+    token: Optional[str] = None
 
     class Config:
         from_attributes = True
