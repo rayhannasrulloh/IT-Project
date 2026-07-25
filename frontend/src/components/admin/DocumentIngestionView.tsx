@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Upload, FileSpreadsheet, FileText, Loader2, CheckCircle, AlertTriangle, Eye, X } from 'lucide-react';
+import { ArrowUpTrayIcon, DocumentChartBarIcon, DocumentTextIcon, ArrowPathIcon, CheckCircleIcon, ExclamationTriangleIcon, EyeIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { UploadedDocument, ExtractedTable } from '../../types';
 import api from '../../services/api';
 import { Button } from '../ui/button';
@@ -81,12 +81,12 @@ export const DocumentIngestionView: React.FC = () => {
           <label className="inline-flex items-center space-x-2 px-4 py-2 bg-primary hover:bg-primary/90 rounded-[10px] text-xs font-semibold text-primary-foreground cursor-pointer shadow-sm active:scale-[0.98] transition-all">
             {uploading ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin text-primary-foreground" />
+                <ArrowPathIcon className="h-4 w-4 animate-spin text-primary-foreground" />
                 <span>Uploading...</span>
               </>
             ) : (
               <>
-                <Upload className="h-4 w-4 text-primary-foreground" />
+                <ArrowUpTrayIcon className="h-4 w-4 text-primary-foreground" />
                 <span>Upload Document</span>
               </>
             )}
@@ -103,7 +103,7 @@ export const DocumentIngestionView: React.FC = () => {
 
       {documents.length === 0 && !loading && (
         <div className="h-44 border border-dashed border-border rounded-[12px] flex flex-col items-center justify-center text-center p-6 space-y-2 bg-muted/20">
-          <Upload className="h-8 w-8 text-muted-foreground" />
+          <ArrowUpTrayIcon className="h-8 w-8 text-muted-foreground" />
           <div className="text-sm font-semibold text-foreground">No documents ingested</div>
           <p className="text-xs text-muted-foreground max-w-sm font-medium">Upload business datasets (CSV) or reports (PDF). Our pipeline will automatically extract structures.</p>
         </div>
@@ -125,9 +125,9 @@ export const DocumentIngestionView: React.FC = () => {
               <TableRow key={doc.document_id} className="border-border/60">
                 <TableCell className="py-3 flex items-center space-x-2 text-xs text-foreground font-semibold">
                   {doc.file_type === 'CSV' ? (
-                    <FileSpreadsheet className="h-4 w-4 text-emerald-550" />
+                    <DocumentChartBarIcon className="h-4 w-4 text-emerald-550" />
                   ) : (
-                    <FileText className="h-4 w-4 text-rose-550" />
+                    <DocumentTextIcon className="h-4 w-4 text-rose-550" />
                   )}
                   <span className="truncate max-w-[200px]">{doc.filename}</span>
                 </TableCell>
@@ -140,19 +140,19 @@ export const DocumentIngestionView: React.FC = () => {
                 <TableCell className="py-3">
                   {doc.status === 'completed' && (
                     <span className="inline-flex items-center text-success text-xs font-semibold">
-                      <CheckCircle className="h-3.5 w-3.5 mr-1" />
+                      <CheckCircleIcon className="h-3.5 w-3.5 mr-1" />
                       Ready
                     </span>
                   )}
                   {doc.status === 'processing' && (
                     <span className="inline-flex items-center text-primary text-xs font-semibold">
-                      <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                      <ArrowPathIcon className="h-3.5 w-3.5 mr-1 animate-spin" />
                       Parsing...
                     </span>
                   )}
                   {doc.status === 'failed' && (
                     <span className="inline-flex items-center text-danger text-xs font-semibold">
-                      <AlertTriangle className="h-3.5 w-3.5 mr-1" />
+                      <ExclamationTriangleIcon className="h-3.5 w-3.5 mr-1" />
                       Failed
                     </span>
                   )}
@@ -165,7 +165,7 @@ export const DocumentIngestionView: React.FC = () => {
                     disabled={doc.status !== 'completed' || loadingTable}
                     className="h-8 hover:bg-muted text-xs px-2.5 font-semibold active:scale-[0.98]"
                   >
-                    <Eye className="h-3.5 w-3.5 text-muted-foreground mr-1.5" />
+                    <EyeIcon className="h-3.5 w-3.5 text-muted-foreground mr-1.5" />
                     <span>View Data</span>
                   </Button>
                 </TableCell>
@@ -190,7 +190,7 @@ export const DocumentIngestionView: React.FC = () => {
                 onClick={() => setActiveTable(null)}
                 className="h-8 w-8 p-0 text-muted-foreground hover:bg-muted"
               >
-                <X className="h-4 w-4" />
+                <XMarkIcon className="h-4 w-4" />
               </Button>
             </div>
             

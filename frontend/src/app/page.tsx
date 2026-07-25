@@ -6,31 +6,31 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
 import {
-  Sparkles,
-  Shield,
-  BarChart3,
-  MessageSquare,
-  Database,
-  Mic,
-  FileText,
-  ArrowRight,
-  Menu,
-  X,
-  Sun,
-  Moon,
-  Quote,
-  Terminal,
-} from 'lucide-react';
+  SparklesIcon,
+  ShieldCheckIcon,
+  ChartBarIcon,
+  ChatBubbleLeftRightIcon,
+  CircleStackIcon,
+  MicrophoneIcon,
+  DocumentTextIcon,
+  ArrowRightIcon,
+  Bars3Icon,
+  XMarkIcon,
+  SunIcon,
+  MoonIcon,
+  ChatBubbleBottomCenterTextIcon,
+  CommandLineIcon,
+} from '@heroicons/react/24/outline';
 import { useAuthStore } from '../store/useAuthStore';
 import ColorBends from '../components/ColorBends';
 
 const FEATURES = [
-  { icon: Shield, title: 'Read-only & safe', desc: 'Every query is validated, only SELECT runs. Writes and DDL are blocked by guardrails.' },
-  { icon: BarChart3, title: 'Answer, chart & explanation', desc: 'Get the result, an auto-selected chart, and a plain-language summary of what it means.' },
-  { icon: MessageSquare, title: 'Remembers the conversation', desc: "Ask follow-ups like 'only the Gold tier' or 'break it down by month' and the context will be remembered." },
-  { icon: Database, title: 'Grounded in your data', desc: 'Answers come only from your database, with a citation of the source tables, never made up.' },
-  { icon: Mic, title: 'Voice to text', desc: 'Speak your question and let the analyst transcribe and run it for you.' },
-  { icon: FileText, title: 'Audit & export', desc: 'Every query is logged and filterable: export the report to PDF or CSV in one click.' },
+  { icon: ShieldCheckIcon, title: 'Read-only & safe', desc: 'Every query is validated, only SELECT runs. Writes and DDL are blocked by guardrails.' },
+  { icon: ChartBarIcon, title: 'Answer, chart & explanation', desc: 'Get the result, an auto-selected chart, and a plain-language summary of what it means.' },
+  { icon: ChatBubbleLeftRightIcon, title: 'Remembers the conversation', desc: "Ask follow-ups like 'only the Gold tier' or 'break it down by month' and the context will be remembered." },
+  { icon: CircleStackIcon, title: 'Grounded in your data', desc: 'Answers come only from your database, with a citation of the source tables, never made up.' },
+  { icon: MicrophoneIcon, title: 'Voice to text', desc: 'Speak your question and let the analyst transcribe and run it for you.' },
+  { icon: DocumentTextIcon, title: 'Audit & export', desc: 'Every query is logged and filterable: export the report to PDF or CSV in one click.' },
 ];
 
 const STEPS = [
@@ -121,7 +121,7 @@ export default function LandingPage() {
               className="h-9 w-9 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors flex items-center justify-center cursor-pointer"
               title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
             >
-              {theme === 'dark' ? <Sun className="h-4 w-4 text-yellow-400" /> : <Moon className="h-4 w-4 text-slate-600" />}
+              {theme === 'dark' ? <SunIcon className="h-4 w-4 text-yellow-400" /> : <MoonIcon className="h-4 w-4 text-slate-600" />}
             </button>
             <Link href="/login" className="text-xs font-semibold px-5 py-2.5 rounded-full border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 transition-all duration-200">
               Sign In
@@ -131,14 +131,14 @@ export default function LandingPage() {
           {/* Mobile nav */}
           <div className="flex items-center gap-2.5 md:hidden">
             <button onClick={toggleTheme} className="h-9 w-9 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center justify-center cursor-pointer">
-              {theme === 'dark' ? <Sun className="h-4 w-4 text-yellow-400" /> : <Moon className="h-4 w-4 text-slate-600" />}
+              {theme === 'dark' ? <SunIcon className="h-4 w-4 text-yellow-400" /> : <MoonIcon className="h-4 w-4 text-slate-600" />}
             </button>
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="h-9 w-9 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center justify-center z-50 relative cursor-pointer"
               aria-label="Toggle Menu"
             >
-              {isOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+              {isOpen ? <XMarkIcon className="h-4 w-4" /> : <Bars3Icon className="h-4 w-4" />}
             </button>
           </div>
         </nav>
@@ -194,7 +194,7 @@ export default function LandingPage() {
             href="/login"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#F97316] text-white text-sm font-semibold px-6 py-3 rounded-full hover:scale-105 hover:opacity-90 active:scale-95 transition-all duration-300 shadow-md shadow-orange-500/20"
           >
-            Launch Conda AI <ArrowRight className="h-4 w-4" />
+            Launch Conda AI <ArrowRightIcon className="h-4 w-4" />
           </Link>
           <a
             href="#how"
@@ -316,7 +316,7 @@ export default function LandingPage() {
           transition={{ duration: 0.5 }}
           className="rounded-3xl border border-slate-200/80 dark:border-slate-800/80 bg-white/20 dark:bg-[#0B1329]/20 p-10 text-center relative overflow-hidden"
         >
-          <Quote className="h-10 w-10 text-[#F97316]/20 mx-auto mb-4 rotate-180" />
+          <ChatBubbleBottomCenterTextIcon className="h-10 w-10 text-[#F97316]/20 mx-auto mb-4 rotate-180" />
           <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
             Stop waiting in the analytics queue
           </h2>
@@ -328,7 +328,7 @@ export default function LandingPage() {
               href="/login"
               className="inline-flex items-center gap-2 bg-[#F97316] text-white text-sm font-semibold px-8 py-3.5 rounded-full hover:scale-105 hover:opacity-90 active:scale-95 transition-all duration-300 shadow-md shadow-orange-500/20"
             >
-              Launch Conda AI <ArrowRight className="h-4 w-4" />
+              Launch Conda AI <ArrowRightIcon className="h-4 w-4" />
             </Link>
           </div>
         </motion.div>

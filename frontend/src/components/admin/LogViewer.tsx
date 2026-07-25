@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Terminal, Clock, CheckCircle, AlertTriangle, ChevronDown, ChevronUp, Search, FileText, FileSpreadsheet } from 'lucide-react';
+import { CommandLineIcon, ClockIcon, CheckCircleIcon, ExclamationTriangleIcon, ChevronDownIcon, ChevronUpIcon, MagnifyingGlassIcon, DocumentTextIcon, DocumentChartBarIcon } from '@heroicons/react/24/outline';
 import { QueryLog } from '../../types';
 import api, { LogFilters } from '../../services/api';
 import { Button } from '../ui/button';
@@ -74,10 +74,10 @@ export const LogViewer: React.FC = () => {
           </div>
           <div className="flex items-center gap-2">
             <Button size="sm" variant="outline" onClick={() => doExport('csv')} disabled={!!exporting} className="border-border gap-1.5">
-              <FileSpreadsheet className="h-3.5 w-3.5" /> {exporting === 'csv' ? '...' : 'CSV'}
+              <DocumentChartBarIcon className="h-3.5 w-3.5" /> {exporting === 'csv' ? '...' : 'CSV'}
             </Button>
             <Button size="sm" variant="outline" onClick={() => doExport('pdf')} disabled={!!exporting} className="border-border gap-1.5">
-              <FileText className="h-3.5 w-3.5" /> {exporting === 'pdf' ? '...' : 'PDF'}
+              <DocumentTextIcon className="h-3.5 w-3.5" /> {exporting === 'pdf' ? '...' : 'PDF'}
             </Button>
           </div>
         </div>
@@ -88,7 +88,7 @@ export const LogViewer: React.FC = () => {
           className="flex flex-wrap items-center gap-2"
         >
           <div className="relative">
-            <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-muted-foreground" />
+            <MagnifyingGlassIcon className="absolute left-2.5 top-2 h-3.5 w-3.5 text-muted-foreground" />
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search query text" className={`${inputCls} pl-8 w-48`} />
           </div>
           <input value={user} onChange={(e) => setUser(e.target.value)} placeholder="User (email)" className={`${inputCls} w-40`} />
@@ -140,21 +140,21 @@ export const LogViewer: React.FC = () => {
                   <React.Fragment key={log.log_id}>
                     <TableRow onClick={() => toggleExpand(log.log_id)} className="border-border/60 hover:bg-muted/10 cursor-pointer">
                       <TableCell className="py-3">
-                        {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                        {isExpanded ? <ChevronUpIcon className="h-4 w-4 text-muted-foreground" /> : <ChevronDownIcon className="h-4 w-4 text-muted-foreground" />}
                       </TableCell>
                       <TableCell className="py-3 text-xs text-foreground font-semibold max-w-xs truncate">{log.query_text}</TableCell>
                       <TableCell className="py-3 text-xs text-muted-foreground truncate max-w-[160px]">{log.user_email || log.user_id}</TableCell>
                       <TableCell className="py-3 text-xs text-muted-foreground font-mono">
                         <div className="flex items-center gap-1">
-                          <Clock className="h-3.5 w-3.5" />
+                          <ClockIcon className="h-3.5 w-3.5" />
                           <span>{log.execution_duration_ms !== null ? `${log.execution_duration_ms}ms` : '—'}</span>
                         </div>
                       </TableCell>
                       <TableCell className="py-3">
                         {log.status === 'success' ? (
-                          <span className="inline-flex items-center text-success text-xs font-semibold"><CheckCircle className="h-3.5 w-3.5 mr-1" />Success</span>
+                          <span className="inline-flex items-center text-success text-xs font-semibold"><CheckCircleIcon className="h-3.5 w-3.5 mr-1" />Success</span>
                         ) : (
-                          <span className="inline-flex items-center text-danger text-xs font-semibold"><AlertTriangle className="h-3.5 w-3.5 mr-1" />Failed</span>
+                          <span className="inline-flex items-center text-danger text-xs font-semibold"><ExclamationTriangleIcon className="h-3.5 w-3.5 mr-1" />Failed</span>
                         )}
                       </TableCell>
                       <TableCell className="py-3 text-xs text-muted-foreground text-right font-mono whitespace-nowrap">{fmtTs(log.created_at)}</TableCell>
@@ -167,7 +167,7 @@ export const LogViewer: React.FC = () => {
                             {log.executed_sql && (
                               <div className="space-y-1.5">
                                 <span className="text-[10px] uppercase font-bold text-primary tracking-wider flex items-center gap-1">
-                                  <Terminal className="h-3 w-3" /><span>Compiled SQL Statement</span>
+                                  <CommandLineIcon className="h-3 w-3" /><span>Compiled SQL Statement</span>
                                 </span>
                                 <pre className="p-3 bg-[#0f172a] rounded-lg text-xs font-mono text-blue-300 border border-border overflow-x-auto leading-normal">
                                   <code>{log.executed_sql}</code>

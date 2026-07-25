@@ -4,10 +4,10 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
-  Sparkles, LogOut, MessageSquare, ShieldCheck,
-  Database, Plus, Trash2, Shield, X, PanelLeftClose,
-  PanelLeftOpen, Search, ChevronRight
-} from 'lucide-react';
+  SparklesIcon, ArrowLeftOnRectangleIcon, ChatBubbleLeftRightIcon, ShieldCheckIcon,
+  CircleStackIcon, PlusIcon, TrashIcon, XMarkIcon, ChevronLeftIcon,
+  ChevronRightIcon, MagnifyingGlassIcon
+} from '@heroicons/react/24/outline';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useChatStore } from '../../store/useChatStore';
 import { Conversation } from '../../types';
@@ -167,7 +167,7 @@ export default function DashboardPage() {
                   title="Collapse sidebar"
                   className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground transition-all cursor-pointer shrink-0"
                 >
-                  <PanelLeftClose className="h-4 w-4" />
+                  <ChevronLeftIcon className="h-4 w-4" />
                 </button>
               </>
             ) : (
@@ -181,7 +181,7 @@ export default function DashboardPage() {
                   alt="Conda AI"
                   className="h-6 w-6 dark:invert dark:brightness-200 group-hover:hidden transition-all"
                 />
-                <PanelLeftOpen className="h-5 w-5 hidden group-hover:block text-foreground transition-all" />
+                <ChevronRightIcon className="h-5 w-5 hidden group-hover:block text-foreground transition-all" />
               </button>
             )}
           </div>
@@ -196,14 +196,14 @@ export default function DashboardPage() {
               className={`w-full flex items-center justify-center rounded-xl bg-primary text-primary-foreground font-semibold text-xs shadow-sm hover:opacity-95 transition-all duration-150 active:scale-98 cursor-pointer ${isSidebarOpen ? 'px-3 py-2.5 space-x-2' : 'h-10 w-10 mx-auto p-0'
                 }`}
             >
-              <Plus className="h-4 w-4 shrink-0" />
+              <PlusIcon className="h-4 w-4 shrink-0" />
               {isSidebarOpen && <span>New chat</span>}
             </button>
 
             {/* Search Bar directly below New Chat Button */}
             {isSidebarOpen ? (
               <div className="relative">
-                <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+                <MagnifyingGlassIcon className="absolute left-3 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
                 <input
                   type="text"
                   placeholder="Search chats..."
@@ -216,7 +216,7 @@ export default function DashboardPage() {
                     onClick={() => setSearchQuery('')}
                     className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-foreground"
                   >
-                    <X className="h-3 w-3" />
+                    <XMarkIcon className="h-3 w-3" />
                   </button>
                 )}
               </div>
@@ -226,7 +226,7 @@ export default function DashboardPage() {
                 title="Search chats"
                 className="h-9 w-9 mx-auto rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer"
               >
-                <Search className="h-4 w-4" />
+                <MagnifyingGlassIcon className="h-4 w-4" />
               </button>
             )}
           </div>
@@ -265,7 +265,7 @@ export default function DashboardPage() {
                               className="opacity-0 group-hover/item:opacity-100 hover:text-danger p-0.5 rounded transition-opacity shrink-0"
                               title="Delete conversation"
                             >
-                              <Trash2 className="h-3.5 w-3.5" />
+                              <TrashIcon className="h-3.5 w-3.5" />
                             </button>
                           </div>
                         );
@@ -283,7 +283,7 @@ export default function DashboardPage() {
                 className={`h-9 w-9 rounded-lg flex items-center justify-center transition-all cursor-pointer ${activeView === 'chat' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                   }`}
               >
-                <MessageSquare className="h-4 w-4" />
+                <ChatBubbleLeftRightIcon className="h-4 w-4" />
               </button>
             </div>
           )}
@@ -299,7 +299,7 @@ export default function DashboardPage() {
                   : 'text-muted-foreground hover:bg-muted/10 hover:text-foreground'
                 }`}
             >
-              <Database className="h-4 w-4 shrink-0" />
+              <CircleStackIcon className="h-4 w-4 shrink-0" />
               {isSidebarOpen && <span>Schema</span>}
             </button>
           </div>
@@ -334,7 +334,7 @@ export default function DashboardPage() {
                 title="Sign out"
                 className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-danger hover:bg-danger/10 transition-all cursor-pointer shrink-0"
               >
-                <LogOut className="h-4 w-4" />
+                <ArrowLeftOnRectangleIcon className="h-4 w-4" />
               </button>
             )}
           </div>
@@ -357,7 +357,7 @@ export default function DashboardPage() {
                 className="h-8 w-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer transition-all"
                 title="Open sidebar"
               >
-                <PanelLeftOpen className="h-4 w-4" />
+                <ChevronRightIcon className="h-4 w-4" />
               </button>
             )}
             <h1 className="font-semibold text-base text-foreground">

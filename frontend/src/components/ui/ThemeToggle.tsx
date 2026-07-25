@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Sun, Moon } from 'lucide-react';
+import { SunIcon, MoonIcon } from '@heroicons/react/24/outline';
 
 /**
  * Toggles the `dark` class on <html> and persists the choice to localStorage.
@@ -35,9 +35,9 @@ export const ThemeToggle: React.FC<{ className?: string }> = ({ className }) => 
       }`}
     >
       {isDark ? (
-        <Sun className="h-5 w-5 transition-transform duration-500 group-hover:rotate-90" />
+        <SunIcon className="h-5 w-5 transition-transform duration-500 group-hover:rotate-90" />
       ) : (
-        <Moon className="h-5 w-5 transition-transform duration-500 group-hover:-rotate-12" />
+        <MoonIcon className="h-5 w-5 transition-transform duration-500 group-hover:-rotate-12" />
       )}
     </button>
   );

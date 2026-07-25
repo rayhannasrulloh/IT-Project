@@ -2,9 +2,9 @@
 
 import React, { useState } from 'react';
 import {
-  Database, Search, ChevronRight, Key, HelpCircle, Table2,
-  Columns, Layers, Copy, Check, Sparkles, Code2, ArrowUpRight
-} from 'lucide-react';
+  CircleStackIcon, MagnifyingGlassIcon, ChevronRightIcon, KeyIcon, QuestionMarkCircleIcon, TableCellsIcon,
+  ViewColumnsIcon, Square3Stack3DIcon, DocumentDuplicateIcon, CheckIcon, SparklesIcon, CodeBracketIcon, ArrowUpRightIcon
+} from '@heroicons/react/24/outline';
 
 interface ColumnMeta {
   name: string;
@@ -189,7 +189,7 @@ LIMIT 10;`;
 
           {/* Table Search Input */}
           <div className="relative">
-            <Search className="absolute left-3 top-2 h-4 w-4 text-muted-foreground" />
+            <MagnifyingGlassIcon className="absolute left-3 top-2 h-4 w-4 text-muted-foreground" />
             <input
               type="text"
               placeholder="Search tables or columns..."
@@ -231,14 +231,14 @@ LIMIT 10;`;
                       <div>
                         <div className="text-xs font-semibold text-foreground flex items-center space-x-2">
                           <span>{table.name}</span>
-                          {pkCount > 0 && <span title="Has Primary Key"><Key className="h-3 w-3 text-amber-500 inline" /></span>}
+                          {pkCount > 0 && <span title="Has Primary Key"><KeyIcon className="h-3 w-3 text-amber-500 inline" /></span>}
                         </div>
                         <div className="text-[10px] text-muted-foreground line-clamp-1 mt-0.5">
                           {table.columns.length} cols • {table.rowCount}
                         </div>
                       </div>
                     </div>
-                    <ChevronRight className={`h-4 w-4 transition-transform ${isSelected ? 'text-primary translate-x-0.5' : 'text-muted-foreground/50'}`} />
+                    <ChevronRightIcon className={`h-4 w-4 transition-transform ${isSelected ? 'text-primary translate-x-0.5' : 'text-muted-foreground/50'}`} />
                   </button>
                 );
               })
@@ -248,7 +248,7 @@ LIMIT 10;`;
           {/* Business Glossary Banner */}
           <div className="p-3.5 bg-muted/10 border border-border/80 space-y-2 text-xs">
             <div className="flex items-center space-x-1.5 font-semibold text-foreground">
-              <HelpCircle className="h-4 w-4" />
+              <QuestionMarkCircleIcon className="h-4 w-4" />
               <span>Business Glossary</span>
             </div>
             <ul className="space-y-1.5 text-[11px] text-muted-foreground">
@@ -335,12 +335,12 @@ LIMIT 10;`;
                           <div className="flex items-center gap-1.5 flex-wrap">
                             {col.isPk && (
                               <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded">
-                                <Key className="h-3 w-3" /> PK
+                                <KeyIcon className="h-3 w-3" /> PK
                               </span>
                             )}
                             {col.isFk && (
                               <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-primary/10 text-primary border border-primary/30 px-2 py-0.5 rounded-md" title={`Refers to ${col.fkTarget}`}>
-                                <ArrowUpRight className="h-3 w-3" /> FK ({col.fkTarget})
+                                <ArrowUpRightIcon className="h-3 w-3" /> FK ({col.fkTarget})
                               </span>
                             )}
                             {!col.nullable && (
@@ -403,12 +403,12 @@ LIMIT 10;`;
                 >
                   {copiedSql ? (
                     <>
-                      <Check className="h-3.5 w-3.5 text-emerald-500" />
+                      <CheckIcon className="h-3.5 w-3.5 text-emerald-500" />
                       <span className="text-emerald-500">Copied!</span>
                     </>
                   ) : (
                     <>
-                      <Copy className="h-3.5 w-3.5" />
+                      <DocumentDuplicateIcon className="h-3.5 w-3.5" />
                       <span>Copy SQL</span>
                     </>
                   )}

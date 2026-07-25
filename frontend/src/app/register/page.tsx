@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Sparkles, Mail, Lock, User as UserIcon, Loader2 } from 'lucide-react';
+import { SparklesIcon, EnvelopeIcon, LockClosedIcon, UserIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { Button } from '../../components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../../components/ui/card';
 
@@ -75,7 +75,7 @@ export default function RegisterPage() {
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-muted-foreground">Email Address</label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
+                  <EnvelopeIcon className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
                   <input
                     type="email"
                     value={email}
@@ -90,7 +90,7 @@ export default function RegisterPage() {
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-muted-foreground">Password</label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
+                  <LockClosedIcon className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
                   <input
                     type="password"
                     value={password}
@@ -105,7 +105,7 @@ export default function RegisterPage() {
 
             <CardFooter className="flex flex-col space-y-4 pt-2">
               <Button type="submit" className="w-full py-2.5" disabled={loading}>
-                {loading ? <Loader2 className="h-4 w-4 animate-spin text-primary-foreground" /> : 'Register'}
+                {loading ? <ArrowPathIcon className="h-4 w-4 animate-spin text-primary-foreground" /> : 'Register'}
               </Button>
 
               <div className="text-center text-xs text-muted-foreground">

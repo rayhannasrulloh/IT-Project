@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Sparkles, Terminal, Table as TableIcon, ThumbsUp, ThumbsDown, Copy, Check, MessageSquare, Database, Volume2, VolumeX } from 'lucide-react';
+import { SparklesIcon, CommandLineIcon, TableCellsIcon, HandThumbUpIcon, HandThumbDownIcon, DocumentDuplicateIcon, CheckIcon, ChatBubbleLeftRightIcon, CircleStackIcon, SpeakerWaveIcon, SpeakerXMarkIcon } from '@heroicons/react/24/outline';
 import { Message } from '../../types';
 import { Button } from '../ui/button';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '../ui/table';
@@ -112,7 +112,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                 title={speaking ? 'Stop reading aloud' : 'Read aloud'}
                 className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 transition-colors cursor-pointer ${speaking ? 'text-primary bg-primary/10 animate-pulse' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}`}
               >
-                {speaking ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}
+                {speaking ? <SpeakerXMarkIcon className="h-3.5 w-3.5" /> : <SpeakerWaveIcon className="h-3.5 w-3.5" />}
               </button>
             )}
           </div>
@@ -151,7 +151,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                 onClick={() => setShowSql(!showSql)}
                 className="text-[11px] text-muted-foreground hover:text-foreground inline-flex items-center gap-1 transition-colors cursor-pointer"
               >
-                <Terminal className="h-3 w-3" />
+                <CommandLineIcon className="h-3 w-3" />
                 {showSql ? 'Hide SQL' : 'Show SQL'}
               </button>
               {showSql && (
@@ -169,11 +169,11 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                 <div className="flex justify-between items-center border-b border-border/80 pb-2">
                   <TabsList className="bg-muted/10 scale-95 origin-left">
                     <TabsTrigger value="results" className="flex items-center space-x-1.5 text-xs py-1">
-                      <TableIcon className="h-3.5 w-3.5" />
+                      <TableCellsIcon className="h-3.5 w-3.5" />
                       <span>Data Grid</span>
                     </TabsTrigger>
                     <TabsTrigger value="sql" className="flex items-center space-x-1.5 text-xs py-1">
-                      <Terminal className="h-3.5 w-3.5" />
+                      <CommandLineIcon className="h-3.5 w-3.5" />
                       <span>SQL Query</span>
                     </TabsTrigger>
                   </TabsList>
@@ -235,7 +235,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                       className="absolute top-2 right-2 h-7 w-7 p-0 bg-[#0f172a]/80 border border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-white"
                       title="Copy SQL to Clipboard"
                     >
-                      {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+                      {copied ? <CheckIcon className="h-3.5 w-3.5 text-emerald-400" /> : <DocumentDuplicateIcon className="h-3.5 w-3.5" />}
                     </Button>
                   </div>
                 </TabsContent>
@@ -260,7 +260,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                   className={`h-7 w-7 p-0 hover:bg-muted ${feedback === 'like' ? 'text-success' : 'text-muted-foreground'}`}
                   title="Thumbs up"
                 >
-                  <ThumbsUp className="h-3.5 w-3.5" />
+                  <HandThumbUpIcon className="h-3.5 w-3.5" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -269,7 +269,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                   className={`h-7 w-7 p-0 hover:bg-muted ${feedback === 'dislike' ? 'text-danger' : 'text-muted-foreground'}`}
                   title="Thumbs down"
                 >
-                  <ThumbsDown className="h-3.5 w-3.5" />
+                  <HandThumbDownIcon className="h-3.5 w-3.5" />
                 </Button>
               </div>
             </div>
