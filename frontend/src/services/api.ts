@@ -68,6 +68,7 @@ class ApiService {
     }
 
     const response = await fetch(`${API_BASE_URL}${path}`, {
+      credentials: 'include',
       ...options,
       headers,
     });
@@ -84,6 +85,12 @@ class ApiService {
   // --- Auth API ---
   async getMe(): Promise<Profile> {
     return this.request<Profile>('/api/v1/auth/me');
+  }
+
+  async logout(): Promise<{ status: string; message: string }> {
+    return this.request<{ status: string; message: string }>('/api/v1/auth/logout', {
+      method: 'POST',
+    });
   }
 
   async syncProfile(id: string, email: string, fullName?: string, authToken?: string): Promise<Profile> {

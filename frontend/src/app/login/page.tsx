@@ -94,7 +94,7 @@ export default function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@conda.ai"
-                    className="w-full bg-background border border-border/60 rounded-xl py-2.5 pl-10 pr-4 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary focus:bg-muted/20 transition-colors"
+                    className="w-full bg-background border border-border/60 rounded-xl py-2.5 pl-10 pr-4 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary focus:bg-muted/10 transition-colors"
                     required
                   />
                 </div>
@@ -109,7 +109,7 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full bg-background border border-border/60 rounded-xl py-2.5 pl-10 pr-4 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary focus:bg-muted/20 transition-colors"
+                    className="w-full bg-background border border-border/60 rounded-xl py-2.5 pl-10 pr-4 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary focus:bg-muted/10 transition-colors"
                     required
                   />
                 </div>

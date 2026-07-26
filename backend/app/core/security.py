@@ -1,4 +1,5 @@
-from fastapi import Depends, HTTPException, status
+from typing import Optional
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, JWTError
 from sqlalchemy.future import select
@@ -7,22 +8,31 @@ from app.core.config import settings
 from app.core.database import get_db
 from app.domain.models import Profile
 
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    request: Request,
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
     db: AsyncSession = Depends(get_db)
 ) -> Profile:
     """
-    Decodes the Supabase JWT from the Authorization header,
+    Decodes the Supabase JWT from either the Authorization header or the HttpOnly cda_access_token cookie,
     verifies it against the Supabase JWT secret, and retrieves/syncs the user Profile.
     """
-    token = credentials.credentials
+    token = None
+    if credentials and credentials.credentials:
+        token = credentials.credentials
+    elif request.cookies.get("cda_access_token"):
+        token = request.cookies.get("cda_access_token")
+
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+
+    if not token:
+        raise credentials_exception
 
     try:
         # Mock token fallback isolated exclusively to testing environment

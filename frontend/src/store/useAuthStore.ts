@@ -4,9 +4,9 @@ import { Profile } from '../types';
 
 interface AuthState {
   user: Profile | null;
-  token: string | null;
+  token?: string | null;
   isAuthenticated: boolean;
-  setSession: (user: Profile, token: string) => void;
+  setSession: (user: Profile, token?: string | null) => void;
   clearSession: () => void;
 }
 
@@ -16,7 +16,7 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       token: null,
       isAuthenticated: false,
-      setSession: (user, token) => set({ user, token, isAuthenticated: true }),
+      setSession: (user, token = null) => set({ user, token, isAuthenticated: true }),
       clearSession: () => set({ user: null, token: null, isAuthenticated: false }),
     }),
     {
