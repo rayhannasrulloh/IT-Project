@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { EnvelopeIcon, LockClosedIcon, ArrowPathIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import { EnvelopeIcon, LockClosedIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { useAuthStore } from '../../store/useAuthStore';
 import { Button } from '../../components/ui/button';
 import ThemeToggle from '../../components/ui/ThemeToggle';
@@ -55,11 +55,6 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleQuickLogin = (type: 'admin' | 'user') => {
-    setEmail(type === 'admin' ? 'admin@cda.com' : 'user@cda.com');
-    setPassword('password');
   };
 
   return (
@@ -125,29 +120,6 @@ export default function LoginPage() {
               <Button type="submit" className="w-full py-2.5" disabled={loading}>
                 {loading ? <ArrowPathIcon className="h-4 w-4 animate-spin text-primary-foreground" /> : 'Sign In'}
               </Button>
-
-              {/* Developer credentials shortcuts */}
-              <div className="w-full pt-4 border-t border-border space-y-2">
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block text-center">Development Sandbox Shortcuts</span>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleQuickLogin('user')}
-                    className="py-2.5 px-3 bg-blue-100/10 hover:bg-blue-200/20 border border-border/60 rounded-xl text-xs font-medium text-foreground transition-colors flex items-center justify-between cursor-pointer"
-                  >
-                    <span>User Sandbox</span>
-                    <ArrowRightIcon className="h-3 w-3 text-muted-foreground" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleQuickLogin('admin')}
-                    className="py-2.5 px-3 bg-blue-100/10 hover:bg-blue-200/20 border border-border/60 rounded-xl text-xs font-medium text-foreground transition-colors flex items-center justify-between cursor-pointer"
-                  >
-                    <span>Admin Sandbox</span>
-                    <ArrowRightIcon className="h-3 w-3 text-muted-foreground" />
-                  </button>
-                </div>
-              </div>
             </CardFooter>
           </Card>
         </form>
