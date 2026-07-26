@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Sparkles, Mail, Lock, Loader2, ArrowRight } from 'lucide-react';
+import { EnvelopeIcon, LockClosedIcon, ArrowPathIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import { useAuthStore } from '../../store/useAuthStore';
 import { Button } from '../../components/ui/button';
 import ThemeToggle from '../../components/ui/ThemeToggle';
@@ -86,7 +86,7 @@ export default function LoginPage() {
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-muted-foreground">Email Address</label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
+                  <EnvelopeIcon className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
                   <input
                     type="email"
                     value={email}
@@ -101,7 +101,7 @@ export default function LoginPage() {
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-muted-foreground">Password</label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
+                  <LockClosedIcon className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
                   <input
                     type="password"
                     value={password}
@@ -116,7 +116,7 @@ export default function LoginPage() {
 
             <CardFooter className="flex flex-col space-y-4 pt-2">
               <Button type="submit" className="w-full py-2.5" disabled={loading}>
-                {loading ? <Loader2 className="h-4 w-4 animate-spin text-primary-foreground" /> : 'Sign In'}
+                {loading ? <ArrowPathIcon className="h-4 w-4 animate-spin text-primary-foreground" /> : 'Sign In'}
               </Button>
 
               {/* Developer credentials shortcuts */}
@@ -129,7 +129,7 @@ export default function LoginPage() {
                     className="py-2.5 px-3 bg-blue-100/10 hover:bg-blue-200/20 border border-border/60 rounded-xl text-xs font-medium text-foreground transition-colors flex items-center justify-between cursor-pointer"
                   >
                     <span>User Sandbox</span>
-                    <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                    <ArrowRightIcon className="h-3 w-3 text-muted-foreground" />
                   </button>
                   <button
                     type="button"
@@ -137,7 +137,7 @@ export default function LoginPage() {
                     className="py-2.5 px-3 bg-blue-100/10 hover:bg-blue-200/20 border border-border/60 rounded-xl text-xs font-medium text-foreground transition-colors flex items-center justify-between cursor-pointer"
                   >
                     <span>Admin Sandbox</span>
-                    <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                    <ArrowRightIcon className="h-3 w-3 text-muted-foreground" />
                   </button>
                 </div>
               </div>

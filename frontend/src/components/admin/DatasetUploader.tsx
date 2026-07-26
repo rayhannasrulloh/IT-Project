@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import {
-  Upload, Loader2, Database, Trash2, Plus, Table2, FilePlus2,
-  AlertTriangle, CheckCircle2, Sparkles, X,
-} from 'lucide-react';
+  ArrowUpTrayIcon, ArrowPathIcon, CircleStackIcon, TrashIcon, PlusIcon, TableCellsIcon, DocumentPlusIcon,
+  ExclamationTriangleIcon, CheckCircleIcon, SparklesIcon, XMarkIcon,
+} from '@heroicons/react/24/outline';
 import api from '../../services/api';
 import { DatasetPreview, DynamicDataset, AppendTargets, AppendResult } from '../../types';
 import { Button } from '../ui/button';
@@ -118,7 +118,7 @@ export const DatasetUploader: React.FC = () => {
       {/* Header */}
       <div className="border-b border-border pb-4">
         <h3 className="text-base font-bold text-foreground flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-primary" /> Data Upload
+          <SparklesIcon className="h-4 w-4 text-primary" /> Data Upload
         </h3>
         <p className="text-xs text-muted-foreground mt-1">
           Upload a CSV to create a brand-new table or add rows to an existing one. The AI analyst can immediately query whatever you add.
@@ -127,12 +127,12 @@ export const DatasetUploader: React.FC = () => {
 
       {error && (
         <div className="p-3 bg-danger/10 border border-danger/20 text-danger text-xs rounded-lg flex items-center gap-2">
-          <AlertTriangle className="h-3.5 w-3.5" /> {error}
+          <ExclamationTriangleIcon className="h-3.5 w-3.5" /> {error}
         </div>
       )}
       {result && (
         <div className={`p-3 border rounded-lg text-xs flex items-center gap-2 ${result.ok ? 'bg-success/10 border-success/20 text-success' : 'bg-warning/10 border-warning/20 text-warning'}`}>
-          {result.ok ? <CheckCircle2 className="h-3.5 w-3.5" /> : <AlertTriangle className="h-3.5 w-3.5" />} {result.text}
+          {result.ok ? <CheckCircleIcon className="h-3.5 w-3.5" /> : <ExclamationTriangleIcon className="h-3.5 w-3.5" />} {result.text}
         </div>
       )}
 
@@ -144,13 +144,13 @@ export const DatasetUploader: React.FC = () => {
             onClick={() => setMode('create')}
             className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${mode === 'create' ? 'bg-primary/10 text-primary border border-primary/30' : 'text-muted-foreground border border-border hover:bg-muted/40'}`}
           >
-            <FilePlus2 className="h-4 w-4" /> Create new table
+            <DocumentPlusIcon className="h-4 w-4" /> Create new table
           </button>
           <button
             onClick={() => setMode('append')}
             className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${mode === 'append' ? 'bg-primary/10 text-primary border border-primary/30' : 'text-muted-foreground border border-border hover:bg-muted/40'}`}
           >
-            <Plus className="h-4 w-4" /> Add to existing table
+            <PlusIcon className="h-4 w-4" /> Add to existing table
           </button>
         </div>
 
@@ -195,14 +195,14 @@ export const DatasetUploader: React.FC = () => {
         {/* File picker */}
         <div className="flex items-center gap-3">
           <label className="inline-flex items-center gap-2 px-3 py-2 border border-border hover:bg-muted rounded-[10px] text-xs font-semibold text-foreground cursor-pointer transition-colors">
-            {analyzing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+            {analyzing ? <ArrowPathIcon className="h-4 w-4 animate-spin" /> : <ArrowUpTrayIcon className="h-4 w-4" />}
             <span>Choose CSV</span>
             <input type="file" accept=".csv" onChange={handleFile} className="hidden" disabled={analyzing || submitting} />
           </label>
           {file && (
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span className="font-mono text-foreground">{file.name}</span>
-              <button onClick={clearFile} className="text-muted-foreground hover:text-danger cursor-pointer"><X className="h-3.5 w-3.5" /></button>
+              <button onClick={clearFile} className="text-muted-foreground hover:text-danger cursor-pointer"><XMarkIcon className="h-3.5 w-3.5" /></button>
             </div>
           )}
         </div>
@@ -249,7 +249,7 @@ export const DatasetUploader: React.FC = () => {
             disabled={!file || submitting || analyzing}
             className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs flex items-center gap-1.5"
           >
-            {submitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Database className="h-3.5 w-3.5" />}
+            {submitting ? <ArrowPathIcon className="h-3.5 w-3.5 animate-spin" /> : <CircleStackIcon className="h-3.5 w-3.5" />}
             {mode === 'create' ? 'Create table' : 'Append rows'}
           </Button>
         </div>
@@ -258,7 +258,7 @@ export const DatasetUploader: React.FC = () => {
       {/* Existing uploaded tables */}
       <div className="space-y-3">
         <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
-          <Table2 className="h-4 w-4 text-muted-foreground" /> Uploaded tables ({datasets.length})
+          <TableCellsIcon className="h-4 w-4 text-muted-foreground" /> Uploaded tables ({datasets.length})
         </h4>
         {datasets.length === 0 ? (
           <div className="text-xs text-muted-foreground italic py-6 text-center border border-dashed border-border rounded-lg">
@@ -283,7 +283,7 @@ export const DatasetUploader: React.FC = () => {
                   </div>
                 </div>
                 <Button size="sm" variant="ghost" onClick={() => handleDelete(d)} className="h-8 w-8 p-0 text-danger hover:bg-danger/10 shrink-0">
-                  <Trash2 className="h-3.5 w-3.5" />
+                  <TrashIcon className="h-3.5 w-3.5" />
                 </Button>
               </div>
             ))}

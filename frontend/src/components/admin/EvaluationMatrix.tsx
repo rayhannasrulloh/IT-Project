@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { Play, Cpu, CheckCircle2, XCircle, AlertCircle, TrendingUp, Activity, DollarSign } from 'lucide-react';
+import { PlayIcon, CpuChipIcon, CheckCircleIcon, XCircleIcon, ExclamationCircleIcon, ArrowTrendingUpIcon, ChartBarIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline';
 import { EvaluationMetrics, TestSuiteResponse } from '../../types';
 import api from '../../services/api';
 import { Button } from '../ui/button';
@@ -233,12 +233,12 @@ export const EvaluationMatrix: React.FC = () => {
           >
             {runningTestSuite ? (
               <>
-                <Cpu className="h-3.5 w-3.5 animate-spin text-primary-foreground" />
+                <CpuChipIcon className="h-3.5 w-3.5 animate-spin text-primary-foreground" />
                 <span>Running Test Suite...</span>
               </>
             ) : (
               <>
-                <Play className="h-3.5 w-3.5 text-primary-foreground fill-primary-foreground" />
+                <PlayIcon className="h-3.5 w-3.5 text-primary-foreground fill-primary-foreground" />
                 <span>Run Test Suite</span>
               </>
             )}
@@ -248,7 +248,7 @@ export const EvaluationMatrix: React.FC = () => {
 
       {error && (
         <div className="p-3 bg-danger/10 border border-danger/20 text-danger text-xs rounded-xl flex items-center space-x-2">
-          <AlertCircle className="h-4 w-4 shrink-0" />
+          <ExclamationCircleIcon className="h-4 w-4 shrink-0" />
           <span>{error}</span>
         </div>
       )}
@@ -270,7 +270,7 @@ export const EvaluationMatrix: React.FC = () => {
               Queries returning requested data vs out-of-scope/empty datasets.
             </p>
           </CardContent>
-          <Activity 
+          <ChartBarIcon 
             className="absolute right-2 top-2 h-20 w-20 text-primary pointer-events-none opacity-15"
             style={{
               WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)',
@@ -294,7 +294,7 @@ export const EvaluationMatrix: React.FC = () => {
               Percentage of SQL queries executed without database exceptions.
             </p>
           </CardContent>
-          <CheckCircle2 
+          <CheckCircleIcon 
             className="absolute right-2 top-2 h-20 w-20 text-emerald-500 pointer-events-none opacity-15"
             style={{
               WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)',
@@ -318,7 +318,7 @@ export const EvaluationMatrix: React.FC = () => {
               Mean response generation time of the Groq LLM.
             </p>
           </CardContent>
-          <TrendingUp 
+          <ArrowTrendingUpIcon 
             className="absolute right-2 top-2 h-20 w-20 text-blue-500 pointer-events-none opacity-15"
             style={{
               WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)',
@@ -342,7 +342,7 @@ export const EvaluationMatrix: React.FC = () => {
               Usage: {metrics ? (metrics.total_tokens).toLocaleString() : '0'} tokens total.
             </p>
           </CardContent>
-          <DollarSign 
+          <CurrencyDollarIcon 
             className="absolute right-2 top-2 h-20 w-20 text-amber-500 pointer-events-none opacity-15"
             style={{
               WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)',
@@ -512,9 +512,9 @@ export const EvaluationMatrix: React.FC = () => {
                               : 'bg-danger/10 text-danger'
                           }`}>
                             {isPass ? (
-                              <CheckCircle2 className="h-3 w-3 shrink-0" />
+                              <CheckCircleIcon className="h-3 w-3 shrink-0" />
                             ) : (
-                              <XCircle className="h-3 w-3 shrink-0" />
+                              <XCircleIcon className="h-3 w-3 shrink-0" />
                             )}
                             {result.status}
                           </span>
@@ -527,7 +527,7 @@ export const EvaluationMatrix: React.FC = () => {
             </div>
           ) : (
             <div className="py-12 text-center space-y-3">
-              <Activity className="h-8 w-8 text-muted-foreground/60 mx-auto animate-pulse" />
+              <ChartBarIcon className="h-8 w-8 text-muted-foreground/60 mx-auto animate-pulse" />
               <div className="space-y-1">
                 <p className="text-xs font-bold text-foreground">No test run available</p>
                 <p className="text-[11px] text-muted-foreground max-w-xs mx-auto">

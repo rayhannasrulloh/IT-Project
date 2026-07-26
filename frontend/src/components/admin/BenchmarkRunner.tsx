@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Play, ShieldAlert, CheckCircle, Clock, Zap, Cpu, HelpCircle } from 'lucide-react';
+import { PlayIcon, ShieldExclamationIcon, CheckCircleIcon, ClockIcon, BoltIcon, CpuChipIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 import { BenchmarkResult } from '../../types';
 import api from '../../services/api';
 import { Button } from '../ui/button';
@@ -73,12 +73,12 @@ export const BenchmarkRunner: React.FC = () => {
         >
           {running ? (
             <>
-              <Cpu className="h-4 w-4 animate-spin text-primary-foreground" />
+              <CpuChipIcon className="h-4 w-4 animate-spin text-primary-foreground" />
               <span>Running Suite...</span>
             </>
           ) : (
             <>
-              <Play className="h-4 w-4 text-primary-foreground fill-primary-foreground" />
+              <PlayIcon className="h-4 w-4 text-primary-foreground fill-primary-foreground" />
               <span>Execute Diagnostics</span>
             </>
           )}
@@ -97,7 +97,7 @@ export const BenchmarkRunner: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-muted/50 border border-border rounded-xl p-4 flex items-center space-x-3">
             <div className="h-10 w-10 bg-primary/10 text-primary rounded-lg flex items-center justify-center">
-              <Zap className="h-5 w-5" />
+              <BoltIcon className="h-5 w-5" />
             </div>
             <div>
               <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider font-semibold">Execution Accuracy</span>
@@ -107,7 +107,7 @@ export const BenchmarkRunner: React.FC = () => {
 
           <div className="bg-muted/50 border border-border rounded-xl p-4 flex items-center space-x-3">
             <div className="h-10 w-10 bg-warning/10 text-warning rounded-lg flex items-center justify-center">
-              <HelpCircle className="h-5 w-5" />
+              <QuestionMarkCircleIcon className="h-5 w-5" />
             </div>
             <div>
               <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider font-semibold">Needs Clarification</span>
@@ -117,7 +117,7 @@ export const BenchmarkRunner: React.FC = () => {
 
           <div className="bg-muted/50 border border-border rounded-xl p-4 flex items-center space-x-3">
             <div className="h-10 w-10 bg-primary/10 text-primary rounded-lg flex items-center justify-center">
-              <Clock className="h-5 w-5" />
+              <ClockIcon className="h-5 w-5" />
             </div>
             <div>
               <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider font-semibold">Mean Compile Latency</span>
@@ -127,7 +127,7 @@ export const BenchmarkRunner: React.FC = () => {
 
           <div className="bg-muted/50 border border-border rounded-xl p-4 flex items-center space-x-3">
             <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${isHealthy ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>
-              {isHealthy ? <CheckCircle className="h-5 w-5" /> : <ShieldAlert className="h-5 w-5" />}
+              {isHealthy ? <CheckCircleIcon className="h-5 w-5" /> : <ShieldExclamationIcon className="h-5 w-5" />}
             </div>
             <div>
               <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider font-semibold">Suite Status</span>
@@ -186,17 +186,17 @@ export const BenchmarkRunner: React.FC = () => {
                 <TableCell className="py-3">
                   {r.outcome === 'correct' ? (
                     <span className="inline-flex items-center text-success text-xs font-bold">
-                      <CheckCircle className="h-3.5 w-3.5 mr-1" />
+                      <CheckCircleIcon className="h-3.5 w-3.5 mr-1" />
                       Match
                     </span>
                   ) : r.outcome === 'clarification' ? (
                     <span className="inline-flex items-center text-warning text-xs font-bold">
-                      <HelpCircle className="h-3.5 w-3.5 mr-1" />
+                      <QuestionMarkCircleIcon className="h-3.5 w-3.5 mr-1" />
                       Needs Clarification
                     </span>
                   ) : (
                     <span className="inline-flex items-center text-danger text-xs font-bold">
-                      <ShieldAlert className="h-3.5 w-3.5 mr-1" />
+                      <ShieldExclamationIcon className="h-3.5 w-3.5 mr-1" />
                       Mismatch
                     </span>
                   )}

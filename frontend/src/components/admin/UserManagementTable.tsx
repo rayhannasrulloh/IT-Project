@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { User, Shield, ShieldCheck, Mail, Calendar } from 'lucide-react';
+import { UserIcon, ShieldExclamationIcon, ShieldCheckIcon, EnvelopeIcon, CalendarIcon } from '@heroicons/react/24/outline';
 import { Profile } from '../../types';
 import api from '../../services/api';
 import { Button } from '../ui/button';
@@ -83,31 +83,31 @@ export const UserManagementTable: React.FC = () => {
                 <TableRow key={profile.id} className="border-border/60">
                   <TableCell className="py-3 flex items-center space-x-2 text-xs text-foreground">
                     <div className="h-7 w-7 rounded-full bg-muted border border-border flex items-center justify-center">
-                      <User className="h-3.5 w-3.5 text-muted-foreground" />
+                      <UserIcon className="h-3.5 w-3.5 text-muted-foreground" />
                     </div>
                     <span className="font-semibold">{profile.full_name || 'N/A'}</span>
                   </TableCell>
                   <TableCell className="py-3 text-xs font-mono">
                     <div className="flex items-center space-x-1.5 text-muted-foreground">
-                      <Mail className="h-3 w-3" />
+                      <EnvelopeIcon className="h-3 w-3" />
                       <span>{profile.email}</span>
                     </div>
                   </TableCell>
                   <TableCell className="py-3 text-xs text-muted-foreground font-mono">
                     <div className="flex items-center space-x-1.5">
-                      <Calendar className="h-3 w-3" />
+                      <CalendarIcon className="h-3 w-3" />
                       <span>{new Date(profile.created_at).toLocaleDateString()}</span>
                     </div>
                   </TableCell>
                   <TableCell className="py-3">
                     {profile.role === 'admin' ? (
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary/10 text-primary border border-primary/20">
-                        <ShieldCheck className="h-3 w-3 mr-1" />
+                        <ShieldCheckIcon className="h-3 w-3 mr-1" />
                         Admin
                       </span>
                     ) : (
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-muted text-muted-foreground border border-border/80">
-                        <Shield className="h-3 w-3 mr-1" />
+                        <ShieldExclamationIcon className="h-3 w-3 mr-1" />
                         User
                       </span>
                     )}

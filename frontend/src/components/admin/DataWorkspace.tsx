@@ -1,15 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Table2, Sparkles } from 'lucide-react';
+import { TableCellsIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import BusinessDataManager from './BusinessDataManager';
 import DatasetUploader from './DatasetUploader';
 
 type DataSubTab = 'business' | 'uploaded';
 
 const SUB_TABS: { id: DataSubTab; label: string; icon: React.ElementType }[] = [
-  { id: 'business', label: 'Business Tables', icon: Table2 },
-  { id: 'uploaded', label: 'Uploaded Tables', icon: Sparkles },
+  { id: 'business', label: 'Business Tables', icon: TableCellsIcon },
+  { id: 'uploaded', label: 'Uploaded Tables', icon: SparklesIcon },
 ];
 
 /**

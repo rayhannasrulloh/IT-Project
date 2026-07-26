@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Sparkles, Terminal, Table as TableIcon, ThumbsUp, ThumbsDown, Copy, Check, MessageSquare, Database, Volume2, VolumeX } from 'lucide-react';
+import { SparklesIcon, CommandLineIcon, TableCellsIcon, HandThumbUpIcon, HandThumbDownIcon, DocumentDuplicateIcon, CheckIcon, ChatBubbleLeftRightIcon, CircleStackIcon, SpeakerWaveIcon, SpeakerXMarkIcon } from '@heroicons/react/24/outline';
 import { Message } from '../../types';
 import { Button } from '../ui/button';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '../ui/table';
@@ -90,9 +90,6 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
               {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </div>
           </div>
-          <div className="h-8 w-8 rounded-full bg-muted border border-border flex items-center justify-center flex-shrink-0">
-            <MessageSquare className="h-4 w-4 text-muted-foreground" />
-          </div>
         </div>
       </div>
     );
@@ -102,10 +99,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   return (
     <div className="flex justify-start mb-6">
       <div className="flex items-start space-x-3 max-w-[90%]">
-        <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-primary to-blue-500 flex items-center justify-center flex-shrink-0 shadow-sm">
-          <Sparkles className="h-4 w-4 text-white" />
-        </div>
-        <div className="flex-1 bg-card border border-border rounded-2xl rounded-tl-sm p-5 shadow-sm">
+        <div className="flex-1 rounded-2xl rounded-tl-sm p-5">
           {/* Explanation Text */}
           <div className="flex items-start justify-between gap-3">
             <div className="prose max-w-none text-sm text-foreground leading-relaxed font-normal whitespace-pre-wrap">
@@ -118,7 +112,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                 title={speaking ? 'Stop reading aloud' : 'Read aloud'}
                 className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 transition-colors cursor-pointer ${speaking ? 'text-primary bg-primary/10 animate-pulse' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}`}
               >
-                {speaking ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}
+                {speaking ? <SpeakerXMarkIcon className="h-3.5 w-3.5" /> : <SpeakerWaveIcon className="h-3.5 w-3.5" />}
               </button>
             )}
           </div>
@@ -127,11 +121,11 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
           {isQueryResult && message.references && message.references.tables.length > 0 && (
             <div className="mt-3 flex flex-wrap items-center gap-1.5 text-[11px]">
               <span className="inline-flex items-center gap-1 text-muted-foreground font-medium">
-                <Database className="h-3 w-3" /> Referenced from:
+                Referenced from:
               </span>
               {message.references.tables.map((t) => (
                 <span key={t.table} className="relative inline-flex group/ref">
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted/60 border border-border/60 font-mono text-foreground/80 cursor-help">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded bg-muted/10 border border-border/60 font-mono text-foreground/80 cursor-help">
                     {t.table}
                   </span>
                   {/* Custom tooltip — instant, theme-aware, with an arrow */}
@@ -157,7 +151,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                 onClick={() => setShowSql(!showSql)}
                 className="text-[11px] text-muted-foreground hover:text-foreground inline-flex items-center gap-1 transition-colors cursor-pointer"
               >
-                <Terminal className="h-3 w-3" />
+                <CommandLineIcon className="h-3 w-3" />
                 {showSql ? 'Hide SQL' : 'Show SQL'}
               </button>
               {showSql && (
@@ -173,13 +167,13 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             <div className="mt-4">
               <Tabs defaultValue="results">
                 <div className="flex justify-between items-center border-b border-border/80 pb-2">
-                  <TabsList className="bg-muted scale-95 origin-left">
+                  <TabsList className="bg-muted/10 scale-95 origin-left">
                     <TabsTrigger value="results" className="flex items-center space-x-1.5 text-xs py-1">
-                      <TableIcon className="h-3.5 w-3.5" />
+                      <TableCellsIcon className="h-3.5 w-3.5" />
                       <span>Data Grid</span>
                     </TabsTrigger>
                     <TabsTrigger value="sql" className="flex items-center space-x-1.5 text-xs py-1">
-                      <Terminal className="h-3.5 w-3.5" />
+                      <CommandLineIcon className="h-3.5 w-3.5" />
                       <span>SQL Query</span>
                     </TabsTrigger>
                   </TabsList>
@@ -241,7 +235,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                       className="absolute top-2 right-2 h-7 w-7 p-0 bg-[#0f172a]/80 border border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-white"
                       title="Copy SQL to Clipboard"
                     >
-                      {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+                      {copied ? <CheckIcon className="h-3.5 w-3.5 text-emerald-400" /> : <DocumentDuplicateIcon className="h-3.5 w-3.5" />}
                     </Button>
                   </div>
                 </TabsContent>
@@ -266,7 +260,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                   className={`h-7 w-7 p-0 hover:bg-muted ${feedback === 'like' ? 'text-success' : 'text-muted-foreground'}`}
                   title="Thumbs up"
                 >
-                  <ThumbsUp className="h-3.5 w-3.5" />
+                  <HandThumbUpIcon className="h-3.5 w-3.5" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -275,7 +269,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                   className={`h-7 w-7 p-0 hover:bg-muted ${feedback === 'dislike' ? 'text-danger' : 'text-muted-foreground'}`}
                   title="Thumbs down"
                 >
-                  <ThumbsDown className="h-3.5 w-3.5" />
+                  <HandThumbDownIcon className="h-3.5 w-3.5" />
                 </Button>
               </div>
             </div>

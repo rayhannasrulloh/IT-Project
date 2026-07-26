@@ -4,9 +4,9 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
-  ShieldAlert, LogOut, MessageSquare, ShieldCheck,
-  BarChart3, Users, History, Cpu, Database, Shield, Table2, Activity
-} from 'lucide-react';
+  ShieldExclamationIcon, ArrowLeftOnRectangleIcon,
+  ChartBarIcon, UserGroupIcon, ClockIcon, CpuChipIcon, TableCellsIcon
+} from '@heroicons/react/24/outline';
 import { useAuthStore } from '../../store/useAuthStore';
 import { Card, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import ThemeToggle from '../../components/ui/ThemeToggle';
@@ -54,7 +54,7 @@ export default function AdminPage({ defaultTab = 'analytics' }: AdminPageProps) 
         <Card className="max-w-md w-full border-danger/20 bg-danger/5 p-6 text-center space-y-4 shadow-sm">
           <div className="flex justify-center">
             <div className="h-12 w-12 bg-danger/10 border border-danger/20 text-danger rounded-full flex items-center justify-center">
-              <ShieldAlert className="h-6 w-6" />
+              <ShieldExclamationIcon className="h-6 w-6" />
             </div>
           </div>
           <div className="space-y-1">
@@ -86,12 +86,12 @@ export default function AdminPage({ defaultTab = 'analytics' }: AdminPageProps) 
   }
 
   const adminNavItems = [
-    { id: 'analytics' as const, label: 'System Analytics', icon: BarChart3 },
-    { id: 'evaluation' as const, label: 'Evaluation Matrix', icon: Activity },
-    { id: 'users' as const, label: 'User Policies', icon: Users },
-    { id: 'data' as const, label: 'Data', icon: Table2 },
-    { id: 'logs' as const, label: 'Execution Logs', icon: History },
-    { id: 'benchmarks' as const, label: 'Compiler Diagnostics', icon: Cpu }
+    { id: 'analytics' as const, label: 'System Analytics', icon: ChartBarIcon },
+    { id: 'evaluation' as const, label: 'Evaluation Matrix', icon: ChartBarIcon },
+    { id: 'users' as const, label: 'User Policies', icon: UserGroupIcon },
+    { id: 'data' as const, label: 'Data', icon: TableCellsIcon },
+    { id: 'logs' as const, label: 'Execution Logs', icon: ClockIcon },
+    { id: 'benchmarks' as const, label: 'Compiler Diagnostics', icon: CpuChipIcon }
   ];
 
   return (
@@ -154,7 +154,7 @@ export default function AdminPage({ defaultTab = 'analytics' }: AdminPageProps) 
             onClick={handleLogout}
             className="w-full text-xs font-semibold text-muted-foreground hover:text-danger flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-danger/5 transition-colors cursor-pointer"
           >
-            <LogOut className="h-4 w-4" />
+            <ArrowLeftOnRectangleIcon className="h-4 w-4" />
             <span>Sign Out</span>
           </button>
         </div>
@@ -170,7 +170,7 @@ export default function AdminPage({ defaultTab = 'analytics' }: AdminPageProps) 
               {adminNavItems.find(item => item.id === activeTab)?.label || "Admin Workspace"}
             </h1>
           </div>
-          <ThemeToggle className="h-9 w-9 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer" />
+          <ThemeToggle className="h-9 w-9 rounded-lg border border-border/60 flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer" />
         </header>
 
         {/* 3. Main Scrollable Content Area */}

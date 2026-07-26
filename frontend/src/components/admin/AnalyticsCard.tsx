@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Users, MessageSquare, Terminal, FileText, Activity } from 'lucide-react';
+import { UserGroupIcon, ChatBubbleLeftRightIcon, CommandLineIcon, DocumentTextIcon, ChartBarIcon } from '@heroicons/react/24/outline';
 import { SystemStats } from '../../types';
 import api from '../../services/api';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
@@ -34,28 +34,28 @@ export const AnalyticsCard: React.FC = () => {
       title: "Total Registered Users",
       value: stats?.total_users ?? 0,
       description: "Unique client profile entries",
-      icon: Users,
+      icon: UserGroupIcon,
       color: "text-primary bg-primary/5 border-primary/20"
     },
     {
       title: "Active Data Conversations",
       value: stats?.total_conversations ?? 0,
       description: "Historical analyst chat threads",
-      icon: MessageSquare,
+      icon: ChatBubbleLeftRightIcon,
       color: "text-primary bg-primary/5 border-primary/20"
     },
     {
       title: "SQL Statements Executed",
       value: stats?.total_queries ?? 0,
       description: "Translated NL database logs",
-      icon: Terminal,
+      icon: CommandLineIcon,
       color: "text-primary bg-primary/5 border-primary/20"
     },
     {
       title: "Uploaded Documents",
       value: stats?.total_documents ?? 0,
       description: "Ingested CSV files and PDF articles",
-      icon: FileText,
+      icon: DocumentTextIcon,
       color: "text-primary bg-primary/5 border-primary/20"
     }
   ];
@@ -108,7 +108,7 @@ export const AnalyticsCard: React.FC = () => {
               />
             </div>
           </CardContent>
-          <Activity 
+          <ChartBarIcon 
             className="absolute right-3 top-3 h-20 w-20 text-primary pointer-events-none opacity-15"
             style={{
               WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)',

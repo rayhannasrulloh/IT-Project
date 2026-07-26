@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Plus, Pencil, Trash2, Upload, X, Loader2, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { PlusIcon, PencilSquareIcon, TrashIcon, ArrowUpTrayIcon, XMarkIcon, ArrowPathIcon, ExclamationTriangleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import api from '../../services/api';
 import { ImportResult } from '../../types';
 import { Button } from '../ui/button';
@@ -210,7 +210,7 @@ export const BusinessDataManager: React.FC = () => {
         </div>
         <div className="flex items-center gap-2">
           <label className="inline-flex items-center space-x-2 px-3 py-2 border border-border hover:bg-muted rounded-[10px] text-xs font-semibold text-foreground cursor-pointer transition-colors">
-            {importing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+            {importing ? <ArrowPathIcon className="h-4 w-4 animate-spin" /> : <ArrowUpTrayIcon className="h-4 w-4" />}
             <span>Import CSV</span>
             <input type="file" accept=".csv" onChange={handleImportFile} className="hidden" disabled={importing} />
           </label>
@@ -219,7 +219,7 @@ export const BusinessDataManager: React.FC = () => {
             onClick={openCreateModal}
             className="flex items-center space-x-1.5 bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer px-3"
           >
-            <Plus className="h-4 w-4" />
+            <PlusIcon className="h-4 w-4" />
             <span>Add New</span>
           </Button>
         </div>
@@ -249,7 +249,7 @@ export const BusinessDataManager: React.FC = () => {
       {importResult && (
         <div className={`p-3 border rounded-lg text-xs space-y-1 ${importResult.failed > 0 ? 'bg-warning/10 border-warning/20 text-warning' : 'bg-success/10 border-success/20 text-success'}`}>
           <div className="flex items-center font-semibold">
-            {importResult.failed > 0 ? <AlertTriangle className="h-3.5 w-3.5 mr-1.5" /> : <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />}
+            {importResult.failed > 0 ? <ExclamationTriangleIcon className="h-3.5 w-3.5 mr-1.5" /> : <CheckCircleIcon className="h-3.5 w-3.5 mr-1.5" />}
             Imported {importResult.inserted} row(s), {importResult.failed} failed
           </div>
           {importResult.errors.length > 0 && (
@@ -291,10 +291,10 @@ export const BusinessDataManager: React.FC = () => {
                   ))}
                   <TableCell className="py-3 text-right space-x-1">
                     <Button size="sm" variant="ghost" onClick={() => openEditModal(row)} className="h-8 w-8 p-0 text-muted-foreground hover:bg-muted">
-                      <Pencil className="h-3.5 w-3.5" />
+                      <PencilSquareIcon className="h-3.5 w-3.5" />
                     </Button>
                     <Button size="sm" variant="ghost" onClick={() => handleDelete(row)} className="h-8 w-8 p-0 text-danger hover:bg-danger/10">
-                      <Trash2 className="h-3.5 w-3.5" />
+                      <TrashIcon className="h-3.5 w-3.5" />
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -313,7 +313,7 @@ export const BusinessDataManager: React.FC = () => {
                 {modalMode === 'create' ? `Add ${config.label.slice(0, -1)}` : `Edit ${config.label.slice(0, -1)}`}
               </h4>
               <Button variant="ghost" size="sm" onClick={() => setModalOpen(false)} className="h-8 w-8 p-0 text-muted-foreground hover:bg-muted">
-                <X className="h-4 w-4" />
+                <XMarkIcon className="h-4 w-4" />
               </Button>
             </div>
             <div className="p-5 space-y-3">
@@ -350,7 +350,7 @@ export const BusinessDataManager: React.FC = () => {
                 Cancel
               </Button>
               <Button size="sm" onClick={handleSave} disabled={saving} className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs">
-                {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Save'}
+                {saving ? <ArrowPathIcon className="h-3.5 w-3.5 animate-spin" /> : 'Save'}
               </Button>
             </div>
           </div>
