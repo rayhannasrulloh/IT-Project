@@ -54,11 +54,13 @@ class ApiService {
   }
 
   private async request<T>(path: string, options: RequestInit = {}): Promise<T> {
-    const token = this.getAuthToken();
     const headers = new Headers(options.headers || {});
 
-    if (token) {
-      headers.set('Authorization', `Bearer ${token}`);
+    if (!headers.has('Authorization')) {
+      const token = this.getAuthToken();
+      if (token) {
+        headers.set('Authorization', `Bearer ${token}`);
+      }
     }
 
     if (!(options.body instanceof FormData) && !headers.has('Content-Type')) {
@@ -84,9 +86,14 @@ class ApiService {
     return this.request<Profile>('/api/v1/auth/me');
   }
 
-  async syncProfile(id: string, email: string, fullName?: string): Promise<Profile> {
+  async syncProfile(id: string, email: string, fullName?: string, authToken?: string): Promise<Profile> {
+    const headers: Record<string, string> = {};
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
+    }
     return this.request<Profile>('/api/v1/auth/sync', {
       method: 'POST',
+      headers,
       body: JSON.stringify({ id, email, full_name: fullName }),
     });
   }

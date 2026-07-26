@@ -25,31 +25,30 @@ async def get_current_user(
     )
 
     try:
-        # For development ease, check if using mock jwt secret and a mock token
-        if settings.ENVIRONMENT == "development" and token.startswith("mock-token-"):
+        # Mock token fallback isolated exclusively to testing environment
+        if settings.ENVIRONMENT == "testing" and token.startswith("mock-token-"):
             # Format: mock-token-role-userid
             parts = token.split("-", 3)
             role = parts[2] if len(parts) > 2 else "user"
             uid = parts[3] if len(parts) > 3 else "mock-user-uuid"
             email = f"{role}@cda.com"
         else:
-            # Decode using Supabase JWT Secret
+            # Decode using Supabase JWT Secret with audience verification
             payload = jwt.decode(
                 token, 
                 settings.SUPABASE_JWT_SECRET, 
                 algorithms=["HS256"], 
-                options={"verify_aud": False}
+                options={"verify_aud": True},
+                audience="authenticated"
             )
             uid: str = payload.get("sub")
             email: str = payload.get("email")
             role: str = "user"  # default
             
-            # Optionally extract role from app_metadata or user_metadata if present
+            # Extract role strictly from server-controlled app_metadata (never user_metadata)
             app_metadata = payload.get("app_metadata", {})
-            if "role" in app_metadata:
+            if isinstance(app_metadata, dict) and "role" in app_metadata:
                 role = app_metadata["role"]
-            elif "user_metadata" in payload:
-                role = payload.get("user_metadata", {}).get("role", "user")
 
         if uid is None or email is None:
             raise credentials_exception

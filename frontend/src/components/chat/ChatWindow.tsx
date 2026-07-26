@@ -192,7 +192,7 @@ export const ChatWindow: React.FC = () => {
 
             {/* Title Header */}
             <div className="space-y-2">
-              <h2 className="text-3xl font-extrabold text-foreground tracking-tight">
+              <h2 className="text-3xl font-semibold text-foreground tracking-tight">
                 What would you like to analyze?
               </h2>
             </div>

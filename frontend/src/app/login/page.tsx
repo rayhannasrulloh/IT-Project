@@ -9,6 +9,7 @@ import { Button } from '../../components/ui/button';
 import ThemeToggle from '../../components/ui/ThemeToggle';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../../components/ui/card';
 import { api } from '../../services/api';
+import { supabase } from '../../lib/supabase';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -26,26 +27,32 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      let mockUid = "regular-user-uuid-87654321";
-      let mockRole = "user";
-      
-      if (email.includes("admin")) {
-        mockUid = "admin-user-uuid-12345678";
-        mockRole = "admin";
+      // Step 1: Authenticate with real Supabase Auth SDK
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (authError || !data.session) {
+        throw new Error(authError?.message || 'Authentication failed. Invalid email or password.');
       }
 
-      const mockToken = `mock-token-${mockRole}-${mockUid}`;
+      const session = data.session;
+      const user = data.user;
 
+      // Step 2: Synchronize Supabase user profile with our PostgreSQL backend using the real Supabase JWT token
       const profile = await api.syncProfile(
-        mockUid,
-        email,
-        email.split('@')[0].toUpperCase()
+        user.id,
+        user.email || email,
+        user.user_metadata?.full_name || email.split('@')[0].toUpperCase(),
+        session.access_token
       );
 
-      setSession(profile, profile.token || mockToken);
+      // Step 3: Persist verified profile and token in store
+      setSession(profile, profile.token || session.access_token);
       router.push('/dashboard');
     } catch (err: any) {
-      setError(err.message || "Failed to establish database session. Ensure FastAPI backend is running on port 8000.");
+      setError(err.message || 'Authentication failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }

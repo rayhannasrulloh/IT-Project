@@ -206,7 +206,7 @@ export default function DashboardPage() {
                 <MagnifyingGlassIcon className="absolute left-3 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
                 <input
                   type="text"
-                  placeholder="Search chats..."
+                  placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-8 pr-7 py-2 border border-border/80 rounded-xl text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 transition-all"
@@ -241,7 +241,7 @@ export default function DashboardPage() {
               ) : (
                 groupedChats.map((group) => (
                   <div key={group.label} className="space-y-1">
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block px-2 py-1">
+                    <span className="text-[14px] font-semibold text-muted-foreground block px-1 py-1">
                       {group.label}
                     </span>
                     <div className="space-y-0.5">
@@ -262,7 +262,7 @@ export default function DashboardPage() {
                             <span className="truncate pr-2">{conv.title || "Untitled Conversation"}</span>
                             <button
                               onClick={(e) => handleDeleteChat(e, conv.conversation_id)}
-                              className="opacity-0 group-hover/item:opacity-100 hover:text-danger p-0.5 rounded transition-opacity shrink-0"
+                              className="opacity-0 group-hover/item:opacity-100 hover:text-danger p-0.5 rounded transition-opacity shrink-0 cursor-pointer"
                               title="Delete conversation"
                             >
                               <TrashIcon className="h-3.5 w-3.5" />
@@ -310,12 +310,12 @@ export default function DashboardPage() {
               <div className="flex items-center space-x-2.5 overflow-hidden">
                 <div
                   title={`${user.email} (${user.role})`}
-                  className="h-8 w-8 rounded-full bg-muted border border-border flex items-center justify-center text-xs font-bold text-foreground uppercase shrink-0"
+                  className="h-8 w-8 rounded-full bg-muted/10 border border-border flex items-center justify-center text-xs font-bold text-foreground uppercase shrink-0"
                 >
                   {user.email.charAt(0)}
                 </div>
                 <div className="flex flex-col truncate text-left">
-                  <span className="text-xs font-semibold text-foreground truncate">{user.email}</span>
+                  <span className="text-xs text-foreground truncate">{user.email}</span>
                   <span className="text-[10px] text-muted-foreground capitalize">{user.role}</span>
                 </div>
               </div>
@@ -370,14 +370,14 @@ export default function DashboardPage() {
             {user.role === 'admin' && (
               <Link
                 href="/admin"
-                className="text-xs font-semibold text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-lg flex items-center space-x-1.5 transition-all border border-border/60 hover:border-border"
+                className="text-xs text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-lg flex items-center space-x-1.5 transition-all"
               >
                 <span>Admin Panel</span>
               </Link>
             )}
 
             {/* Theme Mode Toggle Button placed in Top Right Corner */}
-            <ThemeToggle className="h-9 w-9 rounded-lg border border-border/60 flex items-center justify-center text-muted-foreground hover:text-foreground transition-all cursor-pointer" />
+            <ThemeToggle className="h-9 w-9 rounded border border-border/60 flex items-center justify-center text-muted-foreground hover:text-foreground transition-all cursor-pointer" />
           </div>
         </header>
 

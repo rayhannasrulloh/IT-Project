@@ -185,7 +185,7 @@ LIMIT 10;`;
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 items-start">
 
         {/* Left Side: Search & Table Navigator (4 cols on lg) */}
-        <div className="lg:col-span-4 border border-border/80 p-4 flex flex-col space-y-4 shadow-sm">
+        <div className="lg:col-span-4 border border-border/80 p-4 flex flex-col space-y-4">
 
           {/* Table Search Input */}
           <div className="relative">
@@ -265,7 +265,7 @@ LIMIT 10;`;
         </div>
 
         {/* Right Side: Selected Table Details & Inspector (8 cols on lg) */}
-        <div className="lg:col-span-8 bg-card border border-border/80 p-5 space-y-5 shadow-sm">
+        <div className="lg:col-span-8 bg-card border border-border/80 p-5 space-y-5">
 
           {/* Selected Table Overview Header */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-border pb-4">
