@@ -10,6 +10,36 @@ from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, SystemMessage
 from app.core.config import settings
 
+# Tables the analyst must NEVER read: application/user data, audit, auth, and
+# Postgres system catalogs. Enforced at execution time (defense-in-depth) so a
+# jailbroken model still cannot exfiltrate them. Business tables (customers,
+# products, orders, payments, order_items) and uploaded dyn_* tables are allowed.
+FORBIDDEN_TABLES = {
+    "profiles", "conversations", "messages", "conversation_context",
+    "query_logs", "feedback", "benchmark_results", "benchmark_questions",
+    "uploaded_documents", "extracted_tables", "document_chunks",
+    "dynamic_datasets", "users",
+    "information_schema", "pg_catalog", "pg_class", "pg_namespace",
+    "pg_tables", "pg_shadow", "pg_authid", "pg_user", "pg_roles",
+    "pg_database", "pg_stat_activity", "pg_settings",
+}
+
+# Prompt-injection / jailbreak phrases rejected before any LLM work.
+INJECTION_PATTERNS = [
+    r"ignore\s+(?:all\s+|the\s+|your\s+|any\s+)?(?:previous|prior|above)\s+instructions",
+    r"disregard\s+(?:all\s+|your\s+|the\s+|previous\s+)?(?:instructions|rules|prompt)",
+    r"forget\s+(?:everything|all|your\s+instructions|the\s+above)",
+    r"system\s+prompt",
+    r"(?:reveal|show|print|repeat|tell\s+me)\s+(?:your|the)\s+(?:prompt|instructions|rules|system)",
+    r"you\s+are\s+now\b",
+    r"act\s+as\s+(?:if|a|an|though)\b",
+    r"pretend\s+(?:to\s+be|you\s+are)",
+    r"developer\s+mode",
+    r"jailbreak",
+    r"bypass\s+(?:the\s+)?(?:guardrail|safety|security|rules|filter|read-only)",
+    r"do\s+anything\s+now",
+]
+
 # PostgreSQL Core Schema Definitions for LLM Prompt context.
 # IMPORTANT: column values below are the EXACT, case-sensitive enums in the
 # seeded database. Filtering on any other casing/spelling returns zero rows.
@@ -225,28 +255,45 @@ class AnalystService:
 
     async def check_sql_safety(self, sql: str) -> bool:
         """
-        Validates that the SQL runs only SELECT or WITH statements,
-        preventing code injection and modifications.
+        Guardrail: only allow a single read-only SELECT/WITH statement that touches
+        the business data. Blocks writes/DDL, stacked queries, and any reference to
+        application, auth, or system-catalog tables — so even a jailbroken model
+        cannot exfiltrate user data (profiles, query_logs, auth.users, pg_* …).
         """
-        clean_sql = re.sub(r'--.*$', '', sql, flags=re.MULTILINE) # remove comments
+        clean_sql = re.sub(r'--.*$', '', sql, flags=re.MULTILINE) # remove line comments
         clean_sql = re.sub(r'/\*.*?\*/', '', clean_sql, flags=re.DOTALL) # remove block comments
-        
+
+        # Reject stacked / multiple statements (a ';' other than a single trailing one).
+        if ";" in clean_sql.strip().rstrip(";"):
+            return False
+
         # Tokenize and identify command keywords
         tokens = re.findall(r'\b\w+\b', clean_sql.upper())
-        
+
         disallowed = {"INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "CREATE", "TRUNCATE", "REPLACE", "UPSERT", "GRANT", "REVOKE"}
-        
+        forbidden_tables = {t.upper() for t in FORBIDDEN_TABLES}
+
         for token in tokens:
             if token in disallowed:
                 return False
-        
+            # Block sensitive tables + every Postgres system catalog (pg_*).
+            if token in forbidden_tables or token.startswith("PG_"):
+                return False
+
         # Check that it starts with SELECT or WITH
         first_word_match = re.match(r'^\s*(\w+)', clean_sql, re.IGNORECASE)
         if not first_word_match:
             return False
-            
+
         first_word = first_word_match.group(1).upper()
         return first_word in {"SELECT", "WITH"}
+
+    @staticmethod
+    def detect_prompt_injection(text: str) -> bool:
+        """Detect obvious prompt-injection / jailbreak attempts in the user's input
+        so they can be refused before any LLM work happens."""
+        lowered = (text or "").lower()
+        return any(re.search(pat, lowered) for pat in INJECTION_PATTERNS)
 
     @staticmethod
     def _prepare_sql(sql: str) -> str:

@@ -1,6 +1,6 @@
 import {
-  Profile, Conversation, Message, UploadedDocument,
-  ExtractedTable, SystemStats, QueryLog, BenchmarkResult,
+  Profile, Conversation, Message,
+  SystemStats, QueryLog, BenchmarkResult,
   Customer, Product, Order, Payment, ImportResult,
   EvaluationMetrics, TestSuiteResponse,
   DatasetPreview, DynamicDataset, AppendResult, AppendTargets
@@ -132,24 +132,6 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify({ message_id: messageId, rating, comment }),
     });
-  }
-
-  // --- Document Intelligence API ---
-  async uploadDocument(file: File): Promise<UploadedDocument> {
-    const formData = new FormData();
-    formData.append('file', file);
-    return this.request<UploadedDocument>('/api/v1/documents/upload', {
-      method: 'POST',
-      body: formData,
-    });
-  }
-
-  async listDocuments(): Promise<UploadedDocument[]> {
-    return this.request<UploadedDocument[]>('/api/v1/documents/');
-  }
-
-  async getDocumentTables(documentId: string): Promise<ExtractedTable[]> {
-    return this.request<ExtractedTable[]>(`/api/v1/documents/${documentId}/tables`);
   }
 
   // --- Admin API ---

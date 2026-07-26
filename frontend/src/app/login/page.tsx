@@ -2,8 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { SparklesIcon, EnvelopeIcon, LockClosedIcon, ArrowPathIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import { EnvelopeIcon, LockClosedIcon, ArrowPathIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import { useAuthStore } from '../../store/useAuthStore';
 import { Button } from '../../components/ui/button';
 import ThemeToggle from '../../components/ui/ThemeToggle';
@@ -126,13 +125,6 @@ export default function LoginPage() {
               <Button type="submit" className="w-full py-2.5" disabled={loading}>
                 {loading ? <ArrowPathIcon className="h-4 w-4 animate-spin text-primary-foreground" /> : 'Sign In'}
               </Button>
-
-              <div className="text-center text-xs text-muted-foreground">
-                Don&apos;t have an account?{' '}
-                <Link href="/register" className="text-primary hover:text-primary/80 font-semibold transition-colors">
-                  Register
-                </Link>
-              </div>
 
               {/* Developer credentials shortcuts */}
               <div className="w-full pt-4 border-t border-border space-y-2">

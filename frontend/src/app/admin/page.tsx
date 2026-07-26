@@ -4,22 +4,20 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
-  ShieldExclamationIcon, ArrowLeftOnRectangleIcon, ChatBubbleLeftRightIcon, ShieldCheckIcon,
-  ChartBarIcon, UserGroupIcon, DocumentChartBarIcon, ClockIcon, CpuChipIcon, CircleStackIcon, TableCellsIcon, SparklesIcon
+  ShieldExclamationIcon, ArrowLeftOnRectangleIcon,
+  ChartBarIcon, UserGroupIcon, ClockIcon, CpuChipIcon, TableCellsIcon
 } from '@heroicons/react/24/outline';
 import { useAuthStore } from '../../store/useAuthStore';
 import { Card, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import ThemeToggle from '../../components/ui/ThemeToggle';
 import AnalyticsCard from '../../components/admin/AnalyticsCard';
 import UserManagementTable from '../../components/admin/UserManagementTable';
-import DocumentIngestionView from '../../components/admin/DocumentIngestionView';
 import LogViewer from '../../components/admin/LogViewer';
 import BenchmarkRunner from '../../components/admin/BenchmarkRunner';
-import BusinessDataManager from '../../components/admin/BusinessDataManager';
+import DataWorkspace from '../../components/admin/DataWorkspace';
 import EvaluationMatrix from '../../components/admin/EvaluationMatrix';
-import DatasetUploader from '../../components/admin/DatasetUploader';
 
-type AdminTab = 'analytics' | 'users' | 'data' | 'upload' | 'documents' | 'logs' | 'benchmarks' | 'evaluation';
+type AdminTab = 'analytics' | 'users' | 'data' | 'logs' | 'benchmarks' | 'evaluation';
 
 interface AdminPageProps {
   defaultTab?: AdminTab;
@@ -91,9 +89,7 @@ export default function AdminPage({ defaultTab = 'analytics' }: AdminPageProps) 
     { id: 'analytics' as const, label: 'System Analytics', icon: ChartBarIcon },
     { id: 'evaluation' as const, label: 'Evaluation Matrix', icon: ChartBarIcon },
     { id: 'users' as const, label: 'User Policies', icon: UserGroupIcon },
-    { id: 'data' as const, label: 'Business Data', icon: TableCellsIcon },
-    { id: 'upload' as const, label: 'Data Upload', icon: SparklesIcon },
-    { id: 'documents' as const, label: 'Ingest Documents', icon: DocumentChartBarIcon },
+    { id: 'data' as const, label: 'Data', icon: TableCellsIcon },
     { id: 'logs' as const, label: 'Execution Logs', icon: ClockIcon },
     { id: 'benchmarks' as const, label: 'Compiler Diagnostics', icon: CpuChipIcon }
   ];
@@ -183,9 +179,7 @@ export default function AdminPage({ defaultTab = 'analytics' }: AdminPageProps) 
             {activeTab === 'analytics' && <AnalyticsCard />}
             {activeTab === 'evaluation' && <EvaluationMatrix />}
             {activeTab === 'users' && <UserManagementTable />}
-            {activeTab === 'data' && <BusinessDataManager />}
-            {activeTab === 'upload' && <DatasetUploader />}
-            {activeTab === 'documents' && <DocumentIngestionView />}
+            {activeTab === 'data' && <DataWorkspace />}
             {activeTab === 'logs' && <LogViewer />}
             {activeTab === 'benchmarks' && <BenchmarkRunner />}
           </div>
