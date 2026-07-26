@@ -148,6 +148,30 @@ async def submit_query(
     total_input_tokens = 0
     total_output_tokens = 0
 
+    # 3a. Input guardrail: refuse obvious prompt-injection / jailbreak attempts
+    # up front, before spending any LLM call on them.
+    if analyst_service.detect_prompt_injection(payload.query_text):
+        content = (
+            "I can only help with analytical questions about your business data. "
+            "I can't change my instructions or work outside that scope."
+        )
+        assistant_msg = await conv_repo.add_message(
+            conversation_id=conv_id, role="assistant", content=content,
+            explanation="Request blocked by the security policy."
+        )
+        await log_repo.log_query(
+            user_id=current_user.id,
+            query_text=payload.query_text,
+            executed_sql=None,
+            execution_duration_ms=0,
+            status="failed",
+            error_message="Blocked: prompt-injection / jailbreak attempt.",
+            llm_latency_ms=total_latency_ms,
+            input_tokens=total_input_tokens,
+            output_tokens=total_output_tokens,
+        )
+        return assistant_msg
+
     intent = "DATA_QUERY"
     if not pending:
         intent_service = IntentService()
@@ -302,7 +326,7 @@ async def submit_query(
     # 4. Safety Guardrails Check
     is_safe = await analyst_service.check_sql_safety(sql)
     if not is_safe:
-        err_msg = "Safety violation: Only SELECT or WITH statements are allowed. Modifying actions blocked."
+        err_msg = "Request blocked by the read-only security policy (only business-data SELECT queries are permitted)."
         assistant_msg = await conv_repo.add_message(
             conversation_id=conv_id,
             role="assistant",
