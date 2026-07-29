@@ -5,7 +5,7 @@ from app.core.database import get_db
 from app.core.security import get_current_user
 from app.domain.models import Profile
 from app.api.schemas import ProfileResponse, ProfileCreate
-from app.main import limiter
+from app.core.limiter import limiter
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
