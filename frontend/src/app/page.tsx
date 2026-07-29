@@ -23,6 +23,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useAuthStore } from '../store/useAuthStore';
 import ColorBends from '../components/ColorBends';
+import SpecularButton from '../components/SpecularButton';
 
 const FEATURES = [
   { icon: ShieldCheckIcon, title: 'Read-only & safe', desc: 'Every query is validated, only SELECT runs. Writes and DDL are blocked by guardrails.' },
@@ -190,11 +191,26 @@ export default function LandingPage() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto"
         >
-          <Link
-            href="/login"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#F97316] text-white text-sm font-semibold px-6 py-3 rounded-full hover:scale-105 hover:opacity-90 active:scale-95 transition-all duration-300 shadow-md shadow-orange-500/20"
-          >
-            Launch Conda AI <ArrowRightIcon className="h-4 w-4" />
+          <Link href="/login" className="w-full sm:w-auto">
+            <SpecularButton
+              size="md"
+              radius={9999}
+              tint="#F97316"
+              tintOpacity={1}
+              textColor="#ffffff"
+              lineColor="#ffffff"
+              baseColor="#ea580c"
+              intensity={1.2}
+              shineSize={12}
+              shineFade={35}
+              thickness={1.5}
+              speed={0.35}
+              followMouse
+              proximity={250}
+              className="w-full sm:w-auto shadow-md shadow-orange-500/20"
+            >
+              Launch Conda AI <ArrowRightIcon className="h-4 w-4 inline-block ml-2" />
+            </SpecularButton>
           </Link>
           <a
             href="#how"
