@@ -25,14 +25,16 @@ interface AdminPageProps {
 
 export default function AdminPage({ defaultTab = 'analytics' }: AdminPageProps) {
   const router = useRouter();
-  const { user, isAuthenticated, clearSession } = useAuthStore();
+  const { user, isAuthenticated, hasHydrated, clearSession } = useAuthStore();
   const [activeTab, setActiveTab] = useState<AdminTab>(defaultTab);
 
+  // Only redirect once the persisted store has hydrated, so a hard refresh
+  // doesn't bounce a logged-in admin to /login before the session is restored.
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (hasHydrated && !isAuthenticated) {
       router.push('/login');
     }
-  }, [isAuthenticated, router]);
+  }, [hasHydrated, isAuthenticated, router]);
 
   const handleLogout = () => {
     clearSession();

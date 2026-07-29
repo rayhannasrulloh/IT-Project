@@ -75,7 +75,7 @@ function getGroupedConversations(conversations: Conversation[], searchQuery: str
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, isAuthenticated, clearSession } = useAuthStore();
+  const { user, isAuthenticated, hasHydrated, clearSession } = useAuthStore();
   const {
     conversations, currentConversationId,
     setConversations, setCurrentConversationId, setMessages
@@ -85,16 +85,17 @@ export default function DashboardPage() {
   const [activeView, setActiveView] = useState<'chat' | 'schema'>('chat');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // 1. Redirect if not authenticated
+  // 1. Redirect if not authenticated — but only once the persisted store has
+  //    hydrated, so a hard refresh doesn't bounce a logged-in user to /login.
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (hasHydrated && !isAuthenticated) {
       router.push('/login');
     }
-  }, [isAuthenticated, router]);
+  }, [hasHydrated, isAuthenticated, router]);
 
   // 2. Fetch Conversations on Mount
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!hasHydrated || !isAuthenticated) return;
     const fetchConvs = async () => {
       try {
         const list = await api.listConversations();
@@ -104,7 +105,7 @@ export default function DashboardPage() {
       }
     };
     fetchConvs();
-  }, [isAuthenticated, setConversations]);
+  }, [hasHydrated, isAuthenticated, setConversations]);
 
   const handleLogout = () => {
     clearSession();
