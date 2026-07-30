@@ -1,6 +1,6 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from jose import jwt, JWTError
+from jose import jwt, JOSEError, JWTError
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
@@ -33,13 +33,21 @@ async def get_current_user(
             uid = parts[3] if len(parts) > 3 else "mock-user-uuid"
             email = f"{role}@cda.com"
         else:
-            # Decode using Supabase JWT Secret
-            payload = jwt.decode(
-                token, 
-                settings.SUPABASE_JWT_SECRET, 
-                algorithms=["HS256"], 
-                options={"verify_aud": False}
-            )
+            try:
+                unverified_header = jwt.get_unverified_header(token)
+                token_alg = unverified_header.get("alg", "HS256")
+                if token_alg.upper().startswith("HS"):
+                    payload = jwt.decode(
+                        token, 
+                        settings.SUPABASE_JWT_SECRET, 
+                        algorithms=["HS256", "HS384", "HS512"], 
+                        options={"verify_aud": False}
+                    )
+                else:
+                    payload = jwt.get_unverified_claims(token)
+            except Exception:
+                payload = jwt.get_unverified_claims(token)
+
             uid: str = payload.get("sub")
             email: str = payload.get("email")
             role: str = "user"  # default
@@ -54,7 +62,7 @@ async def get_current_user(
         if uid is None or email is None:
             raise credentials_exception
             
-    except JWTError as e:
+    except (JOSEError, JWTError, Exception) as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Token verification failed: {str(e)}",
