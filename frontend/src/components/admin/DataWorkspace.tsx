@@ -32,7 +32,7 @@ export const DataWorkspace: React.FC = () => {
             className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
               sub === id
                 ? 'bg-primary/10 text-primary'
-                : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'
+                : 'text-muted-foreground hover:bg-card hover:text-foreground'
             }`}
           >
             <Icon className="h-4 w-4" />

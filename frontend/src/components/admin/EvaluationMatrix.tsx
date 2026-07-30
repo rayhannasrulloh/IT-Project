@@ -12,7 +12,7 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '.
 // Dynamically import Plotly with SSR disabled to prevent Node compilation errors
 const Plot = dynamic(() => import('react-plotly.js'), {
   ssr: false,
-  loading: () => <div className="h-72 w-full flex items-center justify-center text-muted-foreground bg-muted/20 border border-border rounded-xl">Loading chart widgets...</div>
+  loading: () => <div className="h-72 w-full flex items-center justify-center text-muted-foreground bg-card border border-border rounded-full">Loading chart widgets...</div>
 });
 
 interface ChartTheme {
@@ -208,11 +208,11 @@ export const EvaluationMatrix: React.FC = () => {
     <div className="space-y-6">
       
       {/* 1. Header Model Status Banner */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-muted/30 border border-border p-5 rounded-2xl">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-card border border-border p-5 rounded-2xl">
         <div className="space-y-1">
           <div className="flex items-center space-x-2">
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            <h2 className="text-base font-bold text-foreground">Model Performance Evaluation Matrix</h2>
+            <h2 className="text-base font-semibold text-foreground">Model Performance Evaluation Matrix</h2>
           </div>
           <p className="text-xs text-muted-foreground font-medium">
             Model Provider: <strong className="text-primary font-semibold">Groq</strong> | Engine: <strong className="text-primary font-semibold">openai/gpt-oss-120b</strong>
@@ -222,7 +222,7 @@ export const EvaluationMatrix: React.FC = () => {
           <Button 
             onClick={fetchMetrics} 
             disabled={loadingMetrics}
-            className="px-4 py-2 border border-border bg-card hover:bg-muted text-foreground text-xs font-semibold rounded-[10px] cursor-pointer"
+            className="px-4 py-2 border border-border bg-card hover:bg-card/80 text-foreground text-xs font-semibold rounded-[10px] cursor-pointer"
           >
             {loadingMetrics ? 'Refreshing...' : 'Refresh Metrics'}
           </Button>
@@ -247,7 +247,7 @@ export const EvaluationMatrix: React.FC = () => {
       </div>
 
       {error && (
-        <div className="p-3 bg-danger/10 border border-danger/20 text-danger text-xs rounded-xl flex items-center space-x-2">
+        <div className="p-3 bg-danger/10 border border-danger/20 text-danger text-xs rounded-full flex items-center space-x-2">
           <ExclamationCircleIcon className="h-4 w-4 shrink-0" />
           <span>{error}</span>
         </div>
@@ -258,7 +258,7 @@ export const EvaluationMatrix: React.FC = () => {
         {/* KPI 1: Execution Accuracy */}
         <Card className="hover:border-primary/20 hover:shadow-md transition-all bg-card relative overflow-hidden">
           <CardHeader className="pb-2 p-5">
-            <CardTitle className="text-xs uppercase font-bold text-muted-foreground tracking-wider">
+            <CardTitle className="text-xs uppercase font-semibold text-muted-foreground tracking-wider">
               Execution Accuracy
             </CardTitle>
           </CardHeader>
@@ -282,7 +282,7 @@ export const EvaluationMatrix: React.FC = () => {
         {/* KPI 2: SQL Syntax Success Rate */}
         <Card className="hover:border-primary/20 hover:shadow-md transition-all bg-card relative overflow-hidden">
           <CardHeader className="pb-2 p-5">
-            <CardTitle className="text-xs uppercase font-bold text-muted-foreground tracking-wider">
+            <CardTitle className="text-xs uppercase font-semibold text-muted-foreground tracking-wider">
               Syntax Success Rate
             </CardTitle>
           </CardHeader>
@@ -306,7 +306,7 @@ export const EvaluationMatrix: React.FC = () => {
         {/* KPI 3: Average Latency */}
         <Card className="hover:border-primary/20 hover:shadow-md transition-all bg-card relative overflow-hidden">
           <CardHeader className="pb-2 p-5">
-            <CardTitle className="text-xs uppercase font-bold text-muted-foreground tracking-wider">
+            <CardTitle className="text-xs uppercase font-semibold text-muted-foreground tracking-wider">
               Average Latency
             </CardTitle>
           </CardHeader>
@@ -330,7 +330,7 @@ export const EvaluationMatrix: React.FC = () => {
         {/* KPI 4: Tokens & Cost */}
         <Card className="hover:border-primary/20 hover:shadow-md transition-all bg-card relative overflow-hidden">
           <CardHeader className="pb-2 p-5">
-            <CardTitle className="text-xs uppercase font-bold text-muted-foreground tracking-wider">
+            <CardTitle className="text-xs uppercase font-semibold text-muted-foreground tracking-wider">
               Total API Token Cost
             </CardTitle>
           </CardHeader>
@@ -358,7 +358,7 @@ export const EvaluationMatrix: React.FC = () => {
         {/* Latency Trends over Time */}
         <Card className="bg-card overflow-hidden">
           <CardHeader className="p-5 pb-2">
-            <CardTitle className="text-sm font-bold text-foreground">LLM Latency Trends over Time</CardTitle>
+            <CardTitle className="text-sm font-semibold text-foreground">LLM Latency Trends over Time</CardTitle>
           </CardHeader>
           <CardContent className="p-5 pt-0 overflow-hidden">
             {metrics && metrics.recent_logs.length > 0 ? (
@@ -401,7 +401,7 @@ export const EvaluationMatrix: React.FC = () => {
         {/* Success vs Failure Distribution */}
         <Card className="bg-card overflow-hidden">
           <CardHeader className="p-5 pb-2">
-            <CardTitle className="text-sm font-bold text-foreground">Query Execution Outcomes</CardTitle>
+            <CardTitle className="text-sm font-semibold text-foreground">Query Execution Outcomes</CardTitle>
           </CardHeader>
           <CardContent className="p-5 pt-0 overflow-hidden">
             {metrics && metrics.total_queries > 0 ? (
@@ -437,13 +437,13 @@ export const EvaluationMatrix: React.FC = () => {
         <CardHeader className="p-5 pb-3 border-b border-border">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div>
-              <CardTitle className="text-base font-bold text-foreground">Golden Dataset Test Suite (20 cases)</CardTitle>
+              <CardTitle className="text-base font-semibold text-foreground">Golden Dataset Test Suite (20 cases)</CardTitle>
               <p className="text-xs text-muted-foreground font-medium">
                 Runs pre-defined validation questions including out-of-scope prompts to measure drift and safety accuracy.
               </p>
             </div>
             {testSuite && (
-              <div className="flex items-center gap-4 bg-muted/40 border border-border/80 px-3 py-1.5 rounded-lg text-xs font-mono">
+              <div className="flex items-center gap-4 bg-card border border-border/80 px-3 py-1.5 rounded-lg text-xs font-mono">
                 <span className="text-emerald-500 font-bold">Pass: {testSuite.metrics.passed}</span>
                 <span className="text-danger font-bold">Fail: {testSuite.metrics.failed}</span>
                 <span className="text-primary font-bold">Accuracy: {testSuite.metrics.accuracy_rate}%</span>
@@ -457,7 +457,7 @@ export const EvaluationMatrix: React.FC = () => {
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-muted/30">
+                  <TableRow className="bg-card">
                     <TableHead className="w-1/3 text-xs font-bold text-foreground pl-5 py-3">Prompt Question</TableHead>
                     <TableHead className="text-xs font-bold text-foreground py-3">Category</TableHead>
                     <TableHead className="w-1/4 text-xs font-bold text-foreground py-3">Expected Output</TableHead>
@@ -470,17 +470,17 @@ export const EvaluationMatrix: React.FC = () => {
                   {testSuite.test_results.map((result, idx) => {
                     const isPass = result.status === 'Pass';
                     return (
-                      <TableRow key={idx} className="border-b border-border/40 hover:bg-muted/10">
+                      <TableRow key={idx} className="border-b border-border/40 hover:bg-card">
                         <TableCell className="pl-5 py-3 text-xs font-medium text-foreground">
                           {result.nl_query}
                         </TableCell>
                         <TableCell className="py-3">
-                          <span className="px-2 py-0.5 text-[10px] rounded bg-muted font-mono text-muted-foreground">
+                          <span className="px-2 py-0.5 text-[10px] rounded bg-card font-mono text-muted-foreground">
                             {result.category}
                           </span>
                         </TableCell>
                         <TableCell className="py-3">
-                          <pre className="text-[10px] font-mono whitespace-pre-wrap max-w-xs break-all bg-muted/40 p-2 rounded text-muted-foreground">
+                          <pre className="text-[10px] font-mono whitespace-pre-wrap max-w-xs break-all bg-card p-2 rounded text-muted-foreground">
                             {result.expected_output}
                           </pre>
                         </TableCell>

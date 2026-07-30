@@ -26,7 +26,7 @@ export const TabsList = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HT
   ({ className = "", ...props }, ref) => (
     <div
       ref={ref}
-      className={`inline-flex h-10 items-center justify-center rounded-[8px] bg-muted p-1 text-muted-foreground border border-border/80 ${className}`}
+      className={`inline-flex h-10 items-center justify-center rounded-[8px] bg-card p-1 text-muted-foreground border border-border/80 ${className}`}
       {...props}
     />
   )

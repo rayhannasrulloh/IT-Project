@@ -69,7 +69,7 @@ export const LogViewer: React.FC = () => {
       <div className="flex flex-col gap-3 border-b border-border pb-4">
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
           <div>
-            <h3 className="text-base font-bold text-foreground">Execution Logs</h3>
+            <h3 className="text-base font-semibold text-foreground">Execution Logs</h3>
             <p className="text-xs text-muted-foreground font-medium">Filter, audit and export natural-language query executions.</p>
           </div>
           <div className="flex items-center gap-2">
@@ -96,7 +96,7 @@ export const LogViewer: React.FC = () => {
           <span className="text-xs text-muted-foreground">to</span>
           <input type="date" value={end} onChange={(e) => setEnd(e.target.value)} title="To date" className={inputCls} />
 
-          <div className="flex bg-muted rounded-lg p-0.5 border border-border">
+          <div className="flex bg-card rounded-lg p-0.5 border border-border">
             {(['all', 'success', 'failed'] as const).map((s) => (
               <button
                 key={s}
@@ -138,7 +138,7 @@ export const LogViewer: React.FC = () => {
                 const isExpanded = expandedLogId === log.log_id;
                 return (
                   <React.Fragment key={log.log_id}>
-                    <TableRow onClick={() => toggleExpand(log.log_id)} className="border-border/60 hover:bg-muted/10 cursor-pointer">
+                    <TableRow onClick={() => toggleExpand(log.log_id)} className="border-border/60 hover:bg-card cursor-pointer">
                       <TableCell className="py-3">
                         {isExpanded ? <ChevronUpIcon className="h-4 w-4 text-muted-foreground" /> : <ChevronDownIcon className="h-4 w-4 text-muted-foreground" />}
                       </TableCell>
@@ -161,7 +161,7 @@ export const LogViewer: React.FC = () => {
                     </TableRow>
 
                     {isExpanded && (
-                      <TableRow className="bg-muted/20 border-none">
+                      <TableRow className="bg-card/40 border-none">
                         <TableCell colSpan={6} className="p-4 pt-1">
                           <div className="space-y-3 bg-card border border-border rounded-lg p-4 shadow-sm">
                             {log.executed_sql && (

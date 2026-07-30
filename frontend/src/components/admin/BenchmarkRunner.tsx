@@ -51,7 +51,7 @@ export const BenchmarkRunner: React.FC = () => {
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-border pb-4">
         <div>
-          <h3 className="text-base font-bold text-foreground">Execution Accuracy Benchmark</h3>
+          <h3 className="text-base font-semibold text-foreground">Execution Accuracy Benchmark</h3>
           <p className="text-xs text-muted-foreground font-medium">Runs the agent against a 50+ question golden dataset and compares each generated query's result set against the gold answer.</p>
         </div>
         <div className="flex items-center gap-2">
@@ -59,7 +59,7 @@ export const BenchmarkRunner: React.FC = () => {
           value={sample}
           onChange={(e) => setSample(Number(e.target.value))}
           disabled={running}
-          className="bg-muted border border-border rounded-lg text-xs font-medium text-foreground px-2 py-2 cursor-pointer focus:outline-none focus:border-primary"
+          className="bg-background border border-border rounded-lg text-xs font-medium text-foreground px-2 py-2 cursor-pointer focus:outline-none focus:border-primary"
           title="Quick keeps a live demo under the LLM rate limit; Full runs the entire suite."
         >
           <option value={10}>Quick (10 questions)</option>
@@ -95,7 +95,7 @@ export const BenchmarkRunner: React.FC = () => {
       {/* Summary Scorecards */}
       {results.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-muted/50 border border-border rounded-xl p-4 flex items-center space-x-3">
+          <div className="bg-card border border-border rounded-full p-4 flex items-center space-x-3">
             <div className="h-10 w-10 bg-primary/10 text-primary rounded-lg flex items-center justify-center">
               <BoltIcon className="h-5 w-5" />
             </div>
@@ -105,7 +105,7 @@ export const BenchmarkRunner: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-muted/50 border border-border rounded-xl p-4 flex items-center space-x-3">
+          <div className="bg-card border border-border rounded-full p-4 flex items-center space-x-3">
             <div className="h-10 w-10 bg-warning/10 text-warning rounded-lg flex items-center justify-center">
               <QuestionMarkCircleIcon className="h-5 w-5" />
             </div>
@@ -115,7 +115,7 @@ export const BenchmarkRunner: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-muted/50 border border-border rounded-xl p-4 flex items-center space-x-3">
+          <div className="bg-card border border-border rounded-full p-4 flex items-center space-x-3">
             <div className="h-10 w-10 bg-primary/10 text-primary rounded-lg flex items-center justify-center">
               <ClockIcon className="h-5 w-5" />
             </div>
@@ -125,7 +125,7 @@ export const BenchmarkRunner: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-muted/50 border border-border rounded-xl p-4 flex items-center space-x-3">
+          <div className="bg-card border border-border rounded-full p-4 flex items-center space-x-3">
             <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${isHealthy ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>
               {isHealthy ? <CheckCircleIcon className="h-5 w-5" /> : <ShieldExclamationIcon className="h-5 w-5" />}
             </div>
@@ -145,7 +145,7 @@ export const BenchmarkRunner: React.FC = () => {
             return (
               <div
                 key={c.category}
-                className="bg-muted/40 border border-border rounded-lg px-3 py-1.5 text-xs"
+                className="bg-card border border-border rounded-lg px-3 py-1.5 text-xs"
                 title={`${c.correct} of ${c.total} correct`}
               >
                 <span className="font-semibold text-foreground capitalize">{c.category}</span>

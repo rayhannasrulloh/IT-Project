@@ -77,7 +77,7 @@ export const QueryVisualizer: React.FC<QueryVisualizerProps> = ({ config }) => {
   };
 
   return (
-    <Card className="border-border/60 bg-muted/10 mt-4">
+    <Card className="border-border/60 bg-card mt-4">
       <CardHeader className="py-3">
         <CardTitle className="text-sm font-medium text-foreground/80">Visualization</CardTitle>
       </CardHeader>

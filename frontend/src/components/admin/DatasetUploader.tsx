@@ -117,7 +117,7 @@ export const DatasetUploader: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="border-b border-border pb-4">
-        <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+        <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
           <SparklesIcon className="h-4 w-4 text-primary" /> Data Upload
         </h3>
         <p className="text-xs text-muted-foreground mt-1">
@@ -137,18 +137,18 @@ export const DatasetUploader: React.FC = () => {
       )}
 
       {/* Upload panel */}
-      <div className="border border-border rounded-xl p-5 space-y-4 bg-muted/10">
+      <div className="border border-border rounded-full p-5 space-y-4 bg-card">
         {/* Mode toggle */}
         <div className="flex gap-2">
           <button
             onClick={() => setMode('create')}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${mode === 'create' ? 'bg-primary/10 text-primary border border-primary/30' : 'text-muted-foreground border border-border hover:bg-muted/40'}`}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${mode === 'create' ? 'bg-primary/10 text-primary border border-primary/30' : 'text-muted-foreground border border-border hover:bg-card'}`}
           >
             <DocumentPlusIcon className="h-4 w-4" /> Create new table
           </button>
           <button
             onClick={() => setMode('append')}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${mode === 'append' ? 'bg-primary/10 text-primary border border-primary/30' : 'text-muted-foreground border border-border hover:bg-muted/40'}`}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${mode === 'append' ? 'bg-primary/10 text-primary border border-primary/30' : 'text-muted-foreground border border-border hover:bg-card'}`}
           >
             <PlusIcon className="h-4 w-4" /> Add to existing table
           </button>
@@ -194,7 +194,7 @@ export const DatasetUploader: React.FC = () => {
 
         {/* File picker */}
         <div className="flex items-center gap-3">
-          <label className="inline-flex items-center gap-2 px-3 py-2 border border-border hover:bg-muted rounded-[10px] text-xs font-semibold text-foreground cursor-pointer transition-colors">
+          <label className="inline-flex items-center gap-2 px-3 py-2 border border-border hover:bg-card rounded-[10px] text-xs font-semibold text-foreground cursor-pointer transition-colors">
             {analyzing ? <ArrowPathIcon className="h-4 w-4 animate-spin" /> : <ArrowUpTrayIcon className="h-4 w-4" />}
             <span>Choose CSV</span>
             <input type="file" accept=".csv" onChange={handleFile} className="hidden" disabled={analyzing || submitting} />
@@ -257,7 +257,7 @@ export const DatasetUploader: React.FC = () => {
 
       {/* Existing uploaded tables */}
       <div className="space-y-3">
-        <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
+        <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
           <TableCellsIcon className="h-4 w-4 text-muted-foreground" /> Uploaded tables ({datasets.length})
         </h4>
         {datasets.length === 0 ? (
@@ -271,7 +271,7 @@ export const DatasetUploader: React.FC = () => {
                 <div className="space-y-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-foreground">{d.display_name}</span>
-                    <span className="text-[10px] font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded">{d.table_name}</span>
+                    <span className="text-[10px] font-mono text-muted-foreground bg-card px-1.5 py-0.5 rounded">{d.table_name}</span>
                     <span className="text-[10px] text-muted-foreground">{d.row_count} rows</span>
                   </div>
                   <div className="flex flex-wrap gap-1">

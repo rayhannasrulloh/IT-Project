@@ -63,16 +63,16 @@ export default function LoginPage() {
       <div className="absolute top-1/4 left-1/4 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
       <div className="absolute bottom-1/4 right-1/4 h-96 w-96 rounded-full bg-indigo-500/5 blur-3xl" />
 
-      <ThemeToggle className="absolute top-4 right-4 z-20 h-9 w-9 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer" />
+      <ThemeToggle className="absolute top-4 right-4 z-20 h-9 w-9 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-card hover:text-foreground transition-colors cursor-pointer" />
       
       <div className="w-full max-w-md relative z-10">
         <form onSubmit={handleLogin}>
-          <Card className="border-border/60 bg-white/40 dark:bg-[#000] backdrop-blur-lg shadow-xl">
+          <Card className="border-border/60 bg-white/40 dark:bg-[#151414] backdrop-blur-lg shadow-xl">
             <CardHeader className="space-y-2 text-center pb-4">
               <div className="flex justify-center mb-4">
-                <img src="/logo/CondaAI.png" alt="Conda AI logo" className="h-8 w-8 rounded-xl shadow-sm dark:invert dark:brightness-200" />
+                <img src="/logo/CondaAI.png" alt="Conda AI logo" className="h-8 w-8 rounded-full shadow-sm dark:invert dark:brightness-200" />
               </div>
-              <CardTitle className="text-xl font-bold tracking-tight text-foreground">Conda AI</CardTitle>
+              <CardTitle className="text-xl font-semibold tracking-tight text-foreground">Conda AI</CardTitle>
               <CardDescription className="text-xs text-muted-foreground">
                 Natural language interface to compile SQL queries
               </CardDescription>
@@ -94,7 +94,7 @@ export default function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@conda.ai"
-                    className="w-full bg-background border border-border/60 rounded-xl py-2.5 pl-10 pr-4 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary focus:bg-muted/10 transition-colors"
+                    className="w-full bg-background border border-border/60 rounded-full py-2.5 pl-10 pr-4 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary focus:bg-card transition-colors"
                     required
                   />
                 </div>
@@ -109,7 +109,7 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full bg-background border border-border/60 rounded-xl py-2.5 pl-10 pr-4 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary focus:bg-muted/10 transition-colors"
+                    className="w-full bg-background border border-border/60 rounded-full py-2.5 pl-10 pr-4 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary focus:bg-card transition-colors"
                     required
                   />
                 </div>

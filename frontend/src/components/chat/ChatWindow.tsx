@@ -151,7 +151,7 @@ export const ChatWindow: React.FC = () => {
           onClick={toggleMic}
           disabled={isLoading}
           title={listening ? 'Stop listening' : 'Voice input'}
-          className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 transition-colors cursor-pointer ${listening ? 'text-danger bg-danger/10 animate-pulse' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+          className={`h-9 w-9 rounded-full flex items-center justify-center shrink-0 transition-colors cursor-pointer ${listening ? 'text-danger bg-danger/10 animate-pulse' : 'text-muted-foreground hover:text-foreground hover:bg-card'
             }`}
         >
           <MicrophoneIcon className={`h-4 w-4 ${listening ? 'opacity-100' : 'opacity-70'}`} />
@@ -209,7 +209,7 @@ export const ChatWindow: React.FC = () => {
                   <button
                     key={prompt}
                     onClick={() => handleSubmit(prompt)}
-                    className="group flex items-center justify-between px-4 py-3 text-left rounded-xl border border-border/70 bg-card hover:border-primary/40 hover:bg-muted/5 text-xs font-medium text-foreground/90 transition-all duration-150 ease-out cursor-pointer"
+                    className="group flex items-center justify-between px-4 py-3 text-left rounded-full border border-border/70 bg-card hover:border-primary/40 hover:bg-card text-xs font-medium text-foreground/90 transition-all duration-150 ease-out cursor-pointer"
                   >
                     <span className="truncate pr-2">{prompt}</span>
                     <ArrowRightIcon className="h-3.5 w-3.5 text-muted-foreground/50 group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
@@ -234,7 +234,7 @@ export const ChatWindow: React.FC = () => {
                 ))}
                 {isLoading && (
                   <div className="flex justify-start mb-6">
-                    <div className="flex items-center space-x-2 border border-border/80 p-4 rounded-xl max-w-sm">
+                    <div className="flex items-center space-x-2 border border-border/80 p-4 rounded-full max-w-sm">
                       <ArrowPathIcon className="h-4 w-4 animate-spin text-primary" />
                       <span className="text-xs text-muted-foreground">Analyst compiling SQL query...</span>
                     </div>

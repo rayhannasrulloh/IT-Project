@@ -11,9 +11,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     
     const variants = {
       primary: "bg-primary hover:bg-primary/95 text-primary-foreground shadow-sm shadow-primary/10 active:scale-[0.98]",
-      secondary: "bg-muted text-foreground border border-border hover:bg-border/60 active:scale-[0.98]",
-      outline: "border border-border text-muted-foreground hover:bg-muted hover:text-foreground active:scale-[0.98]",
-      ghost: "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+      secondary: "bg-card text-foreground border border-border hover:bg-border/60 active:scale-[0.98]",
+      outline: "border border-border text-muted-foreground hover:bg-card hover:text-foreground active:scale-[0.98]",
+      ghost: "text-muted-foreground hover:bg-card/60 hover:text-foreground",
       danger: "bg-danger hover:bg-danger/90 text-white shadow-sm shadow-danger/10 active:scale-[0.98]"
     };
 

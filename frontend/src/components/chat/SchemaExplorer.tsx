@@ -156,7 +156,7 @@ LIMIT 10;`;
         <div className="flex items-start space-x-3.5">
           <div>
             <div className="flex items-center space-x-2">
-              <h1 className="text-xl font-bold text-foreground tracking-tight">Schema Explorer</h1>
+              <h1 className="text-xl font-semibold text-foreground tracking-tight">Schema Explorer</h1>
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
               Inspect relational tables, data types, keys, and foreign-key relationships powering Conda AI.
@@ -166,15 +166,15 @@ LIMIT 10;`;
 
         {/* Header Stats Pills */}
         <div className="grid grid-cols-3 gap-3 self-stretch md:self-auto">
-          <div className="bg-muted/10 border border-border px-3.5 py-2 text-center">
+          <div className="bg-card border border-border px-3.5 py-2 text-center">
             <div className="text-xs text-muted-foreground font-medium">Tables</div>
             <div className="text-base font-bold text-foreground font-mono">{totalTables}</div>
           </div>
-          <div className="bg-muted/10 border border-border px-3.5 py-2 text-center">
+          <div className="bg-card border border-border px-3.5 py-2 text-center">
             <div className="text-xs text-muted-foreground font-medium">Columns</div>
             <div className="text-base font-bold text-foreground font-mono">{totalColumns}</div>
           </div>
-          <div className="bg-muted/10 border border-border px-3.5 py-2 text-center">
+          <div className="bg-card border border-border px-3.5 py-2 text-center">
             <div className="text-xs text-muted-foreground font-medium">Foreign Keys</div>
             <div className="text-base font-bold text-primary font-mono">{totalFks}</div>
           </div>
@@ -195,7 +195,7 @@ LIMIT 10;`;
               placeholder="Search tables or columns..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 bg-muted/10 border border-border rounded-l text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all"
+              className="w-full pl-9 pr-3 py-2 bg-background border border-border rounded-l text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all"
             />
           </div>
 
@@ -206,7 +206,7 @@ LIMIT 10;`;
             </div>
 
             {filteredTables.length === 0 ? (
-              <div className="p-4 text-center text-xs text-muted-foreground italic bg-muted/10 border border-dashed border-border">
+              <div className="p-4 text-center text-xs text-muted-foreground italic bg-card border border-dashed border-border">
                 No matching tables found
               </div>
             ) : (
@@ -220,11 +220,11 @@ LIMIT 10;`;
                     onClick={() => setSelectedTableName(table.name)}
                     className={`w-full text-left p-3 rounded-l transition-all duration-150 cursor-pointer flex items-center justify-between border ${isSelected
                       ? 'bg-primary/10 text-foreground'
-                      : 'bg-muted/10 hover:bg-muted/30 border-transparent text-muted-foreground hover:text-foreground'
+                      : 'bg-card/40 hover:bg-card border-transparent text-muted-foreground hover:text-foreground'
                       }`}
                   >
                     <div className="flex items-center space-x-3">
-                      <div className={`h-8 w-8 rounded flex items-center justify-center text-xs font-bold ${isSelected ? 'bg-primary text-primary-foreground' : 'bg-muted/10 text-muted-foreground'
+                      <div className={`h-8 w-8 rounded flex items-center justify-center text-xs font-bold ${isSelected ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground'
                         }`}>
                         {table.name.substring(0, 2).toUpperCase()}
                       </div>
@@ -246,7 +246,7 @@ LIMIT 10;`;
           </div>
 
           {/* Business Glossary Banner */}
-          <div className="p-3.5 bg-muted/10 border border-border/80 space-y-2 text-xs">
+          <div className="p-3.5 bg-card border border-border/80 space-y-2 text-xs">
             <div className="flex items-center space-x-1.5 font-semibold text-foreground">
               <QuestionMarkCircleIcon className="h-4 w-4" />
               <span>Business Glossary</span>
@@ -271,8 +271,8 @@ LIMIT 10;`;
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-border pb-4">
             <div>
               <div className="flex items-center space-x-2.5">
-                <h2 className="text-lg font-bold text-foreground tracking-tight">{selectedTable.name}</h2>
-                <span className="text-[11px] font-mono font-medium px-2.5 py-0.5 bg-muted/10 border border-border rounded text-muted-foreground">
+                <h2 className="text-lg font-semibold text-foreground tracking-tight">{selectedTable.name}</h2>
+                <span className="text-[11px] font-mono font-medium px-2.5 py-0.5 bg-card border border-border rounded text-muted-foreground">
                   {selectedTable.rowCount}
                 </span>
               </div>
@@ -282,7 +282,7 @@ LIMIT 10;`;
             </div>
 
             {/* Navigation Tabs (Columns, Sample Data, SQL Preview) */}
-            <div className="flex items-center space-x-1 bg-muted/10 p-1 border border-border rounded self-start md:self-auto">
+            <div className="flex items-center space-x-1 bg-card p-1 border border-border rounded self-start md:self-auto">
               <button
                 onClick={() => setActiveTab('columns')}
                 className={`px-3 py-1.5 text-xs font-semibold rounded transition-all cursor-pointer ${activeTab === 'columns' ? 'bg-card text-foreground border border-border/60' : 'text-muted-foreground hover:text-foreground'
@@ -322,7 +322,7 @@ LIMIT 10;`;
                   </thead>
                   <tbody className="divide-y divide-border/60">
                     {selectedTable.columns.map((col) => (
-                      <tr key={col.name} className="hover:bg-muted/20 transition-colors">
+                      <tr key={col.name} className="hover:bg-card/50 transition-colors">
                         <td className="py-2.5 px-3.5 font-bold text-foreground flex items-center space-x-2">
                           <span>{col.name}</span>
                         </td>
@@ -344,7 +344,7 @@ LIMIT 10;`;
                               </span>
                             )}
                             {!col.nullable && (
-                              <span className="text-[10px] text-muted-foreground/70 bg-muted/10 px-1.5 py-0.5 rounded">
+                              <span className="text-[10px] text-muted-foreground/70 bg-card px-1.5 py-0.5 rounded">
                                 NOT NULL
                               </span>
                             )}
@@ -367,9 +367,9 @@ LIMIT 10;`;
               <div className="text-xs text-muted-foreground flex items-center justify-between">
                 <span>Displaying mock rows from <code className="text-foreground font-mono">{selectedTable.name}</code></span>
               </div>
-              <div className="overflow-x-auto rounded-xl border border-border/80 bg-background/50">
+              <div className="overflow-x-auto rounded-full border border-border/80 bg-background/50">
                 <table className="w-full text-left text-xs font-mono">
-                  <thead className="bg-muted/40 text-muted-foreground uppercase text-[10px] font-semibold border-b border-border">
+                  <thead className="bg-card text-muted-foreground uppercase text-[10px] font-semibold border-b border-border">
                     <tr>
                       {selectedTable.columns.map(c => (
                         <th key={c.name} className="py-2.5 px-3.5 whitespace-nowrap">{c.name}</th>
@@ -378,7 +378,7 @@ LIMIT 10;`;
                   </thead>
                   <tbody className="divide-y divide-border/60">
                     {selectedTable.sampleData.map((row, idx) => (
-                      <tr key={idx} className="hover:bg-muted/30 transition-colors">
+                      <tr key={idx} className="hover:bg-card/50 transition-colors">
                         {selectedTable.columns.map(c => (
                           <td key={c.name} className="py-2.5 px-3.5 whitespace-nowrap text-foreground">
                             {row[c.name] !== undefined ? String(row[c.name]) : <span className="text-muted-foreground italic">null</span>}
@@ -399,7 +399,7 @@ LIMIT 10;`;
                 <span className="text-xs text-muted-foreground">Sample SQL analytical query pattern</span>
                 <button
                   onClick={handleCopySql}
-                  className="px-3 py-1 bg-muted hover:bg-muted/80 text-foreground border border-border rounded-lg text-xs font-semibold flex items-center space-x-1.5 cursor-pointer transition-all active:scale-95"
+                  className="px-3 py-1 bg-card hover:bg-card/80 text-foreground border border-border rounded-lg text-xs font-semibold flex items-center space-x-1.5 cursor-pointer transition-all active:scale-95"
                 >
                   {copiedSql ? (
                     <>
@@ -414,7 +414,7 @@ LIMIT 10;`;
                   )}
                 </button>
               </div>
-              <div className="p-4 bg-zinc-950 text-zinc-100 dark:bg-black dark:border-border/60 rounded-xl border border-zinc-800 font-mono text-xs overflow-x-auto leading-relaxed">
+              <div className="p-4 bg-zinc-950 text-zinc-100 dark:bg-black dark:border-border/60 rounded-full border border-zinc-800 font-mono text-xs overflow-x-auto leading-relaxed">
                 <pre>{sampleSql}</pre>
               </div>
             </div>

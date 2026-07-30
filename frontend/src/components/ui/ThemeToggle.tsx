@@ -31,7 +31,7 @@ export const ThemeToggle: React.FC<{ className?: string }> = ({ className }) => 
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       className={`group transition-all duration-200 hover:scale-110 active:scale-90 ${
         className ??
-        'h-10 w-10 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer'
+        'h-10 w-10 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-card hover:text-foreground cursor-pointer'
       }`}
     >
       {isDark ? (

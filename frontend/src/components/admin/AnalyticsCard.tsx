@@ -68,7 +68,7 @@ export const AnalyticsCard: React.FC = () => {
           return (
             <Card key={index} className="hover:border-primary/20 hover:shadow-md transition-all duration-150 ease-out bg-card relative overflow-hidden">
               <CardHeader className="pb-2 p-5">
-                <CardTitle className="text-xs uppercase font-bold text-muted-foreground tracking-wider">
+                <CardTitle className="text-xs uppercase font-semibold text-muted-foreground tracking-wider">
                   {item.title}
                 </CardTitle>
               </CardHeader>
@@ -92,7 +92,7 @@ export const AnalyticsCard: React.FC = () => {
       {stats && (
         <Card className="border-primary/15 bg-primary/5 shadow-sm relative overflow-hidden">
           <CardHeader className="p-5 pb-3 flex flex-row items-center space-x-2">
-            <CardTitle className="text-sm font-bold text-primary">SQL Compiler Success Rate</CardTitle>
+            <CardTitle className="text-sm font-semibold text-primary">SQL Compiler Success Rate</CardTitle>
           </CardHeader>
           <CardContent className="p-5 pt-0 flex flex-col sm:flex-row items-center sm:justify-between gap-4">
             <div className="space-y-1">
@@ -101,7 +101,7 @@ export const AnalyticsCard: React.FC = () => {
                 Calculated ratio of SQL compiles executing in PostgreSQL without database error exceptions.
               </p>
             </div>
-            <div className="w-full sm:w-64 bg-muted h-2.5 rounded-full overflow-hidden border border-border shadow-sm">
+            <div className="w-full sm:w-64 bg-card h-2.5 rounded-full overflow-hidden border border-border shadow-sm">
               <div 
                 className="bg-primary h-full rounded-full transition-all duration-300 ease-out" 
                 style={{ width: `${stats.query_success_rate}%` }}

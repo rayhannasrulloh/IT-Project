@@ -205,11 +205,11 @@ export const BusinessDataManager: React.FC = () => {
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-border pb-4">
         <div>
-          <h3 className="text-base font-bold text-foreground">Business Data</h3>
+          <h3 className="text-base font-semibold text-foreground">Business Data</h3>
           <p className="text-xs text-muted-foreground">Create, edit, delete, and bulk-import the records the analyst queries.</p>
         </div>
         <div className="flex items-center gap-2">
-          <label className="inline-flex items-center space-x-2 px-3 py-2 border border-border hover:bg-muted rounded-[10px] text-xs font-semibold text-foreground cursor-pointer transition-colors">
+          <label className="inline-flex items-center space-x-2 px-3 py-2 border border-border hover:bg-card rounded-[10px] text-xs font-semibold text-foreground cursor-pointer transition-colors">
             {importing ? <ArrowPathIcon className="h-4 w-4 animate-spin" /> : <ArrowUpTrayIcon className="h-4 w-4" />}
             <span>Import CSV</span>
             <input type="file" accept=".csv" onChange={handleImportFile} className="hidden" disabled={importing} />
@@ -234,7 +234,7 @@ export const BusinessDataManager: React.FC = () => {
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
               activeEntity === key
                 ? 'bg-primary/10 text-primary'
-                : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'
+                : 'text-muted-foreground hover:bg-card hover:text-foreground'
             }`}
           >
             {ENTITIES[key].label}
@@ -290,7 +290,7 @@ export const BusinessDataManager: React.FC = () => {
                     </TableCell>
                   ))}
                   <TableCell className="py-3 text-right space-x-1">
-                    <Button size="sm" variant="ghost" onClick={() => openEditModal(row)} className="h-8 w-8 p-0 text-muted-foreground hover:bg-muted">
+                    <Button size="sm" variant="ghost" onClick={() => openEditModal(row)} className="h-8 w-8 p-0 text-muted-foreground hover:bg-card">
                       <PencilSquareIcon className="h-3.5 w-3.5" />
                     </Button>
                     <Button size="sm" variant="ghost" onClick={() => handleDelete(row)} className="h-8 w-8 p-0 text-danger hover:bg-danger/10">
@@ -308,11 +308,11 @@ export const BusinessDataManager: React.FC = () => {
       {modalOpen && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-card border border-border rounded-[12px] max-w-md w-full shadow-lg">
-            <div className="p-5 border-b border-border flex justify-between items-center bg-muted/20">
-              <h4 className="text-sm font-bold text-foreground">
+            <div className="p-5 border-b border-border flex justify-between items-center bg-card">
+              <h4 className="text-sm font-semibold text-foreground">
                 {modalMode === 'create' ? `Add ${config.label.slice(0, -1)}` : `Edit ${config.label.slice(0, -1)}`}
               </h4>
-              <Button variant="ghost" size="sm" onClick={() => setModalOpen(false)} className="h-8 w-8 p-0 text-muted-foreground hover:bg-muted">
+              <Button variant="ghost" size="sm" onClick={() => setModalOpen(false)} className="h-8 w-8 p-0 text-muted-foreground hover:bg-card">
                 <XMarkIcon className="h-4 w-4" />
               </Button>
             </div>
@@ -327,7 +327,7 @@ export const BusinessDataManager: React.FC = () => {
                     <select
                       value={formValues[f.key] ?? ''}
                       onChange={(e) => handleFieldChange(f.key, e.target.value)}
-                      className="w-full bg-muted border border-border rounded-lg text-xs font-medium text-foreground px-2.5 py-2 cursor-pointer focus:outline-none focus:border-primary"
+                      className="w-full bg-background border border-border rounded-lg text-xs font-medium text-foreground px-2.5 py-2 cursor-pointer focus:outline-none focus:border-primary"
                     >
                       <option value="" disabled>Select {f.label.toLowerCase()}...</option>
                       {f.options?.map((opt) => (
@@ -339,7 +339,7 @@ export const BusinessDataManager: React.FC = () => {
                       type={f.type === 'number' ? 'number' : 'text'}
                       value={formValues[f.key] ?? ''}
                       onChange={(e) => handleFieldChange(f.key, e.target.value)}
-                      className="w-full bg-muted border border-border rounded-lg text-xs font-medium text-foreground px-2.5 py-2 focus:outline-none focus:border-primary"
+                      className="w-full bg-background border border-border rounded-lg text-xs font-medium text-foreground px-2.5 py-2 focus:outline-none focus:border-primary"
                     />
                   )}
                 </div>

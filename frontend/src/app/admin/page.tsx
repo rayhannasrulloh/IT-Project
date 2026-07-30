@@ -60,7 +60,7 @@ export default function AdminPage({ defaultTab = 'analytics' }: AdminPageProps) 
             </div>
           </div>
           <div className="space-y-1">
-            <CardTitle className="text-foreground text-lg font-bold">Access Denied</CardTitle>
+            <CardTitle className="text-foreground text-lg font-semibold">Access Denied</CardTitle>
             <CardDescription className="text-muted-foreground text-xs font-medium">
               Role-Based Access Control blocked access to this directory.
             </CardDescription>
@@ -71,7 +71,7 @@ export default function AdminPage({ defaultTab = 'analytics' }: AdminPageProps) 
           <div className="flex justify-center space-x-3 pt-2">
             <Link
               href="/dashboard"
-              className="px-4 py-2 bg-card border border-border hover:bg-muted text-foreground text-xs font-semibold rounded-[10px] transition-colors"
+              className="px-4 py-2 bg-card border border-border hover:bg-card text-foreground text-xs font-semibold rounded-[10px] transition-colors"
             >
               Back to Chat
             </Link>
@@ -116,7 +116,7 @@ export default function AdminPage({ defaultTab = 'analytics' }: AdminPageProps) 
           {/* Navigation link back to chat */}
           <Link
             href="/dashboard"
-            className="w-full flex items-center justify-center space-x-2 border border-border hover:border-primary/45 hover:bg-muted py-2.5 rounded-[10px] text-xs font-semibold text-muted-foreground hover:text-foreground transition-all duration-150 ease-out shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15)]"
+            className="w-full flex items-center justify-center space-x-2 border border-border hover:border-primary/45 hover:bg-card py-2.5 rounded-[10px] text-xs font-semibold text-muted-foreground hover:text-foreground transition-all duration-150 ease-out shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15)]"
           >
             <span>Back to Chat</span>
           </Link>
@@ -133,7 +133,7 @@ export default function AdminPage({ defaultTab = 'analytics' }: AdminPageProps) 
                   onClick={() => setActiveTab(item.id)}
                   className={`w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] cursor-pointer transition-colors ${isActive
                       ? 'bg-primary/10 text-primary font-medium shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15)]'
-                      : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'
+                      : 'text-muted-foreground hover:bg-card hover:text-foreground'
                     }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -146,7 +146,7 @@ export default function AdminPage({ defaultTab = 'analytics' }: AdminPageProps) 
 
         {/* User tag info */}
         <div className="space-y-3 pt-4 border-t border-border">
-          <div className="p-3 bg-muted/60 rounded-lg border border-border/80 text-[11px] text-muted-foreground flex flex-col gap-0.5">
+          <div className="p-3 bg-background rounded-lg border border-border/80 text-[11px] text-muted-foreground flex flex-col gap-0.5">
             <div className="font-semibold text-foreground truncate">{user.email}</div>
             <div className="flex items-center space-x-1 mt-0.5 text-[9px] uppercase tracking-wider font-bold text-primary">
               Admin Console
@@ -168,11 +168,11 @@ export default function AdminPage({ defaultTab = 'analytics' }: AdminPageProps) 
         {/* 2. Sticky Top Navigation Bar */}
         <header className="h-16 border-b border-border/60 bg-background/80 backdrop-blur-md sticky top-0 z-10 px-6 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <h1 className="font-bold text-sm text-foreground">
+            <h1 className="font-semibold text-sm text-foreground">
               {adminNavItems.find(item => item.id === activeTab)?.label || "Admin Workspace"}
             </h1>
           </div>
-          <ThemeToggle className="h-9 w-9 rounded-lg border border-border/60 flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer" />
+          <ThemeToggle className="h-9 w-9 rounded-lg border border-border/60 flex items-center justify-center text-muted-foreground hover:bg-card hover:text-foreground transition-all cursor-pointer" />
         </header>
 
         {/* 3. Main Scrollable Content Area */}
