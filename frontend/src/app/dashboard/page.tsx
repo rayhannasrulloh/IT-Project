@@ -6,7 +6,7 @@ import Link from 'next/link';
 import {
   SparklesIcon, ArrowLeftOnRectangleIcon, ChatBubbleLeftRightIcon, ShieldCheckIcon,
   CircleStackIcon, PlusIcon, TrashIcon, XMarkIcon, ChevronLeftIcon,
-  ChevronRightIcon, MagnifyingGlassIcon
+  ChevronRightIcon, MagnifyingGlassIcon, Bars3Icon
 } from '@heroicons/react/24/outline';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useChatStore } from '../../store/useChatStore';
@@ -23,39 +23,26 @@ interface GroupedConversations {
 
 function getGroupedConversations(conversations: Conversation[], searchQuery: string): GroupedConversations[] {
   const filtered = conversations.filter((c) =>
-    c.title.toLowerCase().includes(searchQuery.toLowerCase())
+    (c.title || 'Untitled Conversation').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const today: Conversation[] = [];
   const yesterday: Conversation[] = [];
-  const twoDays: Conversation[] = [];
-  const threeDays: Conversation[] = [];
   const previous7Days: Conversation[] = [];
   const older: Conversation[] = [];
 
   const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-  const msInDay = 24 * 60 * 60 * 1000;
+  const yesterdayStart = todayStart - 86400000;
+  const sevenDaysStart = todayStart - 6 * 86400000;
 
   filtered.forEach((conv) => {
-    const dateStr = conv.updated_at || conv.created_at;
-    if (!dateStr) {
-      older.push(conv);
-      return;
-    }
-    const convDate = new Date(dateStr);
-    const convStart = new Date(convDate.getFullYear(), convDate.getMonth(), convDate.getDate()).getTime();
-    const diffDays = Math.round((todayStart - convStart) / msInDay);
-
-    if (diffDays <= 0) {
+    const createdTime = new Date(conv.created_at).getTime();
+    if (createdTime >= todayStart) {
       today.push(conv);
-    } else if (diffDays === 1) {
+    } else if (createdTime >= yesterdayStart) {
       yesterday.push(conv);
-    } else if (diffDays === 2) {
-      twoDays.push(conv);
-    } else if (diffDays === 3) {
-      threeDays.push(conv);
-    } else if (diffDays > 3 && diffDays <= 7) {
+    } else if (createdTime >= sevenDaysStart) {
       previous7Days.push(conv);
     } else {
       older.push(conv);
@@ -65,9 +52,7 @@ function getGroupedConversations(conversations: Conversation[], searchQuery: str
   const groups: GroupedConversations[] = [];
   if (today.length > 0) groups.push({ label: 'Today', items: today });
   if (yesterday.length > 0) groups.push({ label: 'Yesterday', items: yesterday });
-  if (twoDays.length > 0) groups.push({ label: '2 days', items: twoDays });
-  if (threeDays.length > 0) groups.push({ label: '3 days', items: threeDays });
-  if (previous7Days.length > 0) groups.push({ label: 'Previous 7 days', items: previous7Days });
+  if (previous7Days.length > 0) groups.push({ label: 'Previous 7 Days', items: previous7Days });
   if (older.length > 0) groups.push({ label: 'Older', items: older });
 
   return groups;
@@ -77,45 +62,54 @@ export default function DashboardPage() {
   const router = useRouter();
   const { user, isAuthenticated, hasHydrated, clearSession } = useAuthStore();
   const {
-    conversations, currentConversationId,
-    setConversations, setCurrentConversationId, setMessages
+    conversations,
+    currentConversationId,
+    setConversations,
+    setCurrentConversationId,
+    setMessages
   } = useChatStore();
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeView, setActiveView] = useState<'chat' | 'schema'>('chat');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // 1. Redirect if not authenticated — but only once the persisted store has
-  //    hydrated, so a hard refresh doesn't bounce a logged-in user to /login.
+  // Automatically collapse sidebar on mobile screen mounts
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setIsSidebarOpen(false);
+    }
+  }, []);
+
+  // Hydration safety check
   useEffect(() => {
     if (hasHydrated && !isAuthenticated) {
       router.push('/login');
     }
   }, [hasHydrated, isAuthenticated, router]);
 
-  // 2. Fetch Conversations on Mount
+  // Load user conversation history
   useEffect(() => {
-    if (!hasHydrated || !isAuthenticated) return;
+    if (!isAuthenticated || !user) return;
+
     const fetchConvs = async () => {
       try {
-        const list = await api.listConversations();
-        setConversations(list);
+        const data = await api.listConversations();
+        setConversations(data);
       } catch (err) {
-        console.error("Failed to load conversations", err);
+        console.error('Failed to load conversations', err);
       }
     };
-    fetchConvs();
-  }, [hasHydrated, isAuthenticated, setConversations]);
 
-  const handleLogout = () => {
-    clearSession();
-    router.push('/login');
-  };
+    fetchConvs();
+  }, [isAuthenticated, user, setConversations]);
 
   const handleNewChat = () => {
     setCurrentConversationId(null);
     setMessages([]);
     setActiveView('chat');
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setIsSidebarOpen(false);
+    }
   };
 
   const handleDeleteChat = async (e: React.MouseEvent, id: string) => {
@@ -123,20 +117,24 @@ export default function DashboardPage() {
     if (!confirm("Are you sure you want to delete this chat?")) return;
     try {
       await api.deleteConversation(id);
-      const list = await api.listConversations();
-      setConversations(list);
+      setConversations(conversations.filter((c) => c.conversation_id !== id));
       if (currentConversationId === id) {
         handleNewChat();
       }
     } catch (err) {
-      console.error("Failed to delete chat", err);
+      console.error('Failed to delete conversation', err);
     }
+  };
+
+  const handleLogout = () => {
+    clearSession();
+    router.push('/login');
   };
 
   if (!isAuthenticated || !user) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground text-xs font-mono">
-        Validating user session...
+        Loading session...
       </div>
     );
   }
@@ -144,12 +142,23 @@ export default function DashboardPage() {
   const groupedChats = getGroupedConversations(conversations, searchQuery);
 
   return (
-    <div className="min-h-screen text-foreground flex bg-background">
+    <div className="min-h-screen text-foreground flex bg-background relative overflow-x-hidden">
+
+      {/* Mobile Drawer Overlay Backdrop */}
+      {isSidebarOpen && (
+        <div
+          onClick={() => setIsSidebarOpen(false)}
+          className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-20"
+        />
+      )}
 
       {/* 1. Main Collapsible Sidebar */}
       <aside
-        className={`h-screen fixed left-0 top-0 border-r border-border bg-card z-30 flex flex-col justify-between transition-all duration-300 ease-in-out ${isSidebarOpen ? 'w-72' : 'w-16'
-          }`}
+        className={`h-screen fixed left-0 top-0 border-r border-border bg-card z-30 flex flex-col justify-between transition-all duration-300 ease-in-out ${
+          isSidebarOpen
+            ? 'w-72 translate-x-0'
+            : '-translate-x-full md:translate-x-0 md:w-16'
+        }`}
       >
         {/* Top Sidebar Content */}
         <div className="flex flex-col h-full overflow-hidden">
@@ -160,8 +169,9 @@ export default function DashboardPage() {
               <>
                 <div className="flex items-center space-x-2.5 overflow-hidden">
                   <div className="rounded-lg flex items-center justify-center shadow-sm shrink-0">
-                    <img src="/logo/CondaAI.png" alt="Conda AI" className="h-6 w-6 dark:invert dark:brightness-200" />
+                    <img src="/logo/conda-ai.png" alt="Conda AI" className="h-6 w-6 object-contain" />
                   </div>
+                  <span className="font-bold text-sm text-foreground tracking-tight block">Conda AI</span>
                 </div>
                 <button
                   onClick={() => setIsSidebarOpen(false)}
@@ -178,9 +188,9 @@ export default function DashboardPage() {
                 className="group h-10 w-10 mx-auto rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-all cursor-pointer relative"
               >
                 <img
-                  src="/logo/CondaAI.png"
+                  src="/logo/conda-ai.png"
                   alt="Conda AI"
-                  className="h-6 w-6 dark:invert dark:brightness-200 group-hover:hidden transition-all"
+                  className="h-6 w-6 object-contain group-hover:hidden transition-all"
                 />
                 <ChevronRightIcon className="h-5 w-5 hidden group-hover:block text-foreground transition-all" />
               </button>
@@ -254,6 +264,9 @@ export default function DashboardPage() {
                             onClick={() => {
                               setCurrentConversationId(conv.conversation_id);
                               setActiveView('chat');
+                              if (typeof window !== 'undefined' && window.innerWidth < 768) {
+                                setIsSidebarOpen(false);
+                              }
                             }}
                             className={`group/item flex items-center justify-between px-3 py-2 rounded text-xs cursor-pointer transition-colors ${isActive
                                 ? 'bg-primary/10 text-primary font-medium'
@@ -292,7 +305,12 @@ export default function DashboardPage() {
           {/* Schema Explorer Navigation Item at Sidebar Bottom */}
           <div className="p-3 border-t border-border/60 shrink-0 space-y-1">
             <button
-              onClick={() => setActiveView('schema')}
+              onClick={() => {
+                setActiveView('schema');
+                if (typeof window !== 'undefined' && window.innerWidth < 768) {
+                  setIsSidebarOpen(false);
+                }
+              }}
               title="Schema Explorer"
               className={`w-full flex items-center rounded-full text-xs font-semibold cursor-pointer transition-all duration-150 ${isSidebarOpen ? 'px-3 py-2.5 space-x-2.5' : 'h-10 w-10 mx-auto justify-center'
                 } ${activeView === 'schema'
@@ -343,35 +361,41 @@ export default function DashboardPage() {
         </div>
       </aside>
 
-      {/* 2. Main Content Area — Offset dynamically by sidebar width */}
+      {/* 2. Main Content Area — Offset dynamically by sidebar width on desktop */}
       <div
-        className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${isSidebarOpen ? 'ml-72' : 'ml-16'
-          }`}
+        className={`flex-1 flex flex-col min-h-screen transition-all duration-300 w-full overflow-x-hidden ${
+          isSidebarOpen ? 'ml-0 md:ml-72' : 'ml-0 md:ml-16'
+        }`}
       >
 
         {/* Sticky Header with Title and Theme Toggle at Top Right Corner */}
-        <header className="h-16 border-b border-border/60 bg-background/80 backdrop-blur-md sticky top-0 z-20 px-6 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            {!isSidebarOpen && (
-              <button
-                onClick={() => setIsSidebarOpen(true)}
-                className="h-8 w-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer transition-all"
-                title="Open sidebar"
-              >
-                <ChevronRightIcon className="h-4 w-4" />
-              </button>
-            )}
-            <h1 className="font-semibold text-base text-foreground">
-              {activeView === 'schema' ? 'Schema Explorer' : 'Conda AI'}
-            </h1>
+        <header className="h-16 border-b border-border/60 bg-background/80 backdrop-blur-md sticky top-0 z-20 px-4 sm:px-6 flex items-center justify-between">
+          <div className="flex items-center space-x-2.5">
+            {/* Hamburger Button for Mobile / Sidebar Collapse Toggle for Desktop */}
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="h-9 w-9 rounded-lg border border-border/60 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-card cursor-pointer transition-all"
+              title={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
+            >
+              <Bars3Icon className="h-5 w-5 md:hidden" />
+              <div className="hidden md:flex items-center justify-center">
+                {isSidebarOpen ? <ChevronLeftIcon className="h-4 w-4" /> : <ChevronRightIcon className="h-4 w-4" />}
+              </div>
+            </button>
+            <div className="flex items-center space-x-2">
+              <img src="/logo/conda-ai.png" alt="Conda AI" className="h-5 w-5 object-contain md:hidden" />
+              <h1 className="font-semibold text-sm sm:text-base text-foreground truncate">
+                {activeView === 'schema' ? 'Schema Explorer' : 'Conda AI'}
+              </h1>
+            </div>
           </div>
 
           {/* Top Right Items: Admin Link & Theme Toggle */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2 sm:space-x-3">
             {user.role === 'admin' && (
               <Link
                 href="/admin"
-                className="text-xs text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-lg flex items-center space-x-1.5 transition-all"
+                className="text-xs text-muted-foreground hover:text-foreground px-2.5 py-1.5 rounded-lg flex items-center space-x-1.5 transition-all border border-border/60 hover:bg-card"
               >
                 <span>Admin Panel</span>
               </Link>
@@ -383,11 +407,11 @@ export default function DashboardPage() {
         </header>
 
         {/* Main View Area (Chatbot or Schema Explorer) */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto p-3 sm:p-6">
           {activeView === 'schema' ? (
             <SchemaExplorer />
           ) : (
-            <div className="p-6 max-w-6xl mx-auto">
+            <div className="max-w-6xl mx-auto">
               <ChatWindow />
             </div>
           )}

@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   ShieldExclamationIcon, ArrowLeftOnRectangleIcon,
-  ChartBarIcon, UserGroupIcon, ClockIcon, CpuChipIcon, TableCellsIcon
+  ChartBarIcon, UserGroupIcon, ClockIcon, CpuChipIcon, TableCellsIcon,
+  Bars3Icon, XMarkIcon
 } from '@heroicons/react/24/outline';
 import { useAuthStore } from '../../store/useAuthStore';
 import { Card, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
@@ -27,6 +28,7 @@ export default function AdminPage({ defaultTab = 'analytics' }: AdminPageProps) 
   const router = useRouter();
   const { user, isAuthenticated, hasHydrated, clearSession } = useAuthStore();
   const [activeTab, setActiveTab] = useState<AdminTab>(defaultTab);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Only redirect once the persisted store has hydrated, so a hard refresh
   // doesn't bounce a logged-in admin to /login before the session is restored.
@@ -97,25 +99,46 @@ export default function AdminPage({ defaultTab = 'analytics' }: AdminPageProps) 
   ];
 
   return (
-    <div className="min-h-screen text-foreground flex">
+    <div className="min-h-screen text-foreground flex bg-background">
 
-      {/* 1. Fixed Left Sidebar */}
-      <aside className="w-64 h-screen fixed left-0 top-0 border-r border-border bg-card flex flex-col justify-between p-4 z-20">
+      {/* Mobile Drawer Backdrop */}
+      {isMobileMenuOpen && (
+        <div
+          onClick={() => setIsMobileMenuOpen(false)}
+          className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-20"
+        />
+      )}
+
+      {/* 1. Fixed / Drawer Left Sidebar */}
+      <aside
+        className={`w-64 h-screen fixed left-0 top-0 border-r border-border bg-card flex flex-col justify-between p-4 z-30 transition-transform duration-300 ${
+          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        }`}
+      >
         <div className="space-y-6">
-          {/* Logo Brand */}
-          <div className="flex items-center space-x-2.5 px-2">
-            <div className="rounded-lg flex items-center justify-center shadow-sm">
-              <img src="/logo/CondaAI.png" alt="Conda AI" className="h-6 w-6 dark:invert dark:brightness-200" />
+          {/* Logo Brand & Close button for mobile */}
+          <div className="flex items-center justify-between px-2">
+            <div className="flex items-center space-x-2.5">
+              <div className="rounded-lg flex items-center justify-center shadow-sm">
+                <img src="/logo/conda-ai.png" alt="Conda AI" className="h-6 w-6 object-contain" />
+              </div>
+              <div>
+                <span className="font-bold text-sm text-foreground tracking-tight block">Conda AI</span>
+                <span className="text-[10px] text-muted-foreground font-mono block -mt-0.5">Admin Management</span>
+              </div>
             </div>
-            <div>
-              <span className="font-bold text-sm text-foreground tracking-tight block">Conda AI</span>
-              <span className="text-[10px] text-muted-foreground font-mono block -mt-0.5">Admin Management</span>
-            </div>
+            <button
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="md:hidden text-muted-foreground hover:text-foreground p-1"
+            >
+              <XMarkIcon className="h-5 w-5" />
+            </button>
           </div>
 
           {/* Navigation link back to chat */}
           <Link
             href="/dashboard"
+            onClick={() => setIsMobileMenuOpen(false)}
             className="w-full flex items-center justify-center space-x-2 border border-border hover:border-primary/45 hover:bg-card py-2.5 rounded-[10px] text-xs font-semibold text-muted-foreground hover:text-foreground transition-all duration-150 ease-out shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15)]"
           >
             <span>Back to Chat</span>
@@ -130,7 +153,10 @@ export default function AdminPage({ defaultTab = 'analytics' }: AdminPageProps) 
               return (
                 <button
                   key={item.id}
-                  onClick={() => setActiveTab(item.id)}
+                  onClick={() => {
+                    setActiveTab(item.id);
+                    setIsMobileMenuOpen(false);
+                  }}
                   className={`w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] cursor-pointer transition-colors ${isActive
                       ? 'bg-primary/10 text-primary font-medium shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15)]'
                       : 'text-muted-foreground hover:bg-card hover:text-foreground'
@@ -162,13 +188,20 @@ export default function AdminPage({ defaultTab = 'analytics' }: AdminPageProps) 
         </div>
       </aside>
 
-      {/* Outer Content Frame wrapper (offset left by sidebar width 64) */}
-      <div className="flex-1 ml-64 flex flex-col min-h-screen">
+      {/* Outer Content Frame wrapper (offset left by sidebar width on desktop) */}
+      <div className="flex-1 ml-0 md:ml-64 flex flex-col min-h-screen w-full overflow-x-hidden">
 
         {/* 2. Sticky Top Navigation Bar */}
-        <header className="h-16 border-b border-border/60 bg-background/80 backdrop-blur-md sticky top-0 z-10 px-6 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <h1 className="font-semibold text-sm text-foreground">
+        <header className="h-16 border-b border-border/60 bg-background/80 backdrop-blur-md sticky top-0 z-10 px-4 sm:px-6 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden h-9 w-9 rounded-lg border border-border/60 flex items-center justify-center text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+              title="Toggle admin menu"
+            >
+              <Bars3Icon className="h-5 w-5" />
+            </button>
+            <h1 className="font-semibold text-sm sm:text-base text-foreground truncate">
               {adminNavItems.find(item => item.id === activeTab)?.label || "Admin Workspace"}
             </h1>
           </div>
@@ -176,8 +209,8 @@ export default function AdminPage({ defaultTab = 'analytics' }: AdminPageProps) 
         </header>
 
         {/* 3. Main Scrollable Content Area */}
-        <main className="flex-1 p-6 overflow-y-auto">
-          <div className="max-w-6xl mx-auto bg-card border border-border/60 rounded-2xl p-6 dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]">
+        <main className="flex-1 p-3 sm:p-6 overflow-y-auto">
+          <div className="max-w-6xl mx-auto bg-card border border-border/60 rounded-2xl p-3 sm:p-6 dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] overflow-x-auto">
             {activeTab === 'analytics' && <AnalyticsCard />}
             {activeTab === 'evaluation' && <EvaluationMatrix />}
             {activeTab === 'users' && <UserManagementTable />}

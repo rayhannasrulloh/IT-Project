@@ -24,6 +24,7 @@ import {
 import { useAuthStore } from '../store/useAuthStore';
 import ColorBends from '../components/ColorBends';
 import SpecularButton from '../components/SpecularButton';
+import AnimatedChatMockup from '../components/AnimatedChatMockup';
 
 const FEATURES = [
   { icon: ShieldCheckIcon, title: 'Read-only & safe', desc: 'Every query is validated, only SELECT runs. Writes and DDL are blocked by guardrails.' },
@@ -90,7 +91,7 @@ export default function LandingPage() {
       </div> */}
 
       {/* Bottom fade — blends ColorBends into the page body */}
-      <div className="absolute top-0 left-0 w-full h-screen bg-gradient-to-b from-transparent via-transparent to-[#FAFAFA] dark:to-[#151414] pointer-events-none z-0" />
+      {/* <div className="absolute top-0 left-0 w-full h-screen bg-gradient-to-b from-transparent via-transparent to-[#FAFAFA] dark:to-[#151414] pointer-events-none z-0" /> */}
 
       {/* ── Navbar ── */}
       <header className="relative w-full z-30 border-slate-200/40 dark:border-slate-800/30 backdrop-blur-sm bg-[#FAFAFA]/60 dark:bg-[#151414]/60">
@@ -98,11 +99,11 @@ export default function LandingPage() {
 
           <Link href="/" className="flex items-center gap-3 group">
             <Image
-              src="/logo/CondaAI.png"
+              src="/logo/conda-ai.png"
               alt="Conda AI logo"
               width={28}
               height={28}
-              className="h-7 w-7 object-contain transition-all duration-300 group-hover:opacity-80 dark:invert dark:brightness-200"
+              className="h-7 w-7 object-contain transition-all duration-300 group-hover:opacity-80"
               priority
             />
             <span className="font-bold text-lg tracking-tight dark:text-white">
@@ -221,50 +222,8 @@ export default function LandingPage() {
         </motion.div>
       </section>
 
-      {/* ── Chat Mockup ── */}
-      <section className="relative max-w-3xl mx-auto px-6 pb-28 z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 25 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="rounded-2xl border border-slate-200/70 dark:border-slate-800/70 bg-white/20 dark:bg-[#151414]/40 backdrop-blur-lg p-5 md:p-6 shadow-xl shadow-slate-200/40 dark:shadow-none space-y-5"
-        >
-          <div className="flex justify-end">
-            <div className="bg-[#FF5F08] text-white rounded-2xl rounded-tr-sm px-4 py-2.5 text-sm font-medium shadow-sm">
-              What is our total revenue?
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <div className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0">
-              <Image
-              src="/logo/CondaAI.png"
-              alt="Conda AI logo"
-              width={20}
-              height={20}
-              className="h-9 w-9 object-contain transition-all duration-300 group-hover:opacity-80 dark:invert dark:brightness-200"
-              priority
-            />
-            </div>
-            <div className="flex-1 space-y-3">
-              <p className="text-sm text-slate-800 dark:text-[#F0E3DE] leading-relaxed">
-                Your total revenue from paid transactions is <strong>Rp 14,970,758,000</strong>.
-              </p>
-              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-[#F0E3DE]">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800/80">
-                  Referenced from: payment.csv
-                </span>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800/80">
-                  live database
-                </span>
-              </div>
-            <div className="bg-slate-200/60 dark:bg-[#151414]/60 text-left p-3.5 rounded-lg font-mono text-[11px] text-slate-800 dark:text-[#F0E3DE] overflow-x-auto whitespace-nowrap">
-                <span className="text-slate-500 select-none">&gt; </span>SELECT SUM(amount) FROM payments WHERE status = &apos;paid&apos;;
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      </section>
+      {/* ── Animated Chat Mockup ── */}
+      <AnimatedChatMockup />
 
       {/* ── Feature Grid ── */}
       <section id="about" className="relative max-w-6xl mx-auto px-6 py-16 z-10">
@@ -276,50 +235,64 @@ export default function LandingPage() {
             Everyone gets answers in seconds, safely, and grounded in the data.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {FEATURES.map((f, i) => (
-            <motion.div
-              key={f.title}
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-50px' }}
-              transition={{ duration: 0.4, delay: i * 0.05 }}
-              className="rounded-2xl border border-slate-200/60 dark:border-slate-800/80 bg-white/60 dark:bg-[#151414]/40 p-6 hover:border-slate-300 dark:hover:border-slate-700/80 transition-all duration-300"
-            >
-              <div className="flex items-center gap-3 mb-3 text-slate-900 dark:text-white">
-                <f.icon className="h-5 w-5 shrink-0" />
-                <h3 className="text-base font-semibold">{f.title}</h3>
-              </div>
-              <p className="mt-2 text-sm text-slate-500 dark:text-[#F0E3DE] leading-relaxed">{f.desc}</p>
-            </motion.div>
-          ))}
+        <div className="relative">
+          {/* ── Outer Corner Accent Squares ── */}
+          <span className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-[#FAFAFA] dark:bg-[#151414] border border-slate-400 dark:border-neutral-600 z-10 pointer-events-none" />
+          <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-[#FAFAFA] dark:bg-[#151414] border border-slate-400 dark:border-neutral-600 z-10 pointer-events-none" />
+          <span className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-[#FAFAFA] dark:bg-[#151414] border border-slate-400 dark:border-neutral-600 z-10 pointer-events-none" />
+          <span className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-[#FAFAFA] dark:bg-[#151414] border border-slate-400 dark:border-neutral-600 z-10 pointer-events-none" />
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-slate-200/80 border border-slate-200/80 dark:bg-[rgba(240,227,222,0.125)] dark:border-[rgba(240,227,222,0.125)] overflow-hidden">
+            {FEATURES.map((f, i) => (
+              <motion.div
+                key={f.title}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ duration: 0.4, delay: i * 0.05 }}
+                className="bg-[#FAFAFA] dark:bg-[#151414] p-6 md:p-8 transition-all duration-300 relative group"
+              >
+                <f.icon className="h-7 w-7 shrink-0 text-[#FF5F08] dark:text-[#F0E3DE] mb-3" />
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">{f.title}</h3>
+                <p className="text-sm text-slate-500 dark:text-[#F0E3DE] leading-relaxed">{f.desc}</p>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ── How it works ── */}
       <section id="how" className="relative max-w-6xl mx-auto px-6 py-16 z-10">
-        <div className="text-center mb-10">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#FF5F08] select-none">
+        <div className="text-center mb-12">
+          <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">
             How it works
           </h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {STEPS.map((s, i) => (
-            <motion.div
-              key={s.n}
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.1 }}
-              className="relative rounded-2xl border border-slate-200/50 dark:border-slate-800/50 p-6 bg-white/40 dark:bg-[#151414]/50 overflow-hidden"
-            >
-              <span className="absolute -right-3 -bottom-6 text-7xl font-extrabold font-mono text-[#FF5F08]/10 select-none pointer-events-none">
-                {s.n}
-              </span>
-              <h4 className="text-base font-semibold text-slate-900 dark:text-white">{s.title}</h4>
-              <p className="mt-2 text-sm text-slate-500 dark:text-[#F0E3DE] leading-relaxed pr-6">{s.desc}</p>
-            </motion.div>
-          ))}
+        <div className="relative">
+          {/* ── Outer Corner Accent Squares ── */}
+          <span className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-[#FAFAFA] dark:bg-[#151414] border border-slate-400 dark:border-neutral-600 z-10 pointer-events-none" />
+          <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-[#FAFAFA] dark:bg-[#151414] border border-slate-400 dark:border-neutral-600 z-10 pointer-events-none" />
+          <span className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-[#FAFAFA] dark:bg-[#151414] border border-slate-400 dark:border-neutral-600 z-10 pointer-events-none" />
+          <span className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-[#FAFAFA] dark:bg-[#151414] border border-slate-400 dark:border-neutral-600 z-10 pointer-events-none" />
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-slate-200/80 border border-slate-200/80 dark:bg-[rgba(240,227,222,0.125)] dark:border-[rgba(240,227,222,0.125)] overflow-hidden">
+            {STEPS.map((s, i) => (
+              <motion.div
+                key={s.n}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.1 }}
+                className="relative bg-[#FAFAFA] dark:bg-[#151414] p-6 md:p-8 hover:bg-slate-100/60 dark:hover:bg-[#1c1b1b] transition-all duration-300 group"
+              >
+                <span className="absolute -right-2 -bottom-4 text-7xl font-extrabold font-mono text-[#FF5F08]/10 select-none pointer-events-none">
+                  {s.n}
+                </span>
+                <h4 className="text-base font-semibold text-slate-900 dark:text-white">{s.title}</h4>
+                <p className="mt-2 text-sm text-slate-500 dark:text-[#F0E3DE] leading-relaxed pr-6">{s.desc}</p>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -330,7 +303,7 @@ export default function LandingPage() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="rounded-3xl border border-slate-200/80 dark:border-slate-800/80 bg-white/20 dark:bg-[#151414]/40 p-10 text-center relative overflow-hidden"
+          className="border border-slate-200/80 dark:border-[rgba(240,227,222,0.125)] bg-white/40 dark:bg-[#151414] p-10 text-center relative overflow-hidden"
         >
           <ChatBubbleBottomCenterTextIcon className="h-10 w-10 text-[#FF5F08]/20 mx-auto mb-4 rotate-180" />
           <h2 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">
@@ -342,7 +315,7 @@ export default function LandingPage() {
           <div className="mt-8">
             <Link
               href="/login"
-              className="inline-flex items-center gap-2 bg-[#FF5F08] text-white text-sm font-semibold px-8 py-3.5 rounded-full hover:scale-105 hover:opacity-90 active:scale-95 transition-all duration-300 shadow-md shadow-[#FF5F08]/20"
+              className="inline-flex items-center gap-2 bg-[#FF5F08] text-white text-sm font-semibold px-8 py-3.5 rounded-full hover:scale-105 hover:opacity-90 active:scale-95 transition-all duration-300"
             >
               Launch Conda AI <ArrowRightIcon className="h-4 w-4" />
             </Link>

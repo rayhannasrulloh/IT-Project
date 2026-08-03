@@ -227,7 +227,7 @@ export const ChatWindow: React.FC = () => {
           /* ACTIVE INTERACTION STATE: Messages stream on top + Input Bar at the BOTTOM */
           <>
             {/* Messages Stream Scroll Container */}
-            <div className="flex-1 overflow-y-auto p-6 scrollbar-thin">
+            <div className="flex-1 overflow-y-auto p-3 sm:p-6 scrollbar-thin">
               <div className="max-w-4xl mx-auto space-y-4">
                 {messages.map((msg) => (
                   <ChatMessage key={msg.message_id} message={msg} />

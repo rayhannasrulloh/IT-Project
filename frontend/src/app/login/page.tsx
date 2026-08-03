@@ -70,7 +70,7 @@ export default function LoginPage() {
           <Card className="border-border/60 bg-white/40 dark:bg-[#151414] backdrop-blur-lg shadow-xl">
             <CardHeader className="space-y-2 text-center pb-4">
               <div className="flex justify-center mb-4">
-                <img src="/logo/CondaAI.png" alt="Conda AI logo" className="h-8 w-8 rounded-full shadow-sm dark:invert dark:brightness-200" />
+                <img src="/logo/conda-ai.png" alt="Conda AI logo" className="h-8 w-8 object-contain rounded-full shadow-sm" />
               </div>
               <CardTitle className="text-xl font-semibold tracking-tight text-foreground">Conda AI</CardTitle>
               <CardDescription className="text-xs text-muted-foreground">
