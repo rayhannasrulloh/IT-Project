@@ -64,7 +64,7 @@ export default function LandingPage() {
   }, [isAuthenticated, router]);
 
   return (
-    <div className="relative min-h-screen bg-[#FAFAFA] dark:bg-[#151414] text-[#0F172A] dark:text-[#F9FAFB] transition-colors duration-300 overflow-x-hidden">
+    <div className="relative min-h-screen bg-[#FAFAFA] dark:bg-[#151414] text-[#0F172A] dark:text-[#F9FAFB] overflow-x-hidden">
 
       {/* ── Hero background: ColorBends WebGL canvas ── */}
       {/* Sized to cover the hero section + navbar height (~100vh) */}
@@ -93,19 +93,19 @@ export default function LandingPage() {
       <div className="absolute top-0 left-0 w-full h-screen bg-gradient-to-b from-transparent via-transparent to-[#FAFAFA] dark:to-[#151414] pointer-events-none z-0" />
 
       {/* ── Navbar ── */}
-      <header className="relative w-full z-30 border-b border-slate-200/40 dark:border-slate-800/30 backdrop-blur-sm bg-[#FAFAFA]/60 dark:bg-[#151414]/60">
+      <header className="relative w-full z-30 border-slate-200/40 dark:border-slate-800/30 backdrop-blur-sm bg-[#FAFAFA]/60 dark:bg-[#151414]/60">
         <nav className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
 
           <Link href="/" className="flex items-center gap-3 group">
             <Image
               src="/logo/CondaAI.png"
               alt="Conda AI logo"
-              width={36}
-              height={36}
-              className="h-9 w-9 object-contain transition-all duration-300 group-hover:opacity-80 dark:invert dark:brightness-200"
+              width={28}
+              height={28}
+              className="h-7 w-7 object-contain transition-all duration-300 group-hover:opacity-80 dark:invert dark:brightness-200"
               priority
             />
-            <span className="font-bold text-lg tracking-tight dark:text-white transition-colors duration-300">
+            <span className="font-bold text-lg tracking-tight dark:text-white">
               Conda AI
             </span>
           </Link>
@@ -214,7 +214,7 @@ export default function LandingPage() {
           </Link>
           <a
             href="#how"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm font-semibold px-6 py-3 rounded-full border border-slate-300/60 dark:border-slate-700/60 bg-white/40 dark:bg-slate-900/40 backdrop-blur-sm hover:bg-white/70 dark:hover:bg-slate-900/70 transition-all duration-300"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm px-6 py-3 rounded-full border border-slate-300/60 dark:border-[#F0E3DE]/10 bg-white/40 dark:bg-orange-900/10 backdrop-blur-sm hover:bg-white/70 dark:hover:bg-orange-900/70 transition-all duration-300"
           >
             See how it works
           </a>
