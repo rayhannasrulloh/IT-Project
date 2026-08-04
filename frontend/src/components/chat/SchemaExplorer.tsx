@@ -1,10 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   CircleStackIcon, MagnifyingGlassIcon, ChevronRightIcon, KeyIcon, QuestionMarkCircleIcon, TableCellsIcon,
   ViewColumnsIcon, Square3Stack3DIcon, DocumentDuplicateIcon, CheckIcon, SparklesIcon, CodeBracketIcon, ArrowUpRightIcon
 } from '@heroicons/react/24/outline';
+import api from '../../services/api';
+import type { DynamicDataset } from '../../types';
 
 interface ColumnMeta {
   name: string;
@@ -22,6 +24,7 @@ interface TableMeta {
   rowCount: string;
   columns: ColumnMeta[];
   sampleData: Record<string, any>[];
+  isDynamic?: boolean;
 }
 
 const DATABASE_SCHEMA: TableMeta[] = [
@@ -117,10 +120,39 @@ export const SchemaExplorer: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<'columns' | 'sample' | 'sql'>('columns');
   const [copiedSql, setCopiedSql] = useState(false);
+  const [dynamicTables, setDynamicTables] = useState<TableMeta[]>([]);
 
-  const selectedTable = DATABASE_SCHEMA.find(t => t.name === selectedTableName) || DATABASE_SCHEMA[0];
+  // Merge admin-uploaded tables (created via the Data workspace) into the explorer
+  // so newly added datasets are visible alongside the built-in business tables.
+  useEffect(() => {
+    let cancelled = false;
+    api.listDatasets()
+      .then((datasets: DynamicDataset[]) => {
+        if (cancelled) return;
+        const mapped: TableMeta[] = datasets.map((d) => ({
+          name: d.table_name,
+          description: d.description || `Uploaded dataset${d.source_filename ? ` from ${d.source_filename}` : ''}`,
+          rowCount: `${(d.row_count ?? 0).toLocaleString()} rows`,
+          isDynamic: true,
+          columns: d.columns.map((c) => ({
+            name: c.name,
+            type: c.type,
+            description: c.source ? `Imported from CSV column "${c.source}"` : 'User-uploaded column',
+            nullable: true,
+          })),
+          sampleData: [],
+        }));
+        setDynamicTables(mapped);
+      })
+      .catch(() => { /* non-admin or unavailable: fall back to built-in tables only */ });
+    return () => { cancelled = true; };
+  }, []);
 
-  const filteredTables = DATABASE_SCHEMA.filter(t =>
+  const allTables = [...DATABASE_SCHEMA, ...dynamicTables];
+
+  const selectedTable = allTables.find(t => t.name === selectedTableName) || allTables[0];
+
+  const filteredTables = allTables.filter(t =>
     t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     t.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
     t.columns.some(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -144,9 +176,9 @@ LIMIT 10;`;
     setTimeout(() => setCopiedSql(false), 2000);
   };
 
-  const totalTables = DATABASE_SCHEMA.length;
-  const totalColumns = DATABASE_SCHEMA.reduce((acc, t) => acc + t.columns.length, 0);
-  const totalFks = DATABASE_SCHEMA.reduce((acc, t) => acc + t.columns.filter(c => c.isFk).length, 0);
+  const totalTables = allTables.length;
+  const totalColumns = allTables.reduce((acc, t) => acc + t.columns.length, 0);
+  const totalFks = allTables.reduce((acc, t) => acc + t.columns.filter(c => c.isFk).length, 0);
 
   return (
     <div className="w-full h-full min-h-screen bg-background p-4 lg:p-6 text-foreground flex flex-col space-y-6 overflow-y-auto">
@@ -232,6 +264,11 @@ LIMIT 10;`;
                         <div className="text-xs font-semibold text-foreground flex items-center space-x-2">
                           <span>{table.name}</span>
                           {pkCount > 0 && <span title="Has Primary Key"><KeyIcon className="h-3 w-3 text-amber-500 inline" /></span>}
+                          {table.isDynamic && (
+                            <span title="Uploaded dataset" className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-primary/15 text-primary uppercase tracking-wide">
+                              New
+                            </span>
+                          )}
                         </div>
                         <div className="text-[10px] text-muted-foreground line-clamp-1 mt-0.5">
                           {table.columns.length} cols • {table.rowCount}
@@ -365,8 +402,17 @@ LIMIT 10;`;
           {activeTab === 'sample' && (
             <div className="space-y-3">
               <div className="text-xs text-muted-foreground flex items-center justify-between">
-                <span>Displaying mock rows from <code className="text-foreground font-mono">{selectedTable.name}</code></span>
+                <span>
+                  {selectedTable.isDynamic
+                    ? <>Uploaded table <code className="text-foreground font-mono">{selectedTable.name}</code></>
+                    : <>Displaying mock rows from <code className="text-foreground font-mono">{selectedTable.name}</code></>}
+                </span>
               </div>
+              {selectedTable.sampleData.length === 0 ? (
+                <div className="p-4 text-center text-xs text-muted-foreground italic bg-card border border-dashed border-border">
+                  No sample preview for uploaded tables — ask a question in chat to see live rows.
+                </div>
+              ) : (
               <div className="overflow-x-auto rounded-full border border-border/80 bg-background/50">
                 <table className="w-full text-left text-xs font-mono">
                   <thead className="bg-card text-muted-foreground uppercase text-[10px] font-semibold border-b border-border">
@@ -389,6 +435,7 @@ LIMIT 10;`;
                   </tbody>
                 </table>
               </div>
+              )}
             </div>
           )}
 
