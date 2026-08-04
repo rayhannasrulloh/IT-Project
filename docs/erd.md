@@ -16,7 +16,7 @@ erDiagram
         integer customer_id PK
         string name
         string city
-        string tier "Premium / Standard / Basic"
+        string tier "Gold / Silver / Bronze"
         timestamp created_at
     }
 
@@ -31,8 +31,8 @@ erDiagram
     ORDERS {
         integer order_id PK
         integer customer_id FK
-        timestamp order_date
-        string status "Completed / Pending / Cancelled"
+        date order_date
+        string status "completed / cancelled / refunded"
         decimal order_total
     }
 
@@ -40,9 +40,9 @@ erDiagram
         integer payment_id PK
         integer order_id FK
         decimal amount
-        string method "Credit Card / PayPal / Bank Transfer"
-        timestamp paid_date
-        string status "Success / Pending / Failed"
+        string method "credit_card / e_wallet / bank_transfer / virtual_account"
+        date paid_date
+        string status "paid / refunded"
     }
 
     ORDER_ITEMS {
